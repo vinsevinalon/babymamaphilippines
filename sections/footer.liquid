@@ -1,0 +1,755 @@
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Store Locations"
+    },
+    {
+      "type": "text",
+      "id": "location1_title",
+      "label": "Location 1 Title",
+      "default": "ALABANG"
+    },
+    {
+      "type": "url",
+      "id": "location1_map_url",
+      "label": "Location 1 Map URL"
+    },
+    {
+      "type": "url",
+      "id": "location1_building_url",
+      "label": "Location 1 Building URL"
+    },
+    {
+      "type": "textarea",
+      "id": "location1_address",
+      "label": "Location 1 Address",
+      "default": "Alabang West Parade,\nB107-B108 2F,\nDaang Hari Rd.,\nAlmanza Dos,\nLas Piñas 1750"
+    },
+    {
+      "type": "text",
+      "id": "location1_hours",
+      "label": "Location 1 Hours",
+      "default": "Monday to Sunday\n10:00 am - 9:00 pm"
+    },
+    {
+      "type": "text",
+      "id": "location1_phone",
+      "label": "Location 1 Phone",
+      "default": "(02) 86525639"
+    },
+    {
+      "type": "text",
+      "id": "location1_mobile",
+      "label": "Location 1 Mobile",
+      "default": "09215320253"
+    },
+    {
+      "type": "text",
+      "id": "location1_viber",
+      "label": "Location 1 Viber",
+      "default": "09165697797"
+    },
+
+    {
+      "type": "header",
+      "content": "Location 2"
+    },
+    {
+      "type": "text",
+      "id": "location2_title",
+      "label": "Location 2 Title",
+      "default": "CENTRIS, QC"
+    },
+    {
+      "type": "url",
+      "id": "location2_map_url",
+      "label": "Location 2 Map URL"
+    },
+    {
+      "type": "url",
+      "id": "location2_building_url",
+      "label": "Location 2 Building URL"
+    },
+    {
+      "type": "textarea",
+      "id": "location2_address",
+      "label": "Location 2 Address",
+      "default": "Eton Centris\nC3-24 GF,\nCentris Walk Expansion,\nEDSA cor. Quezon Ave.,\nQuezon City 1101"
+    },
+    {
+      "type": "text",
+      "id": "location2_hours",
+      "label": "Location 2 Hours",
+      "default": "Monday to Sunday\n11:00 am - 8:00 pm"
+    },
+    {
+      "type": "text",
+      "id": "location2_viber",
+      "label": "Location 2 Viber",
+      "default": "09464140784"
+    },
+
+    {
+      "type": "header",
+      "content": "Location 3"
+    },
+    {
+      "type": "text",
+      "id": "location3_title",
+      "label": "Location 3 Title",
+      "default": "CEBU"
+    },
+    {
+      "type": "url",
+      "id": "location3_map_url",
+      "label": "Location 3 Map URL"
+    },
+    {
+      "type": "url",
+      "id": "location3_building_url",
+      "label": "Location 3 Building URL"
+    },
+    {
+      "type": "textarea",
+      "id": "location3_address",
+      "label": "Location 3 Address",
+      "default": "Oakridge Business Park\nGround Floor 5A-5B\nA.S Fortuna Street,\nBanilad,\nCity of Mandaue, Cebu"
+    },
+    {
+      "type": "text",
+      "id": "location3_hours",
+      "label": "Location 3 Hours",
+      "default": "Monday to Sunday\n10:00 am - 8:00 pm"
+    },
+    {
+      "type": "text",
+      "id": "location3_viber",
+      "label": "Location 3 Viber",
+      "default": "09543721695"
+    },
+
+    {
+      "type": "header",
+      "content": "Social Media & Community"
+    },
+    {
+      "type": "url",
+      "id": "facebook_url",
+      "label": "Facebook URL"
+    },
+    {
+      "type": "url",
+      "id": "instagram_url",
+      "label": "Instagram URL"
+    },
+    {
+      "type": "url",
+      "id": "tiktok_url",
+      "label": "TikTok URL"
+    },
+    {
+      "type": "image_picker",
+      "id": "viber_qr_code",
+      "label": "Viber QR Code"
+    },
+
+    {
+      "type": "header",
+      "content": "Payment Methods"
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_methods_image",
+      "label": "Payment Methods Image"
+    },
+
+    {
+      "type": "header",
+      "content": "Awards & Certifications"
+    },
+    {
+      "type": "image_picker",
+      "id": "award_badge",
+      "label": "Award Badge"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "link",
+      "name": "Link",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Link title"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Footer",
+      "blocks": [
+        {
+          "type": "link",
+          "settings": {
+            "title": "Contact Us",
+            "link": "/pages/contact"
+          }
+        },
+        {
+          "type": "link",
+          "settings": {
+            "title": "Our Stores",
+            "link": "/pages/stores"
+          }
+        },
+        {
+          "type": "link",
+          "settings": {
+            "title": "About Us",
+            "link": "/pages/about"
+          }
+        },
+        {
+          "type": "link",
+          "settings": {
+            "title": "Support",
+            "link": "/pages/support"
+          }
+        },
+        {
+          "type": "link",
+          "settings": {
+            "title": "Brands",
+            "link": "/pages/brands"
+          }
+        },
+        {
+          "type": "link",
+          "settings": {
+            "title": "Terms and Conditions of Use",
+            "link": "/policies/terms-of-service"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
+<!-- Font Awesome CDN -->
+{{ 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css' | stylesheet_tag }}
+
+<footer class="footer">
+  <div class="footer__container">
+    <!-- Locations -->
+    <div class="footer__locations">
+      <!-- Location 1 -->
+      <div class="footer__location-col">
+        <h3 class="footer__heading">{{ section.settings.location1_title }}</h3>
+        <a href="{{ section.settings.location1_map_url }}" class="footer__link">
+          <i class="fa-solid fa-map-location-dot"></i> See Map
+        </a>
+        <a href="{{ section.settings.location1_building_url }}" class="footer__link">
+          <i class="fa-solid fa-building"></i> See Building
+        </a>
+
+        <div class="footer__address">
+          <i class="fa-solid fa-location-dot location-icon"></i>
+          {{ section.settings.location1_address | newline_to_br }}
+        </div>
+
+        <div class="footer__hours">
+          <i class="fa-regular fa-clock hours-icon"></i>
+          {{ section.settings.location1_hours | newline_to_br }}
+        </div>
+
+        {% if section.settings.location1_phone != blank %}
+          <div class="footer__contact"><i class="fa-solid fa-phone"></i> {{ section.settings.location1_phone }}</div>
+        {% endif %}
+
+        {% if section.settings.location1_mobile != blank %}
+          <div class="footer__contact">
+            <i class="fa-solid fa-mobile-screen"></i> {{ section.settings.location1_mobile }}
+          </div>
+        {% endif %}
+
+        {% if section.settings.location1_viber != blank %}
+          <div class="footer__contact"><i class="fa-brands fa-viber"></i> {{ section.settings.location1_viber }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Location 2 -->
+      <div class="footer__location-col">
+        <h3 class="footer__heading">{{ section.settings.location2_title }}</h3>
+        <a href="{{ section.settings.location2_map_url }}" class="footer__link">
+          <i class="fa-solid fa-map-location-dot"></i> See Map
+        </a>
+        <a href="{{ section.settings.location2_building_url }}" class="footer__link">
+          <i class="fa-solid fa-building"></i> See Building
+        </a>
+
+        <div class="footer__address">
+          <i class="fa-solid fa-location-dot location-icon"></i>
+          {{ section.settings.location2_address | newline_to_br }}
+        </div>
+
+        <div class="footer__hours">
+          <i class="fa-regular fa-clock hours-icon"></i>
+          {{ section.settings.location2_hours | newline_to_br }}
+        </div>
+
+        {% if section.settings.location2_viber != blank %}
+          <div class="footer__contact"><i class="fa-brands fa-viber"></i> {{ section.settings.location2_viber }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Location 3 -->
+      <div class="footer__location-col">
+        <h3 class="footer__heading">{{ section.settings.location3_title }}</h3>
+        <a href="{{ section.settings.location3_map_url }}" class="footer__link">
+          <i class="fa-solid fa-map-location-dot"></i> See Map
+        </a>
+        <a href="{{ section.settings.location3_building_url }}" class="footer__link">
+          <i class="fa-solid fa-building"></i> See Building
+        </a>
+
+        <div class="footer__address">
+          <i class="fa-solid fa-location-dot location-icon"></i>
+          {{ section.settings.location3_address | newline_to_br }}
+        </div>
+
+        <div class="footer__hours">
+          <i class="fa-regular fa-clock hours-icon"></i>
+          {{ section.settings.location3_hours | newline_to_br }}
+        </div>
+
+        {% if section.settings.location3_viber != blank %}
+          <div class="footer__contact"><i class="fa-brands fa-viber"></i> {{ section.settings.location3_viber }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Social & Payment -->
+      <div class="footer__social-col">
+        <h3 class="footer__heading">FOLLOW US</h3>
+        <div class="footer__social-icons">
+          {% if section.settings.facebook_url != blank %}
+            <a
+              href="{{ section.settings.facebook_url }}"
+              class="footer__social-link"
+              target="_blank"
+              rel="noopener"
+              aria-label="Facebook"
+            >
+              <i class="fa-brands fa-facebook-f"></i>
+            </a>
+          {% endif %}
+
+          {% if section.settings.instagram_url != blank %}
+            <a
+              href="{{ section.settings.instagram_url }}"
+              class="footer__social-link"
+              target="_blank"
+              rel="noopener"
+              aria-label="Instagram"
+            >
+              <i class="fa-brands fa-instagram"></i>
+            </a>
+          {% endif %}
+
+          {% if section.settings.tiktok_url != blank %}
+            <a
+              href="{{ section.settings.tiktok_url }}"
+              class="footer__social-link"
+              target="_blank"
+              rel="noopener"
+              aria-label="TikTok"
+            >
+              <i class="fa-brands fa-tiktok"></i>
+            </a>
+          {% endif %}
+        </div>
+
+        <h3 class="footer__heading footer__payment-heading">PAYMENT METHODS</h3>
+        {% if section.settings.payment_methods_image != blank %}
+          <div class="footer__payment-methods">
+            {{
+              section.settings.payment_methods_image
+              | image_url: width: 300
+              | image_tag: loading: 'lazy', alt: 'Payment Methods'
+            }}
+          </div>
+        {% endif %}
+
+        <h3 class="footer__heading footer__viber-heading">JOIN OUR VIBER COMMUNITY</h3>
+        {% if section.settings.viber_qr_code != blank %}
+          <div class="footer__viber-qr">
+            {{
+              section.settings.viber_qr_code
+              | image_url: width: 200
+              | image_tag: loading: 'lazy', alt: 'Viber Community QR Code'
+            }}
+          </div>
+        {% else %}
+          <div class="footer__viber-qr placeholder-qr">
+            <i class="fa-solid fa-qrcode"></i>
+            <p>Upload QR code in theme settings</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Links -->
+      <div class="footer__links-col">
+        {% for block in section.blocks %}
+          {% case block.type %}
+            {% when 'link' %}
+              <a href="{{ block.settings.link }}" class="footer__menu-link">
+                <i class="fa-solid fa-angle-right"></i> {{ block.settings.title }}
+              </a>
+          {% endcase %}
+        {% endfor %}
+
+        {% if section.settings.award_badge != blank %}
+          <div class="footer__award">
+            {{ section.settings.award_badge | image_url: width: 150 | image_tag: loading: 'lazy', alt: 'Award Badge' }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Copyright -->
+    <div class="footer__copyright">
+      <small
+        ><i class="fa-regular fa-copyright"></i> {{ 'now' | date: '%Y' }}
+        {{ shop.name }}. All rights reserved.</small
+      >
+    </div>
+  </div>
+</footer>
+
+{% stylesheet %}
+  .footer {
+    background-color: #fffbe6;
+    padding: 40px 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  .footer__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .footer__locations {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 30px;
+  }
+
+  .footer__heading {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 15px;
+  }
+
+  .footer__payment-heading,
+  .footer__viber-heading {
+    margin-top: 30px;
+  }
+
+  .footer__link {
+    display: block;
+    color: #666;
+    margin-bottom: 5px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .footer__link:hover {
+    color: #333;
+    text-decoration: underline;
+  }
+
+  .footer__link i {
+    margin-right: 5px;
+    width: 16px;
+    text-align: center;
+  }
+
+  .footer__address,
+  .footer__hours,
+  .footer__contact {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    position: relative;
+    padding-left: 20px;
+  }
+
+  .footer__address i,
+  .footer__hours i,
+  .footer__contact i {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 16px;
+    text-align: center;
+  }
+
+  /* Fixed Social Icons Display */
+  .footer__social-icons {
+    display: flex;
+    flex-direction: row; /* Force horizontal layout */
+    flex-wrap: nowrap; /* Prevent wrapping */
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .footer__social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: #79C8CD;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 20px;
+    transition: all 0.2s ease;
+  }
+
+  .footer__social-link:hover {
+    opacity: 0.8;
+    transform: translateY(-2px);
+  }
+
+  .footer__payment-methods,
+  .footer__viber-qr {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+
+  .placeholder-qr {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .placeholder-qr i {
+    font-size: 60px;
+    color: #aaa;
+    margin-bottom: 10px;
+  }
+
+  .placeholder-qr p {
+    color: #888;
+    font-size: 12px;
+    margin: 0;
+  }
+
+  .footer__menu-link {
+    display: block;
+    color: #666;
+    margin-bottom: 12px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .footer__menu-link i {
+    margin-right: 5px;
+    font-size: 12px;
+  }
+
+  .footer__menu-link:hover {
+    color: #333;
+    text-decoration: underline;
+  }
+
+  .footer__award {
+    margin-top: 30px;
+  }
+
+  .footer__copyright {
+    margin-top: 40px;
+    text-align: center;
+    color: #777;
+    font-size: 12px;
+  }
+
+  @media screen and (max-width: 1024px) {
+    .footer__locations {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .footer__social-col {
+      grid-column: span 2;
+    }
+
+    .footer__links-col {
+      grid-column: span 1;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .footer__locations {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .footer__social-col,
+    .footer__links-col {
+      grid-column: auto;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .footer__locations {
+      grid-template-columns: 1fr;
+    }
+
+    .footer__location-col,
+    .footer__social-col,
+    .footer__links-col {
+      margin-bottom: 30px;
+    }
+
+    .footer__heading {
+      cursor: pointer;
+      position: relative;
+      padding-right: 20px;
+    }
+
+    .footer__heading:after {
+      content: '\f107';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .footer__heading.is-active:after {
+      transform: rotate(180deg);
+    }
+
+    /* Fixed mobile social icons */
+    .footer__social-icons {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 15px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      width: 100%;
+      /* Ensure this container is always visible */
+      display: flex !important;
+    }
+
+    .footer__social-link {
+      width: 45px;
+      height: 45px;
+      font-size: 20px;
+      /* Ensure icons don't stack vertically */
+      flex: 0 0 auto;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  // Modified Mobile footer accordion functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.innerWidth < 481) {
+      const headings = document.querySelectorAll('.footer__heading');
+
+      headings.forEach(heading => {
+        // Special handling for the FOLLOW US section
+        if (heading.textContent.trim() === 'FOLLOW US') {
+          // Make sure social icons container is visible
+          const socialIcons = heading.nextElementSibling;
+          if (socialIcons && socialIcons.classList.contains('footer__social-icons')) {
+            socialIcons.style.display = 'flex';
+          }
+          heading.classList.add('is-active');
+          return;
+        }
+
+        // Hide all content initially except the first one after each heading
+        const content = heading.nextElementSibling;
+        const nextHeading = findNextHeading(content);
+
+        if (heading !== headings[0]) {
+          let current = content;
+          while (current && current !== nextHeading) {
+            if (!current.classList.contains('footer__social-icons')) {
+              current.style.display = 'none';
+            }
+            current = current.nextElementSibling;
+          }
+          heading.classList.remove('is-active');
+        } else {
+          heading.classList.add('is-active');
+        }
+
+        // Add click event
+        heading.addEventListener('click', function() {
+          // Don't toggle the social icons section separately
+          if (this.textContent.trim() === 'FOLLOW US') {
+            return;
+          }
+          toggleSection(this);
+        });
+      });
+    }
+
+    function findNextHeading(element) {
+      let next = element;
+      while (next) {
+        next = next.nextElementSibling;
+        if (next && next.classList.contains('footer__heading')) {
+          return next;
+        }
+      }
+      return null;
+    }
+
+    function toggleSection(heading) {
+      const content = heading.nextElementSibling;
+      const nextHeading = findNextHeading(content);
+
+      if (heading.classList.contains('is-active')) {
+        // Close this section
+        let current = content;
+        while (current && current !== nextHeading) {
+          // Don't hide social icons
+          if (!current.classList.contains('footer__social-icons')) {
+            current.style.display = 'none';
+          }
+          current = current.nextElementSibling;
+        }
+        heading.classList.remove('is-active');
+      } else {
+        // Open this section
+        let current = content;
+        while (current && current !== nextHeading) {
+          current.style.display = 'block';
+          current = current.nextElementSibling;
+        }
+        heading.classList.add('is-active');
+      }
+    }
+  });
+{% endjavascript %}

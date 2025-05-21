@@ -1,0 +1,49 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "name": "t:sections.footer.name",
+  "type": "footer",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "settings": {
+        "location1_title": "ALABANG",
+        "location1_map_url": "",
+        "location1_building_url": "",
+        "location1_address": "Alabang West Parade,\nB107-B108 2F,\nDaang Hari Rd.,\nAlmanza Dos,\nLas Piñas 1750",
+        "location1_hours": "Monday to Sunday 10:00 am - 9:00 pm",
+        "location1_phone": "(02) 86525639",
+        "location1_mobile": "09215320253",
+        "location1_viber": "09165697797",
+        "location2_title": "CENTRIS, QC",
+        "location2_map_url": "",
+        "location2_building_url": "",
+        "location2_address": "Eton Centris\nC3-24 GF,\nCentris Walk Expansion,\nEDSA cor. Quezon Ave.,\nQuezon City 1101",
+        "location2_hours": "Monday to Sunday 11:00 am - 8:00 pm",
+        "location2_viber": "09464140784",
+        "location3_title": "CEBU",
+        "location3_map_url": "",
+        "location3_building_url": "",
+        "location3_address": "Oakridge Business Park\nGround Floor 5A-5B\nA.S Fortuna Street,\nBanilad,\nCity of Mandaue, Cebu",
+        "location3_hours": "Monday to Sunday 10:00 am - 8:00 pm",
+        "location3_viber": "09543721695",
+        "facebook_url": "https://www.facebook.com/babymama.ph",
+        "instagram_url": "https://www.instagram.com/babymama.ph/",
+        "tiktok_url": "https://www.tiktok.com/@babymama.ph",
+        "viber_qr_code": "shopify://shop_images/Teal-QR-code-minimum.png",
+        "payment_methods_image": "shopify://shop_images/349-x-92-Payment-Methods-November-2023_png.webp",
+        "award_badge": "shopify://shop_images/PDI_CustomerService_23-24_Logo_Basic-1.png"
+      }
+    }
+  },
+  "order": [
+    "footer"
+  ]
+}

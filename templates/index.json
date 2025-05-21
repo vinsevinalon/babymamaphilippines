@@ -1,0 +1,582 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "image_slider_Ymtbj3": {
+      "type": "image-slider",
+      "settings": {
+        "image_1": "shopify://shop_images/HP-desktop-Summer-Sale-2025-1.jpg",
+        "mobile_image_1": "shopify://shop_images/HP-desktop-Spectra-Ceres-GWP.png",
+        "caption_1": "",
+        "caption_2": "",
+        "caption_3": "",
+        "slide_duration": 5,
+        "slider_width": 1900,
+        "aspect_ratio": 50,
+        "show_dots": false,
+        "show_arrows": false,
+        "pause_on_hover": true
+      }
+    },
+    "category_grid_9NhanD": {
+      "type": "category-grid",
+      "blocks": {
+        "category_Mn4Gqd": {
+          "type": "category",
+          "settings": {
+            "image": "shopify://shop_images/BREAST-PUMPS.webp",
+            "title": "BREAST PUMPS",
+            "subtitle": "",
+            "link": ""
+          }
+        },
+        "category_M4NQ9M": {
+          "type": "category",
+          "settings": {
+            "image": "shopify://shop_images/BREASTFEEDING.webp",
+            "title": "BREAST FEEDING",
+            "subtitle": "",
+            "link": ""
+          }
+        },
+        "category_rB94cP": {
+          "type": "category",
+          "settings": {
+            "image": "shopify://shop_images/NEWBORN.webp",
+            "title": "NEW BORN",
+            "subtitle": "",
+            "link": ""
+          }
+        },
+        "category_pDdbKB": {
+          "type": "category",
+          "settings": {
+            "image": "shopify://shop_images/MAMA.webp",
+            "title": "MAMA",
+            "subtitle": "",
+            "link": ""
+          }
+        },
+        "category_tnUDxt": {
+          "type": "category",
+          "settings": {
+            "image": "shopify://shop_images/BABY.webp",
+            "title": "BABY",
+            "subtitle": "",
+            "link": ""
+          }
+        },
+        "category_yYN9qU": {
+          "type": "category",
+          "settings": {
+            "image": "shopify://shop_images/CLEANING.webp",
+            "title": "CLEANING",
+            "subtitle": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "category_Mn4Gqd",
+        "category_M4NQ9M",
+        "category_rB94cP",
+        "category_pDdbKB",
+        "category_tnUDxt",
+        "category_yYN9qU"
+      ],
+      "settings": {
+        "title": "Empowering moms through breastfeeding",
+        "subtitle": "",
+        "max_width": 1200,
+        "grid_gap": 20,
+        "aspect_ratio": 1,
+        "mobile_aspect_ratio": 0.8,
+        "overlay_opacity": 0.2,
+        "title_color": "#ffffff",
+        "text_position": "center",
+        "hover_effect": true
+      }
+    },
+    "new_arrivals_section_AVj6BJ": {
+      "type": "new-arrivals-section",
+      "blocks": {
+        "product_rNBdqY": {
+          "type": "product",
+          "settings": {
+            "product": "haakaa-gen-2-silicone-breast-pump-100ml"
+          }
+        },
+        "product_c9q7qD": {
+          "type": "product",
+          "settings": {
+            "product": "naim-hospital-grade-wearable-breast-pump"
+          }
+        },
+        "product_6yCbP7": {
+          "type": "product",
+          "settings": {
+            "product": "s1-plus-hospital-grade-double-electric-rechargeable-breast-pump"
+          }
+        },
+        "product_pFXxTP": {
+          "type": "product",
+          "settings": {
+            "product": "spectra-dual-compact-rechargeable-double-electric-breast-pump"
+          }
+        },
+        "product_RUnD6A": {
+          "type": "product",
+          "settings": {
+            "product": "s1-plus-hospital-grade-double-electric-rechargeable-breast-pump"
+          }
+        },
+        "product_kxPp9j": {
+          "type": "product",
+          "settings": {
+            "product": "nature-earth-m2-malunggay-okra-luya-concentrate-tea-drink-1l"
+          }
+        }
+      },
+      "block_order": [
+        "product_rNBdqY",
+        "product_c9q7qD",
+        "product_6yCbP7",
+        "product_pFXxTP",
+        "product_RUnD6A",
+        "product_kxPp9j"
+      ],
+      "settings": {
+        "title": "NEW ARRIVALS",
+        "subtitle": "",
+        "max_width": 1200,
+        "show_vendor": false,
+        "show_badge": true,
+        "show_secondary_image": true,
+        "image_fit": "cover",
+        "enable_hover_effect": true,
+        "show_arrows": true,
+        "scroll_items": 3,
+        "mobile_items": 85,
+        "show_quick_add": true,
+        "button_color": "#15a4aa",
+        "button_text_color": "#ffffff",
+        "sale_color": "#e74c3c",
+        "view_all_url": "",
+        "view_all_text": "View All Products",
+        "view_all_button_color": "#15a4aa",
+        "view_all_button_text_color": "#ffffff"
+      }
+    },
+    "new_arrivals_section_YqGGXG": {
+      "type": "new-arrivals-section",
+      "blocks": {
+        "product_QUUTVW": {
+          "type": "product",
+          "settings": {
+            "product": "spectra-manual-wide-neck-breast-pump"
+          }
+        },
+        "product_HdXbHY": {
+          "type": "product",
+          "settings": {
+            "product": "spectra-dual-compact-rechargeable-double-electric-breast-pump"
+          }
+        },
+        "product_VeNJTe": {
+          "type": "product",
+          "settings": {
+            "product": "naim-hospital-grade-wearable-breast-pump-bundle"
+          }
+        },
+        "product_rcDttJ": {
+          "type": "product",
+          "settings": {
+            "product": "haakaa-gen-2-silicone-breast-pump-150ml"
+          }
+        },
+        "product_FTQyx9": {
+          "type": "product",
+          "settings": {
+            "product": "naim-hospital-grade-wearable-breast-pump-bundle"
+          }
+        },
+        "product_bpexUq": {
+          "type": "product",
+          "settings": {
+            "product": "naim-hospital-grade-wearable-breast-pump"
+          }
+        }
+      },
+      "block_order": [
+        "product_QUUTVW",
+        "product_HdXbHY",
+        "product_VeNJTe",
+        "product_rcDttJ",
+        "product_FTQyx9",
+        "product_bpexUq"
+      ],
+      "settings": {
+        "title": "BEST SELLERS",
+        "subtitle": "",
+        "max_width": 1150,
+        "show_vendor": true,
+        "show_badge": true,
+        "show_secondary_image": true,
+        "image_fit": "contain",
+        "enable_hover_effect": true,
+        "show_arrows": true,
+        "scroll_items": 2,
+        "mobile_items": 80,
+        "show_quick_add": true,
+        "button_color": "#15a4aa",
+        "button_text_color": "#ffffff",
+        "sale_color": "#e74c3c",
+        "view_all_url": "",
+        "view_all_text": "View All Products",
+        "view_all_button_color": "#15a4aa",
+        "view_all_button_text_color": "#ffffff"
+      }
+    },
+    "special_promotion_W8PaVf": {
+      "type": "special-promotion",
+      "blocks": {
+        "promotion_R4YHDE": {
+          "type": "promotion",
+          "settings": {
+            "image": "shopify://shop_images/Special-Promo-BDO-Mar-2025_png.webp",
+            "title": "",
+            "text": "",
+            "button_label": "",
+            "link": "",
+            "apply_overlay": true,
+            "overlay_opacity": 0.4,
+            "text_color": "#ffffff",
+            "button_color": "#ffffff",
+            "button_text_color": "#000000",
+            "text_alignment": "center"
+          }
+        },
+        "promotion_xHgpJV": {
+          "type": "promotion",
+          "settings": {
+            "image": "shopify://shop_images/Special-Promo-Metrobank-promo_jpg.webp",
+            "title": "",
+            "text": "",
+            "button_label": "",
+            "link": "",
+            "apply_overlay": true,
+            "overlay_opacity": 0.4,
+            "text_color": "#ffffff",
+            "button_color": "#ffffff",
+            "button_text_color": "#000000",
+            "text_alignment": "center"
+          }
+        },
+        "promotion_QpxnrJ": {
+          "type": "promotion",
+          "settings": {
+            "image": "shopify://shop_images/Special-Promo-Supplier-Payday-Midmonth-_jpg.webp",
+            "title": "",
+            "text": "",
+            "button_label": "",
+            "link": "",
+            "apply_overlay": true,
+            "overlay_opacity": 0.4,
+            "text_color": "#ffffff",
+            "button_color": "#ffffff",
+            "button_text_color": "#000000",
+            "text_alignment": "center"
+          }
+        }
+      },
+      "block_order": [
+        "promotion_R4YHDE",
+        "promotion_xHgpJV",
+        "promotion_QpxnrJ"
+      ],
+      "settings": {
+        "heading": "SPECIAL PROMOTIONS",
+        "subheading": "",
+        "layout": "3",
+        "tablet_layout": "2col",
+        "grid_gap": 20,
+        "section_width": 1200,
+        "border_radius": 8,
+        "shadow_enable": true,
+        "hover_effect": true,
+        "margin_top": 40,
+        "margin_bottom": 40
+      }
+    },
+    "four_product_showcase_AaiGKz": {
+      "type": "four-product-showcase",
+      "blocks": {
+        "product_AL7UQe": {
+          "type": "product",
+          "settings": {
+            "product": "nature-earth-m2-malunggay-okra-luya-concentrate-tea-drink-1l"
+          }
+        },
+        "product_VyKYi4": {
+          "type": "product",
+          "settings": {
+            "product": "milton-sterilizing-tablets-4s-1-tablet-5-liters"
+          }
+        },
+        "product_TWnjTq": {
+          "type": "product",
+          "settings": {
+            "product": "nature-earth-m2-malunggay-okra-luya-concentrate-tea-drink-300ml"
+          }
+        },
+        "product_cfjmb6": {
+          "type": "product",
+          "settings": {
+            "product": "unimom-cup-feeder-feeding-cup"
+          }
+        }
+      },
+      "block_order": [
+        "product_AL7UQe",
+        "product_VyKYi4",
+        "product_TWnjTq",
+        "product_cfjmb6"
+      ],
+      "settings": {
+        "section_margin_top": 40,
+        "section_margin_bottom": 40,
+        "section_padding_top": 0,
+        "section_padding_bottom": 0,
+        "card_min_height": 300,
+        "max_width": 1200,
+        "grid_gap": 20,
+        "title": "TRY SOMETHING NEW",
+        "title_size": 28,
+        "subtitle": "",
+        "subtitle_size": 16,
+        "heading_margin": 30,
+        "border_radius": 10,
+        "image_aspect_ratio": 70,
+        "product_info_padding": 15,
+        "product_info_gap": 8,
+        "show_vendor": false,
+        "vendor_size": 12,
+        "show_badge": true,
+        "badge_font_size": 12,
+        "show_secondary_image": true,
+        "image_fit": "contain",
+        "enable_hover_effect": true,
+        "product_title_size": 18,
+        "title_lines": 2,
+        "show_empty_rating": false,
+        "empty_rating_text": "No reviews",
+        "rating_size": 14,
+        "rating_count_size": 12,
+        "star_color": "#ffb800",
+        "price_size": 16,
+        "compare_price_size": 13,
+        "show_quick_add": true,
+        "button_font_size": 14,
+        "button_color": "#000000",
+        "button_text_color": "#ffffff",
+        "title_color": "#000000",
+        "price_color": "#000000",
+        "sale_price_color": "#e74c3c",
+        "sale_badge_color": "#e74c3c",
+        "soldout_badge_color": "#7f8c8d",
+        "view_all_url": "",
+        "view_all_text": "View All Products",
+        "view_all_margin": 30,
+        "view_all_font_size": 14,
+        "view_all_button_color": "#000000",
+        "view_all_button_text_color": "#ffffff"
+      }
+    },
+    "six_image_grid_q3PTiw": {
+      "type": "six-image-grid",
+      "blocks": {
+        "image_8V8ct8": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/Pauleen-Luna_jpg.webp",
+            "link": "",
+            "show_overlay": true,
+            "title": "",
+            "subtitle": "",
+            "overlay_opacity": 0.5
+          }
+        },
+        "image_gzegYN": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/Camille-Co_jpg.webp",
+            "link": "",
+            "show_overlay": true,
+            "title": "",
+            "subtitle": "",
+            "overlay_opacity": 0.5
+          }
+        },
+        "image_wjrNba": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/Alu_jpg.webp",
+            "link": "",
+            "show_overlay": true,
+            "title": "",
+            "subtitle": "",
+            "overlay_opacity": 0.5
+          }
+        },
+        "image_HFiC8G": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/2025-Naim-Ads-6_jpg.webp",
+            "link": "",
+            "show_overlay": true,
+            "title": "",
+            "subtitle": "",
+            "overlay_opacity": 0.5
+          }
+        },
+        "image_EPdrhj": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/Marj-Lizaso-1_jpg.webp",
+            "link": "",
+            "show_overlay": true,
+            "title": "",
+            "subtitle": "",
+            "overlay_opacity": 0.5
+          }
+        },
+        "image_6NidGC": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/Melissa-Gohing-2_jpg.webp",
+            "link": "",
+            "show_overlay": true,
+            "title": "",
+            "subtitle": "",
+            "overlay_opacity": 0.5
+          }
+        },
+        "image_LPwm4q": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/Karla-Aguas-1-1_jpg.webp",
+            "link": "",
+            "show_overlay": true,
+            "title": "",
+            "subtitle": "",
+            "overlay_opacity": 0.5
+          }
+        },
+        "image_mt7y4D": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/Alodia_jpg.webp",
+            "link": "",
+            "show_overlay": true,
+            "title": "",
+            "subtitle": "",
+            "overlay_opacity": 0.5
+          }
+        }
+      },
+      "block_order": [
+        "image_8V8ct8",
+        "image_gzegYN",
+        "image_wjrNba",
+        "image_HFiC8G",
+        "image_EPdrhj",
+        "image_6NidGC",
+        "image_LPwm4q",
+        "image_mt7y4D"
+      ],
+      "settings": {
+        "title": "JOIN OTHER BABYMAMAS AT OUR INSTAGRAM",
+        "subtitle": "",
+        "max_width": 1200,
+        "grid_gap": 25,
+        "aspect_ratio": 0.9,
+        "border_radius": 8,
+        "enable_shadow": true,
+        "enable_hover": true,
+        "always_show_overlay": false,
+        "mobile_layout": "2col",
+        "margin_top": 40,
+        "margin_bottom": 40
+      }
+    },
+    "newsletter_babymama_e7JbT9": {
+      "type": "newsletter-babymama",
+      "settings": {
+        "section_width": 1200,
+        "section_padding": 60,
+        "margin_top": 40,
+        "margin_bottom": 40,
+        "image": "shopify://shop_images/New-Users-Layout-1_png.webp",
+        "image_border_radius": 8,
+        "enable_image_shadow": true,
+        "heading": "Subscribe to our newsletter",
+        "subheading": "<p>Sign up to receive updates, access to exclusive deals, and more.</p>",
+        "first_name_label": "First Name",
+        "first_name_placeholder": "Enter your first name",
+        "email_label": "Email",
+        "email_placeholder": "Enter your email address",
+        "phone_label": "Phone Number",
+        "phone_placeholder": "Enter your phone number",
+        "button_label": "Sign Up",
+        "show_disclaimer": true,
+        "disclaimer_text": "<p>By signing up, you agree to receive email marketing. You can unsubscribe at any time.</p>",
+        "background_color": "#ffffff",
+        "heading_color": "#000000",
+        "text_color": "#333333",
+        "input_border_color": "#d9d9d9",
+        "button_color": "#15a4aa",
+        "button_text_color": "#ffffff"
+      }
+    },
+    "review_section_7rVrTi": {
+      "type": "review-section",
+      "name": "Customer Reviews",
+      "settings": {
+        "heading": "What real moms say about Babymama",
+        "rotation_speed": 10,
+        "reviewer_name_1": "Ann Marielle Espino",
+        "review_text_1": "Hi team! I just want to commend Ja of Babymama Alabang West Parade. I went there today and she was so accomodating and very friendly. She answered all of my questions and even offered alternatives. Can't wait to use my wisemom breastpumps soon with my little boy ❤️ thanks again Babymama and to Ja! Until next transaction...",
+        "reviewer_name_2": "Ella Thalla Parocha Sanchez",
+        "review_text_2": "I ordered na po through BGC branch. Super baet ng support staff and items were delivered fast. Mas mura ko pa po nakuha items kesa sa stores nila sa Shopee and Lazada. Thank you again. Next time sa inyo nalang po ulet ako bibili lalo na pag urgent or I will visit your branch since malapit lang po ako sa BGC. Thank you Babymama!",
+        "reviewer_name_3": "Ema Parian",
+        "review_text_3": "Ms Jha and Ms Jen from Babymama Alabang were so accomodating and customer-centered! We were in a rush to buy breastfeeding equipment and was able to do so because of their help! More power to Babymama and more power to breastfeeding.",
+        "reviewer_name_4": "Mirage Diloy",
+        "review_text_4": "Babymama staffs at Alabang West Parade are commendable! They were able to assist and help me beyond my expectation!",
+        "background_color": "#ffffff",
+        "text_color": "#333333",
+        "star_color": "#15a4aa",
+        "accent_color": "#4a90e2",
+        "container_width": 1200,
+        "section_padding": 40
+      }
+    }
+  },
+  "order": [
+    "image_slider_Ymtbj3",
+    "category_grid_9NhanD",
+    "new_arrivals_section_AVj6BJ",
+    "new_arrivals_section_YqGGXG",
+    "special_promotion_W8PaVf",
+    "four_product_showcase_AaiGKz",
+    "six_image_grid_q3PTiw",
+    "newsletter_babymama_e7JbT9",
+    "review_section_7rVrTi"
+  ]
+}

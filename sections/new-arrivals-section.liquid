@@ -1,0 +1,749 @@
+{% comment %}
+  Product Showcase Slider Section
+  - Displays 4 products initially in a row on desktop
+  - Responsive design with swipeable slider on all devices
+  - Business owner can select specific products to showcase
+{% endcomment %}
+
+<div class="product-showcase-section section-{{ section.id }}" id="ProductShowcase-{{ section.id }}">
+  <div class="section-container">
+    {% if section.settings.title != blank %}
+      <div class="section-header">
+        <h2 class="section-title">{{ section.settings.title | escape }}</h2>
+        {% if section.settings.subtitle != blank %}
+          <div class="section-subtitle">{{ section.settings.subtitle }}</div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="product-slider-wrapper">
+      {% if section.blocks.size > 0 %}
+        <div class="product-slider" id="Slider-{{ section.id }}">
+          {% for block in section.blocks %}
+            {% if block.settings.product != blank %}
+              {% assign product = block.settings.product %}
+              <div class="product-slide" {{ block.shopify_attributes }}>
+                <div class="product-card">
+                  <a href="{{ product.url }}" class="product-link">
+                    <div class="product-image-wrapper">
+                      {% if product.featured_media %}
+                        {{
+                          product.featured_media
+                          | image_url: width: 600
+                          | image_tag:
+                            class: 'product-image',
+                            loading: 'lazy',
+                            sizes: '(min-width: 1200px) 25vw, (min-width: 750px) 33vw, 50vw',
+                            widths: '165, 360, 533, 720, 940, 1066'
+                        }}
+                      {% else %}
+                        {{ 'product-1' | placeholder_svg_tag: 'product-image placeholder' }}
+                      {% endif %}
+
+                      {% if section.settings.show_secondary_image and product.media[1] %}
+                        <div class="product-image-secondary">
+                          {{
+                            product.media[1]
+                            | image_url: width: 600
+                            | image_tag:
+                              class: 'product-image',
+                              loading: 'lazy',
+                              sizes: '(min-width: 1200px) 25vw, (min-width: 750px) 33vw, 50vw',
+                              widths: '165, 360, 533, 720, 940, 1066'
+                          }}
+                        </div>
+                      {% endif %}
+
+                      {% if section.settings.show_badge %}
+                        {% if product.available == false %}
+                          <span class="product-badge sold-out">
+                            {{- 'products.product.sold_out' | t | default: 'Sold Out' -}}
+                          </span>
+                        {% elsif product.compare_at_price > product.price and product.available %}
+                          <span class="product-badge sale">{{ 'products.product.on_sale' | t | default: 'Sale' }}</span>
+                        {% elsif product.tags contains 'new' and product.available %}
+                          <span class="product-badge new">New</span>
+                        {% endif %}
+                      {% endif %}
+                    </div>
+
+                    <div class="product-info">
+                      {% if section.settings.show_vendor and product.vendor %}
+                        <div class="product-vendor">{{ product.vendor }}</div>
+                      {% endif %}
+
+                      <h3 class="product-title">{{ product.title }}</h3>
+
+                      <div class="product-price">
+                        {% if product.compare_at_price > product.price %}
+                          <span class="price-sale">{{ product.price | money }}</span>
+                          <span class="price-compare">{{ product.compare_at_price | money }}</span>
+                        {% else %}
+                          <span class="price-regular">{{ product.price | money }}</span>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </a>
+
+                  {% if section.settings.show_quick_add and product.available %}
+                    <div class="quick-add">
+                      <form method="post" action="/cart/add" class="quick-add-form">
+                        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+                        <button
+                          type="submit"
+                          class="quick-add-btn quick-add-btn-{{ section.id }}"
+                          aria-label="{{ 'products.product.add_to_cart' | t | default: 'Add to cart' }}"
+                          style="background-color: {{ section.settings.button_color }}; color: {{ section.settings.button_text_color }};"
+                        >
+                          {{ 'products.product.add_to_cart' | t | default: 'Add to cart' }}
+                        </button>
+                      </form>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            {% else %}
+              <div class="product-slide" {{ block.shopify_attributes }}>
+                <div class="product-card placeholder">
+                  <div class="placeholder-content">
+                    <div class="placeholder-image">{{ 'product-1' | placeholder_svg_tag }}</div>
+                    <div class="placeholder-text">Select a product</div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        {% if section.settings.show_arrows %}
+          <button type="button" class="slider-arrow prev" aria-label="Previous">
+            <span>&#8592;</span>
+          </button>
+          <button type="button" class="slider-arrow next" aria-label="Next">
+            <span>&#8594;</span>
+          </button>
+        {% endif %}
+      {% else %}
+        <div class="no-blocks-placeholder">
+          <p>Add products to display in this section.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if section.settings.view_all_url != blank and section.settings.view_all_text != blank %}
+      <div class="view-all-wrapper">
+        <a
+          href="{{ section.settings.view_all_url }}"
+          class="view-all-link"
+          style="background-color: {{ section.settings.view_all_button_color }}; color: {{ section.settings.view_all_button_text_color }};"
+        >
+          {{- section.settings.view_all_text -}}
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% style %}
+  .product-showcase-section {
+    margin: 40px 0;
+  }
+
+  .section-container {
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .section-title {
+    margin: 0 0 10px;
+    font-size: 28px;
+  }
+
+  .section-subtitle {
+    font-size: 16px;
+    opacity: 0.85;
+  }
+
+  .product-slider-wrapper {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .product-slider {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -10px;
+    padding: 5px 0; /* Space for shadows */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .product-slider::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  /* Updated to show 4 products per row */
+  .product-slide {
+    flex: 0 0 calc(25% - 20px); /* 4 items per row */
+    min-width: calc(25% - 20px);
+    padding: 0 10px;
+    box-sizing: border-box;
+    scroll-snap-align: start;
+  }
+
+  .product-card {
+    position: relative;
+    height: 100%;
+    background-color: #fff;
+    border-radius: 5px;
+    overflow: hidden;
+    transition: box-shadow 0.3s, transform 0.3s;
+  }
+
+  {% if section.settings.enable_hover_effect %}
+  .product-card:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+  }
+
+  .product-card:hover .product-image-secondary {
+    opacity: 1;
+  }
+  {% endif %}
+
+  .product-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .product-image-wrapper {
+    position: relative;
+    padding-top: 100%; /* 1:1 Aspect Ratio */
+    overflow: hidden;
+  }
+
+  .product-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: {{ section.settings.image_fit }};
+    transition: transform 0.5s ease;
+  }
+
+  .product-image-secondary {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: {{ section.settings.image_fit }};
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .product-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    z-index: 1;
+  }
+
+  .product-badge.sale {
+    background-color: #e74c3c;
+    color: white;
+  }
+
+  .product-badge.sold-out {
+    background-color: #7f8c8d;
+    color: white;
+  }
+
+  .product-badge.new {
+    background-color: #2ecc71;
+    color: white;
+  }
+
+  .product-info {
+    padding: 15px 10px;
+  }
+
+  .product-vendor {
+    font-size: 12px;
+    margin-bottom: 5px;
+    opacity: 0.7;
+  }
+
+  .product-title {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .product-price {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .price-sale {
+    font-weight: 600;
+    color: {{ section.settings.sale_color }};
+  }
+
+  .price-compare {
+    text-decoration: line-through;
+    opacity: 0.7;
+    font-size: 13px;
+  }
+
+  .price-regular {
+    font-weight: 600;
+  }
+
+  .quick-add {
+    margin-top: 10px;
+    padding: 0 10px 15px;
+  }
+
+  .quick-add-form {
+    width: 100%;
+  }
+
+  /* These styles will be used as a fallback */
+  .quick-add-btn {
+    width: 100%;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 3px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  /* Section-specific styling to ensure proper inheritance */
+  .quick-add-btn-{{ section.id }}:hover {
+    background-color: {{ section.settings.button_color | color_darken: 10 }} !important;
+  }
+
+  .placeholder-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .placeholder-image {
+    width: 100%;
+    height: 200px;
+    background-color: #f5f5f5;
+    margin-bottom: 10px;
+  }
+
+  .placeholder-text {
+    color: #999;
+  }
+
+  /* Make arrows more visible since we're sliding through products */
+  .slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    border: 1px solid #ddd;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: background-color 0.3s;
+    opacity: 0.9;
+  }
+
+  .slider-arrow:hover {
+    background-color: #f5f5f5;
+    opacity: 1;
+  }
+
+  .slider-arrow.prev {
+    left: 5px;
+  }
+
+  .slider-arrow.next {
+    right: 5px;
+  }
+
+  .no-blocks-placeholder {
+    padding: 50px 20px;
+    text-align: center;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+  }
+
+  .view-all-wrapper {
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  .view-all-link {
+    display: inline-block;
+    padding: 10px 25px;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: background-color 0.3s;
+  }
+
+  .view-all-link:hover {
+    background-color: {{ section.settings.view_all_button_color | color_darken: 10 }};
+  }
+
+  /* Updated responsive breakpoints */
+  @media screen and (max-width: 989px) {
+    .product-slide {
+      flex: 0 0 calc(33.333% - 20px); /* 3 items per row */
+      min-width: calc(33.333% - 20px);
+    }
+
+    .section-title {
+      font-size: 24px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .product-slide {
+      flex: 0 0 calc(50% - 20px); /* 2 items per row */
+      min-width: calc(50% - 20px);
+    }
+
+    .section-title {
+      font-size: 22px;
+    }
+
+    .section-container {
+      padding: 0 15px;
+    }
+
+    .section-header {
+      margin-bottom: 20px;
+    }
+
+    .slider-arrow {
+      width: 35px;
+      height: 35px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .product-slide {
+      flex: 0 0 calc({{ section.settings.mobile_items }}% - 20px);
+      min-width: calc({{ section.settings.mobile_items }}% - 20px);
+    }
+  }
+{% endstyle %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const sliderId = 'Slider-{{ section.id }}';
+    const sliderElement = document.getElementById(sliderId);
+
+    if (!sliderElement) return;
+
+    const prevButton = document.querySelector('.slider-arrow.prev');
+    const nextButton = document.querySelector('.slider-arrow.next');
+    const slides = sliderElement.querySelectorAll('.product-slide');
+
+    if (slides.length === 0) return;
+
+    let isDragging = false;
+    let startX, scrollLeft;
+
+    // Calculate the width of a slide
+    const slideWidth = () => {
+      const slide = slides[0];
+      if (!slide) return 0;
+      return slide.offsetWidth;
+    };
+
+    // Scroll to previous/next set of products
+    const scrollPrev = () => {
+      sliderElement.scrollBy({
+        left: -slideWidth() * {{ section.settings.scroll_items }},
+        behavior: 'smooth'
+      });
+    };
+
+    const scrollNext = () => {
+      sliderElement.scrollBy({
+        left: slideWidth() * {{ section.settings.scroll_items }},
+        behavior: 'smooth'
+      });
+    };
+
+    // Set up click event listeners for arrows
+    if (prevButton) {
+      prevButton.addEventListener('click', scrollPrev);
+    }
+
+    if (nextButton) {
+      nextButton.addEventListener('click', scrollNext);
+    }
+
+    // Mouse/Touch events for drag scrolling on mobile
+    const startDrag = (e) => {
+      isDragging = true;
+      startX = e.type === 'touchstart' ? e.touches[0].pageX : e.pageX;
+      scrollLeft = sliderElement.scrollLeft;
+      sliderElement.style.cursor = 'grabbing';
+      sliderElement.style.userSelect = 'none';
+    };
+
+    const endDrag = () => {
+      isDragging = false;
+      sliderElement.style.cursor = 'grab';
+      sliderElement.style.userSelect = '';
+    };
+
+    const drag = (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const x = e.type === 'touchmove' ? e.touches[0].pageX : e.pageX;
+      const distance = x - startX;
+      sliderElement.scrollLeft = scrollLeft - distance;
+    };
+
+    // Add desktop mouse drag events
+    sliderElement.addEventListener('mousedown', startDrag);
+    sliderElement.addEventListener('mousemove', drag);
+    sliderElement.addEventListener('mouseup', endDrag);
+    sliderElement.addEventListener('mouseleave', endDrag);
+
+    // Add mobile touch events
+    sliderElement.addEventListener('touchstart', startDrag);
+    sliderElement.addEventListener('touchmove', drag);
+    sliderElement.addEventListener('touchend', endDrag);
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Product Showcase",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section Title",
+      "default": "Featured Products"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Section Subtitle"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "min": 800,
+      "max": 1600,
+      "step": 50,
+      "unit": "px",
+      "label": "Max Width",
+      "default": 1200
+    },
+    {
+      "type": "header",
+      "content": "Product Display"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show Vendor",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badge",
+      "label": "Show Sale/Sold Out Badge",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "label": "Show Secondary Image on Hover",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image Fit",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover (Fill Space)"
+        },
+        {
+          "value": "contain",
+          "label": "Contain (Show Entire Image)"
+        }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_hover_effect",
+      "label": "Enable Hover Effects",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Slider Controls"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show Navigation Arrows",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "scroll_items",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "label": "Items to Scroll",
+      "default": 2,
+      "info": "Number of items to scroll when clicking arrows"
+    },
+    {
+      "type": "range",
+      "id": "mobile_items",
+      "min": 70,
+      "max": 100,
+      "step": 5,
+      "label": "Mobile Item Width (%)",
+      "default": 85,
+      "info": "Width of each product on mobile (as percentage)"
+    },
+    {
+      "type": "header",
+      "content": "Quick Add to Cart"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quick_add",
+      "label": "Show Quick Add Button",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "sale_color",
+      "label": "Sale Price Color",
+      "default": "#e74c3c"
+    },
+    {
+      "type": "header",
+      "content": "View All Button"
+    },
+    {
+      "type": "url",
+      "id": "view_all_url",
+      "label": "View All URL"
+    },
+    {
+      "type": "text",
+      "id": "view_all_text",
+      "label": "View All Text",
+      "default": "View All Products"
+    },
+    {
+      "type": "color",
+      "id": "view_all_button_color",
+      "label": "Button Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "view_all_button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Showcase",
+      "category": "Products",
+      "blocks": [
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
