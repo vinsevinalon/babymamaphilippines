@@ -366,34 +366,6 @@
             "custom_icon": ""
           }
         },
-        "bac1e6fe-823d-485b-9676-0e0104815c55": {
-          "type": "contact_menu",
-          "settings": {
-            "heading": "CONTACT US",
-            "menu_item_link": "",
-            "open_new_window": false,
-            "sort_order": "options__1",
-            "store_address": "75 9th Ave, New York, NY 10011-7006",
-            "contact_heading": "Contact us",
-            "infomation": "",
-            "show_contact_information": false,
-            "heading_information": "Contact information",
-            "subheading": "",
-            "phone_nummber": "+1234567890",
-            "email_address": "info@yourstore.com",
-            "contact_text": "",
-            "enable_social_icon": false,
-            "label": "",
-            "label_position": "above",
-            "label_color": "#ce021e",
-            "label_text_color_light": "#ffffff",
-            "label_color_dark": "#ce021e",
-            "label_text_color_dark": "#ffffff",
-            "icon": "none",
-            "another_icon": "",
-            "custom_icon": ""
-          }
-        },
         "44d2c5d3-bbba-4a0e-a05d-f0e0d28d910b": {
           "type": "blog_menu",
           "settings": {
@@ -558,8 +530,37 @@
             "block_link_4": ""
           }
         },
+        "bac1e6fe-823d-485b-9676-0e0104815c55": {
+          "type": "contact_menu",
+          "settings": {
+            "heading": "CONTACT US",
+            "menu_item_link": "",
+            "open_new_window": false,
+            "sort_order": "options__1",
+            "store_address": "75 9th Ave, New York, NY 10011-7006",
+            "contact_heading": "Contact us",
+            "infomation": "",
+            "show_contact_information": false,
+            "heading_information": "Contact information",
+            "subheading": "",
+            "phone_nummber": "+1234567890",
+            "email_address": "info@yourstore.com",
+            "contact_text": "",
+            "enable_social_icon": false,
+            "label": "",
+            "label_position": "aside",
+            "label_color": "#ce021e",
+            "label_text_color_light": "#ffffff",
+            "label_color_dark": "#ce021e",
+            "label_text_color_dark": "#ffffff",
+            "icon": "none",
+            "another_icon": "",
+            "custom_icon": ""
+          }
+        },
         "simple_menu_EkTn7w": {
           "type": "simple_menu",
+          "disabled": true,
           "settings": {
             "heading": "THEME FEATURES",
             "menu": "",
@@ -671,10 +672,10 @@
         "dc3097b0-81a8-4098-9e2c-24b4f78cf9ec",
         "00fa9819-32c2-4a29-b7b1-2319d6aa81b8",
         "4f2df145-7a35-4e4a-b3ca-c874e5417fb2",
-        "bac1e6fe-823d-485b-9676-0e0104815c55",
         "44d2c5d3-bbba-4a0e-a05d-f0e0d28d910b",
         "7de79193-654a-4e28-9825-fcd12f7ba479",
         "simple_menu_AFd9nG",
+        "bac1e6fe-823d-485b-9676-0e0104815c55",
         "simple_menu_EkTn7w"
       ],
       "settings": {
@@ -683,7 +684,7 @@
         "search_on_header": false,
         "select_motion": "hover",
         "full_width": false,
-        "logo_position": "above-center",
+        "logo_position": "left-right",
         "mobile_header_layout": "center-left",
         "sticky_header_type": "on-scroll-up",
         "logo": "shopify://shop_images/babymama_logo_no_website_no_r.svg",
@@ -691,7 +692,7 @@
         "logo_width": 150,
         "logo_width_mobile": 100,
         "show_social_icons": true,
-        "enable_on_homepage": true,
+        "enable_on_homepage": false,
         "enable_on_collection_page": false,
         "shadow": 30,
         "text_color_light": "#ffffff",
@@ -703,8 +704,8 @@
         "primary_menu_label_animation": false,
         "enable_highlight": true,
         "menus": "KIDS\nMOMS",
-        "highlight_style": "marker",
-        "highlight_color_light": "#f77b08",
+        "highlight_style": "bling_bling",
+        "highlight_color_light": "#bcd53c",
         "highlight_color_dark": "#f77b08",
         "header_show_language_selector": false,
         "header_show_currency_selector": false,
@@ -1054,7 +1055,7 @@
         "mobile-navigation-3"
       ],
       "settings": {
-        "menu": "main-menu",
+        "menu": "",
         "show_language_selector": true,
         "show_currency_selector": true,
         "background_color": "#ffffff",
