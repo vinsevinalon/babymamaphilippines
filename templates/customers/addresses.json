@@ -12,8 +12,8 @@
     "main": {
       "type": "main-addresses",
       "settings": {
-        "padding_top": 36,
-        "padding_bottom": 36
+        "top_padding": 52,
+        "bottom_padding": 52
       }
     }
   },

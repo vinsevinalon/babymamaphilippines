@@ -1,114 +1,94 @@
-{{ 'customer.css' | asset_url | stylesheet_tag }}
-
-{%- style -%}
-  .section-{{ section.id }}-padding {
-    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
-    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
-  }
-
-  @media screen and (min-width: 750px) {
-    .section-{{ section.id }}-padding {
-      padding-top: {{ section.settings.padding_top }}px;
-      padding-bottom: {{ section.settings.padding_bottom }}px;
-    }
-  }
-{%- endstyle -%}
-
-<div class="customer activate section-{{ section.id }}-padding">
-  <h1>
+<div class="customer activate x-pgw page-width px-5 pt-[{{ section.settings.padding_top_mobile }}px] md:pt-[{{ section.settings.padding_top }}px] pb-[{{ section.settings.padding_bottom_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px]">
+  <h1 class="h2 leading-tight text-center">
     {{ 'customer.activate_account.title' | t }}
   </h1>
-  <p>
+  <p class="mt-2 mb-6 lg:mt-3 lg:mb-10 text-center">
     {{ 'customer.activate_account.subtext' | t }}
   </p>
-  {%- form 'activate_customer_password' -%}
-    {%- if form.errors -%}
-      <h2 class="form__message" tabindex="-1" autofocus>
-        <span class="svg-wrapper">
-          {{- 'icon-error.svg' | inline_asset_content -}}
-        </span>
-        {{ 'templates.contact.form.error_heading' | t }}
-      </h2>
-      <ul>
-        {%- for field in form.errors -%}
-          <li>
-            {%- if field == 'form' -%}
-              {{ form.errors.messages[field] }}
-            {%- else -%}
-              <a href="#{{ field }}">
-                {{ form.errors.translated_fields[field] | capitalize }}
-                {{ form.errors.messages[field] }}
-              </a>
-            {%- endif -%}
-          </li>
-        {%- endfor -%}
-      </ul>
-    {%- endif -%}
-
-    <div class="field">
-      <input
-        type="password"
-        name="customer[password]"
-        id="password"
-        autocomplete="new-password"
-        placeholder="{{ 'customer.activate_account.password' | t }}"
-        {% if form.errors contains 'password' %}
-          aria-invalid="true"
-          aria-describedby="password-error"
-        {% endif %}
-      >
-      <label for="password">
-        {{ 'customer.activate_account.password' | t }}
-      </label>
+  <div class="max-w-[570px] mr-auto ml-auto">
+    {%- form 'activate_customer_password' -%}
+      <div class="field mb-3 lg:mb-3.5 flex-1 relative mr-auto ml-auto">
+        <input
+          id="password"
+          class="w-full px-5 lg:px-6 pt-5 pb-1 md:pt-5 md:pb-2 border focus:outline-none focus:border-current input bg-transparent placeholder:opacity-0{% if settings.edges_type == 'rounded_corners' %} !rounded-md{% endif %}{% if settings.lang_direction contains request.locale.iso_code %} text-right{% endif %}"
+          type="password"
+          autocapitalize="words"
+          name="customer[password]"
+          autocomplete="new-password"
+          placeholder="{{ 'customer.activate_account.password' | t }}"
+          {% if form.errors contains 'password' %}
+            aria-invalid="true"
+            aria-describedby="password-error"
+          {% endif %}
+        >
+        <label
+          for="password"
+          class="leading-tight absolute top-1/2{% if settings.lang_direction contains request.locale.iso_code %} right-5 lg:right-6{% else %} left-5 lg:left-6{% endif %} duration-300 -translate-y-1/2 input_focus:text-xs input_focus:top-3 input_not_empty:top-3 input_not_empty:text-xs"
+        >
+          {{ 'customer.activate_account.password' | t }}
+        </label>
+      </div>
       {%- if form.errors contains 'password' -%}
-        <small id="password-error" class="form__message">
-          <span class="svg-wrapper">
-            {{- 'icon-error.svg' | inline_asset_content -}}
+        <p id="password-error" class="form__message text-normal flex items-center pb-1.5 mb-3">
+          <span class="text-[rgba(var(--color-error))] inline-block w-3 mr-2">
+            {%- render 'icon-alls', icon: 'icon-error' %}
           </span>
           {{ form.errors.translated_fields.password | capitalize }}
           {{ form.errors.messages.password }}
-        </small>
+        </p>
       {%- endif -%}
-    </div>
 
-    <div class="field">
-      <input
-        type="password"
-        name="customer[password_confirmation]"
-        id="password_confirmation"
-        autocomplete="new-password"
-        placeholder="{{ 'customer.activate_account.password_confirm' | t }}"
-        {% if form.errors contains 'password' %}
-          aria-invalid="true"
-          aria-describedby="password_confirmation-error"
-        {% endif %}
-      >
-      <label for="password_confirmation">
-        {{ 'customer.activate_account.password_confirm' | t }}
-      </label>
+      <div class="field flex-1 relative mr-auto ml-auto">
+        <input
+          id="password_confirmation"
+          class="w-full px-5 lg:px-6 pt-5 pb-1 md:pt-5 md:pb-2 border focus:outline-none focus:border-current input bg-transparent placeholder:opacity-0{% if settings.edges_type == 'rounded_corners' %} !rounded-md{% endif %}{% if settings.lang_direction contains request.locale.iso_code %} text-right{% endif %}"
+          type="password"
+          name="customer[password_confirmation]"
+          autocomplete="new-password"
+          placeholder="{{ 'customer.activate_account.password_confirm' | t }}"
+          {% if form.errors contains 'password' %}
+            aria-invalid="true"
+            aria-describedby="password_confirmation-error"
+          {% endif %}
+        >
+        <label
+          for="password_confirmation"
+          class="leading-tight absolute top-1/2{% if settings.lang_direction contains request.locale.iso_code %} right-5 lg:right-6{% else %} left-5 lg:left-6{% endif %} duration-300 -translate-y-1/2 input_focus:text-xs input_focus:top-3 input_not_empty:top-3 input_not_empty:text-xs"
+        >
+          {{ 'customer.activate_account.password_confirm' | t }}
+        </label>
+      </div>
       {%- if form.errors contains 'password_confirmation' -%}
-        <small id="password_confirmation-error" class="form__message">
-          <span class="svg-wrapper">
-            {{- 'icon-error.svg' | inline_asset_content -}}
+        <p id="password_confirmation-error" class="form__message flex items-center pb-1.5 mt-3 text-normal">
+          <span class="text-[rgba(var(--color-error))] inline-block w-3 mr-2">
+            {%- render 'icon-alls', icon: 'icon-error' %}
           </span>
           {{ form.errors.translated_fields.password_confirmation | capitalize }}
           {{ form.errors.messages.password_confirmation }}
-        </small>
+        </p>
       {%- endif -%}
-    </div>
 
-    <button>
-      {{ 'customer.activate_account.submit' | t }}
-    </button>
-    <button name="decline">
-      {{ 'customer.activate_account.cancel' | t }}
-    </button>
-  {%- endform -%}
+      <button class="button button-solid mx-auto relative flex flex-1 justify-center w-full mt-4 lg:mt-5 leading-normal pl-8 pr-8 lg:pl-11 lg:pr-11 pt-2.5 pb-2.5 lg:pt-3.5 lg:pb-3.5 cursor-pointer empty:hidden pointer-events-auto">
+        {% assign button_label = 'customer.activate_account.submit' | t %}
+          <span class="flex items-center justify-center">
+            {% render 'button-label', button_label: button_label, show_button_style: 'primary' %}
+          </span>
+      </button>
+      <button
+        name="decline"
+        class="relative flex flex-1 justify-center mx-auto mt-5 leading-normal cursor-pointer empty:hidden pointer-events-auto"
+      >
+        <a class="not-icon disable-effect underline underline-offset-2 hover:opacity-100 hover:text-[rgb(var(--colors-text-link))]">
+          {{- 'customer.activate_account.cancel' | t -}}
+        </a>
+      </button>
+    {%- endform -%}
+  </div>
 </div>
 
 {% schema %}
 {
-  "name": "t:sections.main-activate-account.name",
+  "name": "t:sections.main-account.name",
   "settings": [
     {
       "type": "header",
@@ -122,7 +102,7 @@
       "step": 4,
       "unit": "px",
       "label": "t:sections.all.padding.padding_top",
-      "default": 36
+      "default": 52
     },
     {
       "type": "range",
@@ -132,7 +112,31 @@
       "step": 4,
       "unit": "px",
       "label": "t:sections.all.padding.padding_bottom",
-      "default": 36
+      "default": 52
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_layout_mobile"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 44
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 44
     }
   ]
 }

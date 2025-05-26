@@ -11,39 +11,50 @@
   "sections": {
     "cart-items": {
       "type": "main-cart-items",
-      "settings": {
-        "color_scheme": "scheme-1",
-        "padding_top": 36,
-        "padding_bottom": 36
-      }
+      "blocks": {
+        "subtotal_pLrB7e": {
+          "type": "subtotal",
+          "settings": {}
+        },
+        "buttons_bzptVW": {
+          "type": "buttons",
+          "settings": {
+            "show_dynamic_checkout": true
+          }
+        }
+      },
+      "block_order": [
+        "subtotal_pLrB7e",
+        "buttons_bzptVW"
+      ],
+      "settings": {}
     },
     "cart-footer": {
       "type": "main-cart-footer",
-      "settings": {
-        "color_scheme": "scheme-1",
-        "padding_top": 20,
-        "padding_bottom": 40
-      },
       "blocks": {
         "subtotal": {
           "type": "subtotal",
-          "settings": {
-          }
+          "settings": {}
         },
         "buttons": {
           "type": "buttons",
-          "settings": {
-          }
+          "settings": {}
         }
       },
       "block_order": [
         "subtotal",
         "buttons"
-      ]
+      ],
+      "settings": {}
+    },
+    "cart-upsell": {
+      "type": "main-cart-upsell",
+      "settings": {}
     }
   },
   "order": [
     "cart-items",
-    "cart-footer"
+    "cart-footer",
+    "cart-upsell"
   ]
 }
