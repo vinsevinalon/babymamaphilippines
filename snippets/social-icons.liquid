@@ -1,103 +1,183 @@
-{% comment %}
-  Renders social icons.
-  Accepts:
-  - class: {String} a class to be added to the <ul> element (optional).
-
-  Usage:
-  {% render 'social-icons',
-    class: 'my-class'
-  %}
-{% endcomment %}
-
-<ul class="list-unstyled list-social{% if class %} {{ class}}{% endif %}" role="list">
-  {%- if settings.social_facebook_link != blank -%}
-    <li class="list-social__item">
-      <a href="{{ settings.social_facebook_link }}" class="link list-social__link">
-        <span class="svg-wrapper">
-          {{- 'icon-facebook.svg' | inline_asset_content -}}
-        </span>
-        <span class="visually-hidden">{{ 'general.social.links.facebook' | t }}</span>
-      </a>
-    </li>
-  {%- endif -%}
-  {%- if settings.social_instagram_link != blank -%}
-    <li class="list-social__item">
-      <a href="{{ settings.social_instagram_link }}" class="link list-social__link">
-        <span class="svg-wrapper">
-          {{- 'icon-instagram.svg' | inline_asset_content -}}
-        </span>
-        <span class="visually-hidden">{{ 'general.social.links.instagram' | t }}</span>
-      </a>
-    </li>
-  {%- endif -%}
-  {%- if settings.social_youtube_link != blank -%}
-    <li class="list-social__item">
-      <a href="{{ settings.social_youtube_link }}" class="link list-social__link">
-        <span class="svg-wrapper">
-          {{- 'icon-youtube.svg' | inline_asset_content -}}
-        </span>
-        <span class="visually-hidden">{{ 'general.social.links.youtube' | t }}</span>
-      </a>
-    </li>
-  {%- endif -%}
-  {%- if settings.social_tiktok_link != blank -%}
-    <li class="list-social__item">
-      <a href="{{ settings.social_tiktok_link }}" class="link list-social__link">
-        <span class="svg-wrapper">
-          {{- 'icon-tiktok.svg' | inline_asset_content -}}
-        </span>
-        <span class="visually-hidden">{{ 'general.social.links.tiktok' | t }}</span>
-      </a>
-    </li>
-  {%- endif -%}
+{% unless layout == 'vertical' %}
   {%- if settings.social_twitter_link != blank -%}
-    <li class="list-social__item">
-      <a href="{{ settings.social_twitter_link }}" class="link list-social__link">
-        <span class="svg-wrapper">
-          {{- 'icon-twitter.svg' | inline_asset_content -}}
-        </span>
-        <span class="visually-hidden">{{ 'general.social.links.twitter' | t }}</span>
+    <li>
+      <a href="{{ settings.social_twitter_link }}" target="blank" aria-label="{{ 'general.social.links.twitter' | t }}" class="flex disable-effect hover-text-link w-11 h-11 pt-3 pr-3 pb-3 pl-3{% if footer %} border border-solid rounded-full{% endif %}">
+        {%- render 'icon-media', icon: 'icon-twitter' -%}
+      </a>
+    </li>
+  {%- endif -%} 
+  {%- if settings.social_facebook_link != blank -%}
+    <li>
+      <a href="{{ settings.social_facebook_link }}" target="blank" aria-label="{{ 'general.social.links.facebook' | t }}" class="flex disable-effect hover-text-link w-11 h-11 pt-3 pr-3 pb-3 pl-3{% if footer %} border border-solid rounded-full{% endif %}">
+        {%- render 'icon-media', icon: 'icon-facebook' -%}
       </a>
     </li>
   {%- endif -%}
   {%- if settings.social_pinterest_link != blank -%}
-    <li class="list-social__item">
-      <a href="{{ settings.social_pinterest_link }}" class="link list-social__link">
-        <span class="svg-wrapper">
-          {{- 'icon-pinterest.svg' | inline_asset_content -}}
-        </span>
-        <span class="visually-hidden">{{ 'general.social.links.pinterest' | t }}</span>
+    <li>
+      <a href="{{ settings.social_pinterest_link }}" target="blank" aria-label="{{ 'general.social.links.pinterest' | t }}" class="flex disable-effect hover-text-link w-11 h-11 pt-3 pr-3 pb-3 pl-3{% if footer %} border border-solid rounded-full{% endif %}">
+        {%- render 'icon-media', icon: 'icon-pinterest' -%}
       </a>
     </li>
   {%- endif -%}
-  {%- if settings.social_snapchat_link != blank -%}
-    <li class="list-social__item">
-      <a href="{{ settings.social_snapchat_link }}" class="link list-social__link">
-        <span class="svg-wrapper">
-          {{- 'icon-snapchat.svg' | inline_asset_content -}}
-        </span>
-        <span class="visually-hidden">{{ 'general.social.links.snapchat' | t }}</span>
+  {%- if settings.social_instagram_link != blank -%}
+    <li>
+      <a href="{{ settings.social_instagram_link }}" target="blank" aria-label="{{ 'general.social.links.instagram' | t }}" class="flex disable-effect hover-text-link w-11 h-11 pt-3 pr-3 pb-3 pl-3{% if footer %} border border-solid rounded-full{% endif %}">
+        {%- render 'icon-media', icon: 'icon-instagram' -%}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_tiktok_link != blank -%}
+    <li>
+      <a href="{{ settings.social_tiktok_link }}" target="blank" aria-label="{{ 'general.social.links.tiktok' | t }}" class="flex disable-effect hover-text-link w-11 h-11 pt-3 pr-3 pb-3 pl-3{% if footer %} border border-solid rounded-full{% endif %}">
+        {%- render 'icon-media', icon: 'icon-tiktok' -%}
       </a>
     </li>
   {%- endif -%}
   {%- if settings.social_tumblr_link != blank -%}
-    <li class="list-social__item">
-      <a href="{{ settings.social_tumblr_link }}" class="link list-social__link">
-        <span class="svg-wrapper">
-          {{- 'icon-tumblr.svg' | inline_asset_content -}}
-        </span>
-        <span class="visually-hidden">{{ 'general.social.links.tumblr' | t }}</span>
+    <li>
+      <a href="{{ settings.social_tumblr_link }}" target="blank" aria-label="{{ 'general.social.links.tumblr' | t }}" class="flex disable-effect hover-text-link w-11 h-11 pt-3 pr-3 pb-3 pl-3{% if footer %} border border-solid rounded-full{% endif %}">
+        {%- render 'icon-media', icon: 'icon-tumblr' -%}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_snapchat_link != blank -%}
+    <li>
+      <a href="{{ settings.social_snapchat_link }}" target="blank" aria-label="{{ 'general.social.links.snapchat' | t }}" class="flex disable-effect hover-text-link w-11 h-11 pt-3 pr-3 pb-3 pl-3{% if footer %} border border-solid rounded-full{% endif %}">
+        {%- render 'icon-media', icon: 'icon-snapchat' -%}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_youtube_link != blank -%}
+    <li>
+      <a href="{{ settings.social_youtube_link }}" target="blank" aria-label="{{ 'general.social.links.youtube' | t }}" class="flex disable-effect hover-text-link w-11 h-11 pt-3 pr-3 pb-3 pl-3{% if footer %} border border-solid rounded-full{% endif %}">
+        {%- render 'icon-media', icon: 'icon-youtube' -%}
       </a>
     </li>
   {%- endif -%}
   {%- if settings.social_vimeo_link != blank -%}
-    <li class="list-social__item">
-      <a href="{{ settings.social_vimeo_link }}" class="link list-social__link">
-        <span class="svg-wrapper">
-          {{- 'icon-vimeo.svg' | inline_asset_content -}}
-        </span>
-        <span class="visually-hidden">{{ 'general.social.links.vimeo' | t }}</span>
+    <li>
+      <a href="{{ settings.social_vimeo_link }}" target="blank" aria-label="{{ 'general.social.links.vimeo' | t }}" class="flex disable-effect hover-text-link w-11 h-11 pt-3 pr-3 pb-3 pl-3{% if footer %} border border-solid rounded-full{% endif %}">
+        {%- render 'icon-media', icon: 'icon-vimeo' -%}
       </a>
     </li>
   {%- endif -%}
-</ul>
+  {%- if settings.social_linkedin_link != blank -%}
+    <li>
+      <a href="{{ settings.social_linkedin_link }}" target="blank" aria-label="{{ 'general.social.links.linkedin' | t }}" class="flex disable-effect hover-text-link  w-11 h-11 pt-3 pr-3 pb-3 pl-3{% if footer %} border border-solid rounded-full{% endif %}">
+        {%- render 'icon-media', icon: 'icon-linkedin' -%}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.email_address != blank -%}
+    <li>
+      <a href="mailto:{{ settings.email_address }}" class="flex disable-effect hover-text-link  w-11 h-11 pt-3 pr-3 pb-3 pl-3{% if footer %} border border-solid rounded-full{% endif %}">
+        {%- render 'icon-alls', icon: 'icon-email' -%}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.phone_number != blank -%}
+    <li>
+      <a href="tel:{{ settings.phone_number }}" class="flex disable-effect hover-text-link  w-11 h-11 pt-3 pr-3 pb-3 pl-3{% if footer %} border border-solid rounded-full{% endif %}">
+        {%- render 'icon-alls', icon: 'icon-phone' -%}
+      </a>
+    </li>
+  {%- endif -%}
+{% else %}
+  {%- if settings.social_twitter_link != blank -%}
+    <li class="flex flex-row disable-effect hover-text-link">
+      <a href="{{ settings.social_twitter_link }}" target="blank" aria-label="{{ 'general.social.links.twitter' | t }}" class="flex w-11 h-11 pt-3 pb-3 pr-4 pl-0 rtl:pl-4 rtl:pr-0">
+        {%- render 'icon-media', icon: 'icon-twitter' -%}
+      </a>
+      <a href="{{ settings.social_twitter_link }}" target="blank" aria-label="{{ 'general.social.links.twitter' | t }}" class="self-center">Twitter</a>
+    </li>
+  {%- endif -%} 
+  {%- if settings.social_facebook_link != blank -%}
+    <li class="flex flex-row disable-effect hover-text-link">
+      <a href="{{ settings.social_facebook_link }}" target="blank" aria-label="{{ 'general.social.links.facebook' | t }}" class="flex w-11 h-11 pt-3 pb-3 pr-4 pl-0 rtl:pl-4 rtl:pr-0">
+        {%- render 'icon-media', icon: 'icon-facebook' -%}
+      </a>
+      <a href="{{ settings.social_facebook_link }}" target="blank" aria-label="{{ 'general.social.links.facebook' | t }}" class="self-center">Facebook</a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_pinterest_link != blank -%}
+    <li class="flex flex-row disable-effect hover-text-link">
+      <a href="{{ settings.social_pinterest_link }}" target="blank" aria-label="{{ 'general.social.links.pinterest' | t }}" class="flex w-11 h-11 pt-3 pb-3 pr-4 pl-0 rtl:pl-4 rtl:pr-0">
+        {%- render 'icon-media', icon: 'icon-pinterest' -%}
+      </a>
+      <a href="{{ settings.social_pinterest_link }}" target="blank" aria-label="{{ 'general.social.links.pinterest' | t }}" class="self-center">Pinterest</a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_instagram_link != blank -%}
+    <li class="flex flex-row disable-effect hover-text-link">
+      <a href="{{ settings.social_instagram_link }}" target="blank" aria-label="{{ 'general.social.links.instagram' | t }}" class="flex w-11 h-11 pt-3 pb-3 pr-4 pl-0 rtl:pl-4 rtl:pr-0">
+        {%- render 'icon-media', icon: 'icon-instagram' -%}
+      </a>
+      <a href="{{ settings.social_instagram_link }}" target="blank" aria-label="{{ 'general.social.links.instagram' | t }}" class="self-center">Instagram</a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_tiktok_link != blank -%}
+    <li class="flex flex-row disable-effect hover-text-link">
+      <a href="{{ settings.social_tiktok_link }}" target="blank" aria-label="{{ 'general.social.links.tiktok' | t }}" class="flex w-11 h-11 pt-3 pb-3 pr-4 pl-0 rtl:pl-4 rtl:pr-0">
+        {%- render 'icon-media', icon: 'icon-tiktok' -%}
+      </a>
+      <a href="{{ settings.social_tiktok_link }}" target="blank" aria-label="{{ 'general.social.links.tiktok' | t }}" class="self-center">Tiktok</a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_tumblr_link != blank -%}
+    <li class="flex flex-row disable-effect hover-text-link">
+      <a href="{{ settings.social_tumblr_link }}" target="blank" aria-label="{{ 'general.social.links.tumblr' | t }}" class="flex w-11 h-11 pt-3 pb-3 pr-4 pl-0 rtl:pl-4 rtl:pr-0">
+        {%- render 'icon-media', icon: 'icon-tumblr' -%}
+      </a>
+      <a href="{{ settings.social_tumblr_link }}" target="blank" aria-label="{{ 'general.social.links.tumblr' | t }}" class="self-center">Tumblr</a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_snapchat_link != blank -%}
+    <li class="flex flex-row disable-effect hover-text-link">
+      <a href="{{ settings.social_snapchat_link }}" target="blank" aria-label="{{ 'general.social.links.snapchat' | t }}" class="flex w-11 h-11 pt-3 pb-3 pr-4 pl-0 rtl:pl-4 rtl:pr-0">
+        {%- render 'icon-media', icon: 'icon-snapchat' -%}
+      </a>
+      <a href="{{ settings.social_snapchat_link }}" target="blank" aria-label="{{ 'general.social.links.snapchat' | t }}" class="self-center">Snapchat</a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_youtube_link != blank -%}
+    <li class="flex flex-row disable-effect hover-text-link">
+      <a href="{{ settings.social_youtube_link }}" target="blank" aria-label="{{ 'general.social.links.youtube' | t }}" class="flex w-11 h-11 pt-3 pb-3 pr-4 pl-0 rtl:pl-4 rtl:pr-0">
+        {%- render 'icon-media', icon: 'icon-youtube' -%}
+      </a>
+      <a href="{{ settings.social_youtube_link }}" target="blank" aria-label="{{ 'general.social.links.youtube' | t }}" class="self-center">Youtube</a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_vimeo_link != blank -%}
+    <li class="flex flex-row disable-effect hover-text-link">
+      <a href="{{ settings.social_vimeo_link }}" target="blank" aria-label="{{ 'general.social.links.vimeo' | t }}" class="flex w-11 h-11 pt-3 pb-3 pr-4 pl-0 rtl:pl-4 rtl:pr-0">
+        {%- render 'icon-media', icon: 'icon-vimeo' -%}
+      </a>
+      <a href="{{ settings.social_vimeo_link }}" target="blank" aria-label="{{ 'general.social.links.vimeo' | t }}" class="self-center">Vimeo</a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_linkedin_link != blank -%}
+    <li class="flex flex-row disable-effect hover-text-link">
+      <a href="{{ settings.social_linkedin_link }}" target="blank" aria-label="{{ 'general.social.links.linkedin' | t }}" class="flex w-11 h-11 pt-3 pb-3 pr-4 pl-0 rtl:pl-4 rtl:pr-0">
+        {%- render 'icon-media', icon: 'icon-linkedin' -%}
+      </a>
+      <a href="{{ settings.social_linkedin_link }}" target="blank" aria-label="{{ 'general.social.links.linkedin' | t }}" class="self-center">Linkedin</a>
+    </li>
+  {%- endif -%}
+  {%- if settings.email_address != blank -%}
+    <li class="flex flex-row disable-effect hover-text-link">
+      <a href="mailto:{{ settings.email_address }}" class="flex w-11 h-11 pt-3 pb-3 pr-4 pl-0 rtl:pl-4 rtl:pr-0">
+        {%- render 'icon-alls', icon: 'icon-email' -%}
+      </a>
+      <a href="mailto:{{ settings.email_address }}" class="self-center">Email</a>
+    </li>
+  {%- endif -%}
+  {%- if settings.phone_number != blank -%}
+    <li class="flex flex-row disable-effect hover-text-link">
+      <a href="tel:{{ settings.phone_number }}" class="flex w-11 h-11 pt-3 pb-3 pr-4 pl-0 rtl:pl-4 rtl:pr-0">
+        {%- render 'icon-alls', icon: 'icon-phone' -%}
+      </a>
+      <a href="tel:{{ settings.phone_number }}" class="self-center">Phone</a>
+    </li>
+  {%- endif -%}
+{% endunless %}
