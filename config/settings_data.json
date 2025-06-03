@@ -165,6 +165,19 @@
     "colors_sale_price": "#CE021E",
     "colors_dark_accent": "#2a2a2a",
     "colors_dark_sale_price": "#FC3C44",
+    "sections": {
+      "main-password-header": {
+        "type": "main-password-header",
+        "settings": {
+          "logo": "shopify://shop_images/babymama_logo_no_website_no_r.svg",
+          "logo_max_width": 170
+        }
+      },
+      "main-password-footer": {
+        "type": "main-password-footer",
+        "settings": {}
+      }
+    },
     "content_for_index": []
   },
   "presets": {

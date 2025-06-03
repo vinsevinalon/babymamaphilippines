@@ -19,7 +19,7 @@
           "settings": {
             "open_by_default": false,
             "heading_text": "ABOUT",
-            "subtext": "<p>Eurus Kids specialises in the world of nursery retail, offering a wide array of pushchairs, car seats, nursery furniture, toys, and gifts, all competitively priced.</p><p><em>This is a demo store. To see more details about products and collections, please go to </em><a href=\"https://ashleysartistries.com/\" title=\"https://ashleysartistries.com/\"><em>https://ashleysartistries.com/.</em></a></p>",
+            "subtext": "",
             "show_social_icons": false,
             "icon_layout": "horizontal",
             "image_width": 100,
@@ -49,8 +49,8 @@
           "type": "link_list",
           "settings": {
             "open_by_default": false,
-            "heading_menu": "EXPLORE",
-            "menu": "",
+            "heading_menu": "MENU",
+            "menu": "main-menu",
             "show_social_icons": false
           }
         },
