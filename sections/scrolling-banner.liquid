@@ -1,4 +1,4 @@
-{% liquid 
+{% liquid
   assign num_loop = 8
   assign number = 1
   if section.blocks.size > 2
@@ -13,11 +13,43 @@
     assign number = 1
   endif
   assign duration = section.settings.speed | times: number
+
+  # Calculate size multipliers based on banner height
+  assign mobile_height_num = section.settings.mobile_height | remove: 'px' | times: 1
+  assign desktop_height_num = section.settings.desktop_height | remove: 'px' | times: 1
+
+  # Set size multipliers based on height ranges
+  if mobile_height_num <= 50
+    assign mobile_size_multiplier = 0.6
+  elsif mobile_height_num <= 70
+    assign mobile_size_multiplier = 0.75
+  elsif mobile_height_num <= 100
+    assign mobile_size_multiplier = 0.9
+  elsif mobile_height_num <= 130
+    assign mobile_size_multiplier = 1.0
+  else
+    assign mobile_size_multiplier = 1.2
+  endif
+
+  if desktop_height_num <= 60
+    assign desktop_size_multiplier = 0.6
+  elsif desktop_height_num <= 80
+    assign desktop_size_multiplier = 0.75
+  elsif desktop_height_num <= 120
+    assign desktop_size_multiplier = 0.9
+  elsif desktop_height_num <= 160
+    assign desktop_size_multiplier = 1.0
+  else
+    assign desktop_size_multiplier = 1.2
+  endif
 %}
+
 {% style %}
   .section-{{ section.id }} {
     --duration : {{ duration }}s;
     --direction: {% if section.settings.direction == 'left' %}reverse{% else %}normal{% endif %};
+    --mobile-size-multiplier: {{ mobile_size_multiplier }};
+    --desktop-size-multiplier: {{ desktop_size_multiplier }};
     {%- unless section.settings.color_text_light.alpha == 0.0 -%}
       --colors-text: {{ section.settings.color_text_light.red }},{{ section.settings.color_text_light.green }},{{ section.settings.color_text_light.blue }};
     {% endunless %}
@@ -28,13 +60,13 @@
   .dark .section-{{ section.id }} {
     {%- unless section.settings.color_text_dark.alpha == 0.0 -%}
       --colors-text: {{ section.settings.color_text_dark.red }},{{ section.settings.color_text_dark.green }},{{ section.settings.color_text_dark.blue }};
-    {% else %}  
+    {% else %}
       --colors-text: transparent;
     {% endunless %}
      {%- unless section.settings.bg_dark.alpha == 0.0 -%}
       --colors-background-scrolling: {{ section.settings.bg_dark.red }}, {{ section.settings.bg_dark.green }}, {{ section.settings.bg_dark.blue }};
     {% endunless %}
-  }  
+  }
   .section-{{ section.id }} .text-color-secondary {
     {%- unless section.settings.color_text_light_2.alpha == 0.0 -%}
       color: {{ section.settings.color_text_light_2 }};
@@ -72,7 +104,42 @@
       background: {{ section.settings.bg_dark }};
     {% endif %}
   }
-  @media (min-width: 767px){
+
+  /* Fixed height controls with overflow handling */
+  .banner-container-{{ section.id }} {
+    {% if section.settings.image != blank %}
+      {% if section.settings.mobile_height == 'natural' %}
+        aspect-ratio: {{ section.settings.image.aspect_ratio }};
+      {% else %}
+        height: {{ section.settings.mobile_height }};
+        max-height: {{ section.settings.mobile_height }};
+        overflow: hidden;
+      {% endif %}
+    {% else %}
+      {% unless section.settings.mobile_height == 'natural' %}
+        height: {{ section.settings.mobile_height }};
+        max-height: {{ section.settings.mobile_height }};
+        overflow: hidden;
+      {% endunless %}
+    {% endif %}
+  }
+
+  /* Content container to ensure proper centering */
+  .banner-content-{{ section.id }} {
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Scrolling content wrapper */
+  .scrolling-wrapper-{{ section.id }} {
+    {% if section.settings.image == blank %}
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    {% endif %}
+  }
+
+  @media (min-width: 767px) {
     .space-blocks-{{ section.id }} {
       padding-inline-end: {{ section.settings.space_block }}px;
     }
@@ -80,15 +147,42 @@
       padding-inline-start: {{ section.settings.space_block }}px;
       padding-inline-end: 0
     }
+
+    /* Desktop height controls */
+    .banner-container-{{ section.id }} {
+      {% if section.settings.image != blank %}
+        {% if section.settings.desktop_height == 'natural' %}
+          aspect-ratio: {{ section.settings.image.aspect_ratio }};
+          height: auto;
+          max-height: none;
+          overflow: visible;
+        {% else %}
+          height: {{ section.settings.desktop_height }};
+          max-height: {{ section.settings.desktop_height }};
+          overflow: hidden;
+        {% endif %}
+      {% else %}
+        {% unless section.settings.desktop_height == 'natural' %}
+          height: {{ section.settings.desktop_height }};
+          max-height: {{ section.settings.desktop_height }};
+          overflow: hidden;
+        {% endunless %}
+      {% endif %}
+    }
   }
 {% endstyle %}
+
 {% for block in section.blocks %}
   {%- case block.type -%}
     {%- when 'icon' -%}
+      {% liquid
+        assign mobile_icon_size = block.settings.height_icon | times: mobile_size_multiplier
+        assign desktop_icon_size = block.settings.height_icon | times: desktop_size_multiplier
+      %}
       {% style %}
         .icon-{{ block.id }} {
-          width: {{ block.settings.height_icon | times: 0.7 }}px;
-          height: {{ block.settings.height_icon | times: 0.7 }}px;
+          width: {{ mobile_icon_size }}px;
+          height: {{ mobile_icon_size }}px;
         }
         .space-block-{{ block.id }} {
           margin-left: {{ block.settings.spacing_left_mobile }}px;
@@ -96,8 +190,8 @@
         }
         @media (min-width: 767px) {
           .icon-{{ block.id }} {
-            width: {{ block.settings.height_icon }}px;
-            height: {{ block.settings.height_icon }}px;
+            width: {{ desktop_icon_size }}px;
+            height: {{ desktop_icon_size }}px;
           }
           .space-block-{{ block.id }} {
             margin-left: {{ block.settings.spacing_left }}px;
@@ -108,18 +202,25 @@
     {%- when 'image' -%}
       {% if block.settings.image != blank %}
         {% liquid
-          assign w_img = block.settings.image.aspect_ratio | times: block.settings.height_image
+          assign mobile_img_height = block.settings.height_image | times: mobile_size_multiplier
+          assign desktop_img_height = block.settings.height_image | times: desktop_size_multiplier
+          assign mobile_w_img = block.settings.image.aspect_ratio | times: mobile_img_height
+          assign desktop_w_img = block.settings.image.aspect_ratio | times: desktop_img_height
         %}
         {% style %}
           .img-{{ block.id }} {
-            width: {{ w_img }}px;
-            height: {{ block.settings.height_image }}px;
+            width: {{ mobile_w_img }}px;
+            height: {{ mobile_img_height }}px;
           }
           .space-block-{{ block.id }} {
             margin-left: {{ block.settings.spacing_left_mobile }}px;
             margin-right: {{ block.settings.spacing_right_mobile }}px;
           }
           @media (min-width: 767px) {
+            .img-{{ block.id }} {
+              width: {{ desktop_w_img }}px;
+              height: {{ desktop_img_height }}px;
+            }
             .space-block-{{ block.id }} {
               margin-left: {{ block.settings.spacing_left }}px;
               margin-right: {{ block.settings.spacing_right }}px;
@@ -132,10 +233,13 @@
         {%- liquid
           assign base_size = settings.text_base_size | times: 0.00875
           assign font_size = block.settings.text_size | times: 0.01 | times: base_size
+          assign mobile_font_size = font_size | times: mobile_size_multiplier
+          assign desktop_font_size = font_size | times: desktop_size_multiplier
         -%}
         {%- style -%}
           .text--{{ block.id }} {
-            font-size:{{ font_size | times: 0.9 }}rem; 
+            font-size: {{ mobile_font_size }}rem;
+            line-height: 1.2;
           }
           .space-block-{{ block.id }} {
             margin-left: {{ block.settings.spacing_left_mobile }}px;
@@ -143,7 +247,8 @@
           }
           @media (min-width: 767px){
             .text--{{ block.id }} {
-              font-size: {{ font_size }}rem;
+              font-size: {{ desktop_font_size }}rem;
+              line-height: 1.3;
             }
             .space-block-{{ block.id }} {
               margin-left: {{ block.settings.spacing_left }}px;
@@ -156,10 +261,13 @@
       {% if block.settings.text != blank %}
         {%- liquid
           assign heading_size = settings.heading_base_size | times: block.settings.text_size | times: 0.000225
+          assign mobile_heading_size = heading_size | times: mobile_size_multiplier
+          assign desktop_heading_size = heading_size | times: desktop_size_multiplier
         -%}
         {%- style -%}
           .text--{{ block.id }} {
-            font-size:{{ heading_size | times: 0.6 }}rem; 
+            font-size: {{ mobile_heading_size }}rem;
+            line-height: 1.2;
           }
           .space-block-{{ block.id }} {
             margin-left: {{ block.settings.spacing_left_mobile }}px;
@@ -175,7 +283,8 @@
           }
           @media (min-width: 767px) {
             .text--{{ block.id }} {
-              font-size: {{ heading_size }}rem;
+              font-size: {{ desktop_heading_size }}rem;
+              line-height: 1.3;
             }
             .space-block-{{ block.id }} {
               margin-left: {{ block.settings.spacing_left }}px;
@@ -185,9 +294,17 @@
         {%- endstyle -%}
       {% endif %}
     {%- when 'button' -%}
+      {% liquid
+        assign mobile_button_padding_y = 6 | times: mobile_size_multiplier | round
+        assign mobile_button_padding_x = 12 | times: mobile_size_multiplier | round
+        assign desktop_button_padding_y = 8 | times: desktop_size_multiplier | round
+        assign desktop_button_padding_x = 16 | times: desktop_size_multiplier | round
+        assign mobile_button_font = 0.875 | times: mobile_size_multiplier
+        assign desktop_button_font = 0.9 | times: desktop_size_multiplier
+      %}
       {% style %}
         .button--{{ block.id }}.button-solid,
-        .button--{{ block.id }}.button-solid:before { 
+        .button--{{ block.id }}.button-solid:before {
           {%- unless block.settings.color_button.alpha == 0.0 -%}
             --colors-line-and-border: {{ block.settings.color_button.red }}, {{ block.settings.color_button.green }}, {{ block.settings.color_button.blue }};
             --colors-button: {{ block.settings.color_button.red }}, {{ block.settings.color_button.green }}, {{ block.settings.color_button.blue }};
@@ -205,14 +322,14 @@
           {%- endunless -%}
         }
         .button--{{ block.id }}.button-outline {
-          {%- if block.settings.secondary_button_text.alpha != 0.0 -%} 
-            --colors-secondary-button: {{ block.settings.secondary_button_text.red }}, {{ block.settings.secondary_button_text.green }}, {{ block.settings.secondary_button_text.blue }}; 
-            --colors-line-secondary-button: {{ block.settings.secondary_button_text.red }}, {{ block.settings.secondary_button_text.green }}, {{ block.settings.secondary_button_text.blue }}; 
+          {%- if block.settings.secondary_button_text.alpha != 0.0 -%}
+            --colors-secondary-button: {{ block.settings.secondary_button_text.red }}, {{ block.settings.secondary_button_text.green }}, {{ block.settings.secondary_button_text.blue }};
+            --colors-line-secondary-button: {{ block.settings.secondary_button_text.red }}, {{ block.settings.secondary_button_text.green }}, {{ block.settings.secondary_button_text.blue }};
             --background-secondary-button: transparent;
           {% endif %}
-          {%- if block.settings.color_button_secondary.alpha != 0.0 -%} 
-            --background-secondary-button: {{ block.settings.color_button_secondary.red }}, {{ block.settings.color_button_secondary.green }}, {{ block.settings.color_button_secondary.blue }}; 
-            --colors-line-secondary-button: {{ block.settings.color_button_secondary.red }}, {{ block.settings.color_button_secondary.green }}, {{ block.settings.color_button_secondary.blue }}; 
+          {%- if block.settings.color_button_secondary.alpha != 0.0 -%}
+            --background-secondary-button: {{ block.settings.color_button_secondary.red }}, {{ block.settings.color_button_secondary.green }}, {{ block.settings.color_button_secondary.blue }};
+            --colors-line-secondary-button: {{ block.settings.color_button_secondary.red }}, {{ block.settings.color_button_secondary.green }}, {{ block.settings.color_button_secondary.blue }};
           {% endif %}
         }
         {% if block.settings.colors_text_link.alpha != 0.0 %}
@@ -224,15 +341,26 @@
           margin-left: {{ block.settings.spacing_left_mobile }}px;
           margin-right: {{ block.settings.spacing_right_mobile }}px;
         }
+        /* Dynamic button sizing based on banner height */
+        .button--{{ block.id }} {
+          padding: {{ mobile_button_padding_y }}px {{ mobile_button_padding_x }}px !important;
+          font-size: {{ mobile_button_font }}rem !important;
+          line-height: 1.2 !important;
+        }
         @media (min-width: 767px) {
           .space-block-{{ block.id }} {
             margin-left: {{ block.settings.spacing_left }}px;
             margin-right: {{ block.settings.spacing_right }}px;
           }
+          .button--{{ block.id }} {
+            padding: {{ desktop_button_padding_y }}px {{ desktop_button_padding_x }}px !important;
+            font-size: {{ desktop_button_font }}rem !important;
+          }
         }
       {% endstyle %}
   {% endcase %}
 {% endfor %}
+
 {% capture content %}
   {%- for block in section.blocks -%}
     {%- case block.type -%}
@@ -252,8 +380,9 @@
         </div>
       {%- when 'image' -%}
         {% liquid
-          assign w_img = block.settings.image.aspect_ratio | times: block.settings.height_image
-          assign img_src = w_img | plus: 50
+          assign mobile_img_height = block.settings.height_image | times: mobile_size_multiplier
+          assign mobile_w_img = block.settings.image.aspect_ratio | times: mobile_img_height
+          assign img_src = mobile_w_img | plus: 50
         %}
         <div class="h-full w-max flex items-center space-blocks-{{ section.id }} space-block-{{ block.id }} whitespace-nowrap">
           <div class="img-{{ block.id }} overflow-hidden relative{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
@@ -266,14 +395,14 @@
                   loading="lazy"  
                   onload="this.closest('.animate_transition_card__image')?.classList.remove('animate-Xpulse', 'skeleton-image');
                     setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);"
-                  width="{{ w_img }}"
-                  height="{{ block.settings.height_image }}"
+                  width="{{ mobile_w_img }}"
+                  height="{{ mobile_img_height }}"
                 >
               </div>
             {% else %}
               {% style %}
                 .image-block-{{ block.id }} {
-                  height: {{ block.settings.height_image }}px;
+                  height: {{ mobile_img_height }}px;
                 }
               {% endstyle %}
               {% assign class = 'w-[120px] bg-[#C9C9C9] text-[#acacac] image-block-' | append: block.id %}
@@ -320,7 +449,7 @@
                 {% if block.settings.open_new_window %}target="_blank"{% endif %}
               >
             {%- endif -%}
-              <div class="button button--{{ block.id }}{% if block.settings.show_button_style == 'secondary' %} button-outline{% elsif block.settings.show_button_style == 'text-link' %} button-text-link {% else %} button-solid{% endif %} empty:hidden leading-normal text-center mt-1 mb-1 lg:mt-0 lg:mb-0 lg:ml-0 lg:mr-0 h-full pl-7 pr-7 lg:pl-9 lg:pr-9 pt-2.5 pb-2.5 md:pt-3 md:pb-3{% unless block.settings.button_link != blank %} opacity-70 hover:cursor-not-allowed{% endunless %}">
+              <div class="button button--{{ block.id }}{% if block.settings.show_button_style == 'secondary' %} button-outline{% elsif block.settings.show_button_style == 'text-link' %} button-text-link {% else %} button-solid{% endif %} empty:hidden leading-normal text-center{% unless block.settings.button_link != blank %} opacity-70 hover:cursor-not-allowed{% endunless %}">
                 {% render 'button-label', button_label: block.settings.button_label, show_button_style: block.settings.show_button_style %}
               </div>
             {%- if block.settings.button_link != blank -%}
@@ -331,22 +460,19 @@
     {% endcase %}
   {% endfor %}
 {% endcapture %}
-{% if section.settings.image != blank %}
-  {% if section.settings.mobile_height != 'natural' or section.settings.desktop_height == 'natural' %}
-    {% style %}
-      .image-natural-{{ section.id }} {
-        --ratio-image-scrolling: {{ section.settings.image.aspect_ratio }}
-      }
-    {% endstyle %}
-  {% endif %}
-  <div class="bg-{{ section.id }} pb-[{{ section.settings.padding_bottom_mobile }}px] pt-[{{ section.settings.padding_top_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px] md:pt-[{{ section.settings.padding_top }}px]">
-    <div class="image-natural-{{ section.id }} ltr relative flex items-center{% if section.settings.mobile_height == 'natural' %} aspect-[var(--ratio-image-scrolling)]{% else %} min-h-[{{ section.settings.mobile_height }}]{% endif %}{% if section.settings.desktop_height == 'natural' %} md:aspect-[var(--ratio-image-scrolling)] md:min-h-auto{% else %} md:aspect-[auto] md:min-h-[{{ section.settings.desktop_height }}]{% endif %}">
-      <span class="h-full w-full absolute top-0 left-0 bottom-0 right-0 z-[2] image-treatment-overlay transition-opacity opacity-{{ section.settings.overlay_opacity }}{% unless section.settings.image != blank %} hidden{% endunless %}"></span>
+
+<div class="bg-{{ section.id }} pb-[{{ section.settings.padding_bottom_mobile }}px] pt-[{{ section.settings.padding_top_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px] md:pt-[{{ section.settings.padding_top }}px]">
+  <div class="banner-container-{{ section.id }} ltr relative">
+    {% if section.settings.image != blank %}
+      <span
+        class="h-full w-full absolute top-0 left-0 bottom-0 right-0 z-[2] image-treatment-overlay transition-opacity opacity-{{ section.settings.overlay_opacity }}"
+      ></span>
       <div class="w-full h-full z-0 absolute top-0 left-0">
         <div class="h-full w-full animate-Xpulse skeleton-image">
           <img
             class="block w-full h-full object-cover object-center"
-            srcset="{{ section.settings.image | image_url: width: 375 }} 375w,
+            srcset="
+              {{ section.settings.image | image_url: width: 375 }} 375w,
               {{ section.settings.image | image_url: width: 450 }} 450w,
               {{ section.settings.image | image_url: width: 750 }} 750w,
               {{ section.settings.image | image_url: width: 900 }} 900w,
@@ -355,7 +481,8 @@
               {{ section.settings.image | image_url: width: 1780 }} 1780w,
               {{ section.settings.image | image_url: width: 2000 }} 2000w,
               {{ section.settings.image | image_url: width: 3000 }} 3000w,
-              {{ section.settings.image | image_url: width: 3840 }} 3840w"
+              {{ section.settings.image | image_url: width: 3840 }} 3840w
+            "
             sizes="100vw"
             src="{{ section.settings.image | image_url: width: 3840 }}"
             loading="lazy"
@@ -367,39 +494,44 @@
           >
         </div>
       </div>
-{% endif %}
-    <div x-intersect.once.margin.200px="$store.xScrollPromotion.load($el)" 
-      {% if section.settings.enable_rotating_effect %}
-        x-intersect.once.margin.300px="$store.xScrollPromotion.updateRotation($el, {% if settings.lang_direction contains request.locale.iso_code %}true{% endif %})"
-      {% endif %}
-      class="text-[rgb(var(--colors-text))] z-10 section-{{ section.id }} ltr{% if section.settings.enable_rotating_effect %} pt-12 pb-12 md:pt-24 md:pb-24 overflow-hidden{% endif %} relative"
-      >
+    {% endif %}
+
+    <div class="banner-content-{{ section.id }}">
       <div
-        class="w-[110%] overflow-hidden {% if section.settings.show_border %} border-y border-solid{% endif %}{% if section.settings.image == blank %} bg-{{ section.id }} pb-[{{ section.settings.padding_bottom_mobile }}px] pt-[{{ section.settings.padding_top_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px] md:pt-[{{ section.settings.padding_top }}px]{% else %} pt-4 pb-4{% endif %}">
-        <div class="flex flex-nowrap whitespace-nowrap min-w-full">
-          <div class="flex shrink-0 whitespace-nowrap items-center el_animate element-{{ section.id }}">
-            {% for i in (1..num_loop) %}
-              {{ content }}
-            {% endfor %}
-          </div>
-          <div class="flex shrink-0 whitespace-nowrap items-center el_animate">
-            {% for i in (1..num_loop) %}
-              {{ content }}
-            {% endfor %}
-          </div>
-          <div class="flex shrink-0 whitespace-nowrap items-center el_animate">
-            {% for i in (1..num_loop) %}
-              {{ content }}
-            {% endfor %}
+        x-intersect.once.margin.200px="$store.xScrollPromotion.load($el)"
+        {% if section.settings.enable_rotating_effect %}
+          x-intersect.once.margin.300px="$store.xScrollPromotion.updateRotation($el, {% if settings.lang_direction contains request.locale.iso_code %}true{% endif %})"
+        {% endif %}
+        class="text-[rgb(var(--colors-text))] z-10 section-{{ section.id }} ltr{% if section.settings.enable_rotating_effect %} overflow-hidden{% endif %} relative w-full scrolling-wrapper-{{ section.id }}"
+      >
+        <div
+          class="w-[110%] overflow-hidden {% if section.settings.show_border %} border-y border-solid{% endif %}{% if section.settings.image == blank %} pt-0 pb-0{% endif %}"
+        >
+          <div class="flex flex-nowrap whitespace-nowrap min-w-full">
+            <div class="flex shrink-0 whitespace-nowrap items-center el_animate element-{{ section.id }}">
+              {% for i in (1..num_loop) %}
+                {{ content }}
+              {% endfor %}
+            </div>
+            <div class="flex shrink-0 whitespace-nowrap items-center el_animate">
+              {% for i in (1..num_loop) %}
+                {{ content }}
+              {% endfor %}
+            </div>
+            <div class="flex shrink-0 whitespace-nowrap items-center el_animate">
+              {% for i in (1..num_loop) %}
+                {{ content }}
+              {% endfor %}
+            </div>
           </div>
         </div>
       </div>
     </div>
-{% if section.settings.image != blank %}
   </div>
 </div>
-{% endif %}
+
 <script src="{{ 'scrolling-promotion.js' | asset_url }}" defer></script>
+
 {% schema %}
 {
   "name": "t:sections.scrolling_promotion.name",
@@ -546,32 +678,32 @@
       "id": "desktop_height",
       "options": [
         {
-          "value": "450px",
-          "label": "t:sections.image-with-text.settings.height.options__1.label"
+          "value": "60px",
+          "label": "Extra Small (60px)"
         },
         {
-          "value": "550px",
-          "label": "t:sections.image-with-text.settings.height.options__2.label"
+          "value": "80px",
+          "label": "Small (80px)"
         },
         {
-          "value": "650px",
-          "label": "t:sections.image-with-text.settings.height.options__3.label"
+          "value": "120px",
+          "label": "Medium (120px)"
         },
         {
-          "value": "750px",
-          "label": "t:sections.image-with-text.settings.height.options__4.label"
+          "value": "160px",
+          "label": "Large (160px)"
+        },
+        {
+          "value": "200px",
+          "label": "Extra Large (200px)"
         },
         {
           "value": "natural",
-          "label": "t:sections.image-with-text.settings.height.options__5.label"
-        },
-        {
-          "value": "90vh",
-          "label": "t:settings_schema.cart.settings.cart_drawer_size_mobile.fullscreen.label"
+          "label": "Natural (Image Ratio)"
         }
       ],
-      "default": "750px",
-      "label": "t:sections.shop_the_look.settings.desktop_height.label"
+      "default": "120px",
+      "label": "Desktop Height"
     },
     {
       "type": "range",
@@ -612,32 +744,32 @@
       "id": "mobile_height",
       "options": [
         {
-          "value": "250px",
-          "label": "t:sections.image-with-text.settings.mobile_height.options__1.label"
+          "value": "50px",
+          "label": "Extra Small (50px)"
         },
         {
-          "value": "300px",
-          "label": "t:sections.image-with-text.settings.mobile_height.options__2.label"
+          "value": "70px",
+          "label": "Small (70px)"
         },
         {
-          "value": "400px",
-          "label": "t:sections.image-with-text.settings.mobile_height.options__3.label"
+          "value": "100px",
+          "label": "Medium (100px)"
         },
         {
-          "value": "500px",
-          "label": "t:sections.image-with-text.settings.mobile_height.options__4.label"
+          "value": "130px",
+          "label": "Large (130px)"
+        },
+        {
+          "value": "160px",
+          "label": "Extra Large (160px)"
         },
         {
           "value": "natural",
-          "label": "t:sections.image-with-text.settings.height.options__5.label"
-        },
-        {
-          "value": "90vh",
-          "label": "t:settings_schema.cart.settings.cart_drawer_size_mobile.fullscreen.label"
+          "label": "Natural (Image Ratio)"
         }
       ],
-      "default": "500px",
-      "label": "t:sections.shop_the_look.settings.mobile_height.label"
+      "default": "100px",
+      "label": "Mobile Height"
     },
     {
       "type": "range",
