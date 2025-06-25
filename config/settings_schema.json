@@ -2,7 +2,7 @@
   {
     "name": "theme_info",
     "theme_name": "Eurus",
-    "theme_version": "8.7.0",
+    "theme_version": "9.0.0",
     "theme_author": "BSS Commerce",
     "theme_documentation_url": "https://support.omnithemes.com/blogs/themes/eurus-theme",
     "theme_support_url": "https://omnithemes.com/contact/"
@@ -3121,10 +3121,6 @@
         "content": "t:settings_schema.advanced.custom_info"
       },
       {
-        "type": "header",
-        "content": "t:settings_schema.advanced.system"
-      },
-      {
         "type": "select",
         "id": "selected_preset",
         "options": [
@@ -3151,7 +3147,8 @@
         ],
         "label": "t:settings_schema.advanced.selected_preset.label",
         "info": "t:settings_schema.advanced.selected_preset.info",
-        "default": "puff"
+        "default": "puff",
+        "visible_if": "{{ false }}"
       },
       {
         "type": "header",

@@ -74,7 +74,7 @@
           "settings": {
             "open_by_default": true,
             "heading_email": "Subscribe to our Newsletter",
-            "subtext_email": "<p>Sign up to receive email updates from Eurus about the latest collections and news.<\/p>",
+            "subtext_email": "<p>Sign up to receive email updates from Eurus about the latest collections and news.</p>",
             "show_social_icons": true
           }
         }
