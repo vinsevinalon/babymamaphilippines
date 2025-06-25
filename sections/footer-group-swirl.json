@@ -18,11 +18,12 @@
           "type": "text",
           "settings": {
             "open_by_default": false,
-            "heading_text": "ABOUT",
+            "heading_text": "PAYMENT METHODS",
             "subtext": "",
             "show_social_icons": false,
             "icon_layout": "horizontal",
-            "image_width": 100,
+            "image": "shopify://shop_images/349-x-92-Payment-Methods-November-2023_png_1e537fbc-52a1-4af9-afef-5dd935cbdd8e.webp",
+            "image_width": 200,
             "link_image_footer": "",
             "open_new_window": false
           }

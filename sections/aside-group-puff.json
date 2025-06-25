@@ -433,7 +433,7 @@
         "sections--18371362324774__2eca4af3-5277-406b-a4de-c52946c34b5f-1680002178ae4a2c07-1": {
           "type": "text",
           "settings": {
-            "text": "<p>Simply enter code coupon_code at checkout<\/p>",
+            "text": "<p>Simply enter code coupon_code at checkout</p>",
             "coupon_code": "SIMPLY10",
             "coupon_color": "rgba(0,0,0,0)",
             "coupon_color_dark": "rgba(0,0,0,0)"
@@ -465,10 +465,10 @@
         "text_color_light": "#211e1e",
         "background_color_dark": "#44403f",
         "text_color_dark": "#ffffff",
+        "delay": 5,
         "show_for_guests_only": true,
         "show_on_mobile": false,
         "schedule_enabled": false,
-        "delay": 5,
         "reappear_after": 7,
         "enable_desktop": true,
         "default_style": "minimal",

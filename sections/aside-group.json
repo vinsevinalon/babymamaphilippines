@@ -192,8 +192,7 @@
         },
         "badges": {
           "type": "badges",
-          "settings": {
-          }
+          "settings": {}
         },
         "description": {
           "type": "description",
@@ -220,15 +219,14 @@
         },
         "quantity-selector": {
           "type": "quantity_selector",
-          "settings": {
-          }
+          "settings": {}
         },
         "buy-buttons": {
           "type": "buy_buttons",
           "settings": {
             "show_dynamic_checkout": true,
             "preorder_button_label": "",
-            "preorder_message": "<p>This product will be available for sale in 2 weeks, but you can pre-order now to receive 10% discount!<\/p>",
+            "preorder_message": "<p>This product will be available for sale in 2 weeks, but you can pre-order now to receive 10% discount!</p>",
             "preorder_show_dynamic_button": false,
             "show_background": false,
             "box_type": "square",
@@ -307,7 +305,7 @@
         "sections--18371362324774__2eca4af3-5277-406b-a4de-c52946c34b5f-1680002178ae4a2c07-1": {
           "type": "text",
           "settings": {
-            "text": "<p>Simply enter code coupon_code at checkout<\/p>",
+            "text": "<p>Simply enter code coupon_code at checkout</p>",
             "coupon_code": "SIMPLY10",
             "coupon_color": "rgba(0,0,0,0)",
             "coupon_color_dark": "rgba(0,0,0,0)"
@@ -339,10 +337,10 @@
         "text_color_light": "#211e1e",
         "background_color_dark": "#44403f",
         "text_color_dark": "#ffffff",
+        "delay": 5,
         "show_for_guests_only": true,
         "show_on_mobile": false,
         "schedule_enabled": false,
-        "delay": 5,
         "reappear_after": 7,
         "enable_desktop": true,
         "default_style": "minimal",
@@ -401,7 +399,7 @@
       "type": "cookie-banner",
       "settings": {
         "cookie_enabled": true,
-        "cookie_notice": "<p>We use cookies and similar technologies to provide the best experience on our website. <\/p>",
+        "cookie_notice": "<p>We use cookies and similar technologies to provide the best experience on our website. </p>",
         "cookie_delay": 4,
         "content_alignment": "",
         "button_accept": "Got it!",

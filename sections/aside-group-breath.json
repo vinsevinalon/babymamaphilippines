@@ -20,8 +20,7 @@
             "show_on_product_card": true,
             "show_on_product_page": true,
             "applied_products": [],
-            "applied_collections": [
-            ],
+            "applied_collections": [],
             "icon": "none",
             "another_icon": "",
             "custom_icon": "",
@@ -200,6 +199,7 @@
           "type": "estimate_delivery",
           "settings": {
             "hide_when_pre_order": false,
+            "box_type": "round",
             "message": "<p>Estimated Delivery between <strong>earliest_delivery_date and latest_delivery_date.</strong></p>",
             "tooltip_text": "",
             "tooltip_icon": "none",
@@ -207,7 +207,6 @@
             "tooltip_icon_position": "left",
             "tooltip_message": "",
             "show_background": true,
-            "box_type": "round",
             "background_color_light": "#e4edfa",
             "message_color_light": "#276dd3",
             "background_color_dark": "#e4edfa",
