@@ -1,11 +1,12 @@
-if (!window.Eurus.loadedScript.includes('frequently-bought-together.js')) {
-  window.Eurus.loadedScript.push('frequently-bought-together.js');
+if (!window.Eurus.loadedScript.has('frequently-bought-together.js')) {
+  window.Eurus.loadedScript.add('frequently-bought-together.js');
   
   requestAnimationFrame(() => {
     document.addEventListener("alpine:init", () => {
       Alpine.data('xProductFrequently', (
         sectionId
       ) => ({
+        load: false,
         show: false,
         products: "",
         productsList: [],
@@ -69,19 +70,21 @@ if (!window.Eurus.loadedScript.includes('frequently-bought-together.js')) {
 
           let currentVariant =  JSON.parse(el.closest(".x-product-fbt-data").querySelector(".current-variant").textContent);
           if(Object.keys(currentVariant).length === 0) {
-            let productVariants = JSON.parse(el.closest(".x-product-fbt-data").querySelector('[type="application/json"]').textContent);
-            for (const variant of productVariants) {
-              if (variant.available) {
-                currentVariant = variant;
-                break;
+            let variantsData = el.closest(".x-product-fbt-data").querySelector('[type="application/json"]');
+            if (variantsData) {
+              let productVariants = JSON.parse(el.closest(".x-product-fbt-data").querySelector('[type="application/json"]').textContent);
+              for (const variant of productVariants) {
+                if (variant.available) {
+                  currentVariant = variant;
+                  break;
+                }
               }
             }
-          }
-          
+          }         
           const price = !hasVariant && JSON.parse(el.closest(".x-product-fbt-data").querySelector(".current-price").textContent);
           const featured_image = currentVariant.featured_image ? currentVariant.featured_image.src : el.closest(".x-product-fbt-data").querySelector(".featured-image").textContent;
           const vendor = el.closest(".x-product-fbt-data").querySelector(".vendor") ? el.closest(".x-product-fbt-data").querySelector(".vendor")?.textContent : '';
-          const rating = el.closest(".x-product-fbt-data").querySelector(".rating-fbt") ? el.closest(".x-product-fbt-data").querySelector(".rating-fbt")?.innerHTML : '';
+          const rating = el.closest(".x-product-fbt-data").querySelector(".rating-fbt-mini") ? el.closest(".x-product-fbt-data").querySelector(".rating-fbt-mini")?.innerHTML : '';
           const edtElement = el.closest(".x-product-fbt-data").querySelector('.hidden.cart-edt-properties');
           let shippingMessage = '';
           if(edtElement){

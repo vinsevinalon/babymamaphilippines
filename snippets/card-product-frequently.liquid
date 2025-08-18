@@ -11,7 +11,6 @@
     - list_name: {String} The title of collection,
     - full_width: {Boolean} Show section full width. Default: false
     Usage:
-    {% render 'card-product-shop-the-look', show_vendor: section.settings.show_vendor %}
 {% endcomment %}
  
 {%- liquid
@@ -63,6 +62,12 @@
       assign difference_in_seconds_published = current_date | minus: product_published_at
       assign difference_in_days_published = difference_in_seconds_published | times: 1.0 | divided_by: 86400 | round: 2
     endunless
+
+    if settings.lang_direction contains request.locale.iso_code
+      assign is_rtl = true
+    else
+      assign is_rtl = false
+    endif
   -%}
     {%- capture data_for_customer_event -%}
       {
@@ -200,16 +205,6 @@
                           "event": "ready",
                           "callback": () => {
                             document.dispatchEvent(new CustomEvent("eurus:{{ section_id }}:splide-ready"));
-                            window.requestAnimationFrame(() => {
-                              const nodeList = $el.querySelectorAll(".splide__pagination li");
-                              const reversed = Array.from(nodeList).reverse();
-
-                              reversed.forEach((el, index) => {
-                                if (index > {{ count_media }} - 1) {
-                                  el.remove();
-                                }
-                              });
-                            })
                           }
                         }
                       ]
@@ -249,7 +244,7 @@
                       </div>
                     {%- endif -%}
                     <div class="w-full{% if media_aspect_ratio != "natural" %} h-full min-h-full{% endif %}{% if settings.product_image_type != "slide_img" or count_media <= 1 or class_slide == 'recommendations' %} top-0 left-0 absolute{% else %} overflow-hidden splide__slide x-splide-slide max-h-full{% endif %} duration-300 z-0 transition ease-out">
-                      {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+                      {% # theme-check-disable ImgLazyLoading %}
                       <picture>
                         <img
                           srcset="{{ card_product.featured_media | image_url: width: 450 }} 450w,
@@ -269,17 +264,18 @@
                             {%- endif -%}
                             {%- if animation_loading %} animate_transition_image{% endif -%}
                           "
-                          loading="{{ loading | default: 'lazy' }}"
+                          {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                           onload="this?.classList.add('active')"
                           width="{{ card_product.featured_media.width }}"
                           height="{{ card_product.featured_media.height }}"
                         />
                       </picture>
-                      {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
+                      {% # theme-check-enable ImgLazyLoading %}
                     </div>
                     {%- if card_product.media[1] != nil -%}
                       {%- if settings.product_image_type == "hover_to_reveal_second_image" -%}
                         <div class="w-full h-full top-0 left-0 absolute duration-300 z-0 transition ease-out">
+                          {% # theme-check-disable ImgLazyLoading %}
                           <picture>
                             <img
                               srcset="{{ card_product.media[1] | image_url: width: 450 }} 450w,
@@ -297,11 +293,12 @@
                                 {%- if settings.product_card_effect_reveal_image == 'fade' %} image-second-hover opacity-0 lg:group-hover:opacity-100{% endif -%}
                                 {%- if settings.product_card_effect_reveal_image == 'slide' %} image-first-hover-slide-anm absolute top-0 -right-[101%]{% endif -%}
                               "
-                              loading="lazy"
+                              {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                               width="{{ card_product.media[1].width }}"
                               height="{{ card_product.media[1].height }}"
                             />
                           </picture>
+                          {% # theme-check-enable ImgLazyLoading %}
                         </div>
                       {%- elsif settings.product_image_type == "slide_img" and count_media > 1 and class_slide != 'recommendations' -%}
                           {% for media in  card_product.media %}
@@ -309,7 +306,9 @@
                               <div
                                 index="{{ forloop.index0 }}" 
                                 media="{{ media | image_url }}"
-                                class="w-full splide__slide x-splide-slide duration-300 z-0 transition ease-out{% if media_aspect_ratio != "natural" %} h-full min-h-full{% endif %}">
+                                class="w-full splide__slide x-splide-slide duration-300 z-0 transition ease-out{% if media_aspect_ratio != "natural" %} h-full min-h-full{% endif %}"
+                              >
+                                {% # theme-check-disable ImgLazyLoading %}
                                 <picture>
                                   <img
                                     srcset="{{ media | image_url: width: 450 }} 450w,
@@ -322,11 +321,12 @@
                                     sizes="{{ sizes }}"
                                     alt="{{ media.alt | split: "#" | first | escape }}"
                                     class="w-full motion-reduce{% if media_aspect_ratio == "natural" %} aspect-auto{% else %} h-full min-h-full{% endif %} object-cover"
-                                    loading="lazy"
+                                    {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                                     width="{{ media.width }}"
                                     height="{{ media.height }}"
                                   />
                                 </picture>
+                                {% # theme-check-enable ImgLazyLoading %}
                               </div>
                             {% endif %}
                             {% liquid 
@@ -382,6 +382,9 @@
               <div id="featured-image-{{ section_id }}" class="featured-image hidden">
                 {%- if card_product.featured_media -%}{{ card_product.featured_media | image_url: width: 375 }}{%- endif -%}
               </div>
+              {% if show_highlighted_features and settings.highlighted_features_position == "top_card" %}
+                {% render 'highlighted-features', card_product: card_product %}
+              {% endif %}
               <div class="below-image ltr flex flex-wrap justify-{{ settings.info_alignment_card_product }} gap-1 mb-2 empty:hidden"></div>
               {%- if show_vendor -%}
                 <div class="vendor mb-0.5 uppercase tracking-widest text-small p-break-words">{{ card_product.vendor }}</div>
@@ -399,9 +402,19 @@
                   </a>
                 </h3>
               </div>
+              {% if show_highlighted_features and settings.highlighted_features_position == "below_title" %}
+                {% render 'highlighted-features', card_product: card_product %}
+              {% endif %}
               {%- if show_rating -%}
                 <div class="rating-fbt">
                   {% render 'review-product', product: card_product, content_alignment: settings.info_alignment_card_product, card_product: true %}
+                </div>
+                <div class="rating-fbt-mini hidden">
+                  {% if is_rtl %}
+                    {% render 'review-product', product: card_product, card_product: true, content_alignment: 'right' %}
+                  {% else %}
+                    {% render 'review-product', product: card_product, card_product: true, content_alignment: 'left' %}
+                  {% endif %}
                 </div>
               {%- endif -%}
               {%- unless card_product.has_only_default_variant -%}
@@ -410,6 +423,9 @@
                     {% render 'price', product: card_product %}
                     <div class="next-price mb-1 empty:hidden"></div>
                   </div>
+                  {% if show_highlighted_features and settings.highlighted_features_position == "below_price" %}
+                    {% render 'highlighted-features', card_product: card_product %}
+                  {% endif %}
                   <div id="x-availability-notice-{{ section.id }}" class="flex items-center flex-wrap gap-1{% unless settings.info_alignment_card_product == 'right' %} justify-{{ settings.info_alignment_card_product }} rtl:flex-row-reverse md:rtl:list-layout:flex-row md:list-layout:justify-start{% endunless %}{% if settings.info_alignment_card_product == 'right' %} flex-row-reverse rtl:flex-row md:list-layout:flex-row{% endif %}" x-show="$store.xStoreSelector?.canShow('{{ card_product.id }}', [{{ card_product.collections | map: 'id' | join: ', ' }}])">
                     {%- render 'availability-notice',
                       product: card_product
@@ -595,7 +611,7 @@
                     <div
                       class="x-variants-data"
                       x-data="xVariantSelect($el,'{{ section_id }}', false, '{{ 'products.product.unavailable' | t }}', '{{ card_product.url }}', '{{ card_product.id }}', false, false, true, '{{ section.id }}', '', '', '{{ card_product.featured_media | image_url | default: "" }}')"
-                      x-intersect.once.margin.200px="initVariant();"
+                      x-init="initVariant($el)"
                     >
                       <script type="application/json">
                         {{ card_product.variants | json }}
@@ -873,6 +889,9 @@
                 <div class="price x-card-price" role="status">
                   {% render 'price', product: card_product %}
                 </div>
+                {% if show_highlighted_features and settings.highlighted_features_position == "below_price" %}
+                  {% render 'highlighted-features', card_product: card_product %}
+                {% endif %}
                 <div id="x-availability-notice-{{ section.id }}" class="mt-2.5 flex items-center mb-1 flex-wrap gap-1{% unless settings.info_alignment_card_product == 'right' %} justify-{{ settings.info_alignment_card_product }} rtl:flex-row-reverse md:rtl:list-layout:flex-row md:list-layout:justify-start{% endunless %}{% if settings.info_alignment_card_product == 'right' %} flex-row-reverse rtl:flex-row md:list-layout:flex-row{% endif %}" x-show="$store.xStoreSelector?.canShow('{{ card_product.id }}', [{{ card_product.collections | map: 'id' | join: ', ' }}])">
                   {%- render 'availability-notice',
                     product: card_product
@@ -912,7 +931,7 @@
                     </div>
                   {% endif %} 
                   <div x-show="!showButton" class="w-full flex" x-cloak>
-                    <div class="inline-flex button button-outline not-icon border h-[39px] md:h-[45px] w-full justify-between items-center mt-2.5 bg-[rgba(var(--background-color),1)]{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"
+                    <div class="inline-flex button button-outline not-icon border h-[39px] md:h-[45px] w-full justify-between items-center mt-2.5 bg-[rgba(var(--background-color),1)]"
                     >
                       <button class="w-10 cursor-pointer pt-2.5 pb-2.5 md:pt-3.5 md:pb-3.5 bg-transparent pl-3.5 pr-3.5 select-none opacity-70" name="minus" aria-label="minus" @click.prevent="setTimeout(() => { addToListDraft($el, '{{ card_product.id }}', '{{ card_product.url }}', {% if card_product.selected_or_first_available_variant.available == false or card_product.has_only_default_variant %} false{% else %} true{% endif %}, 'minus') }, 0);">
                         {% render 'icon-alls', icon: 'icon-minus' %}

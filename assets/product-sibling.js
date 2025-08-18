@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('product-sibling.js')) {
-  window.Eurus.loadedScript.push('product-sibling.js');
+if (!window.Eurus.loadedScript.has('product-sibling.js')) {
+  window.Eurus.loadedScript.add('product-sibling.js');
 
   requestAnimationFrame(() => {
     document.addEventListener("alpine:init", () => {
@@ -22,6 +22,7 @@ if (!window.Eurus.loadedScript.includes('product-sibling.js')) {
               const html = new DOMParser().parseFromString(responseText, 'text/html');
               this._updateTitle(html);
               this._handleSwapProduct(html);
+              this._updateFbtContainer(html)
               this.cachedResults[link] = html;
             })
           }
@@ -42,6 +43,12 @@ if (!window.Eurus.loadedScript.includes('product-sibling.js')) {
           const destination = document.querySelector('#breadcrumbs--' + sectionId);
           const source = html.querySelector('#breadcrumbs--' + sectionId);
           if (source && destination) destination.innerHTML = source.innerHTML;
+        },
+        _updateFbtContainer(html) {
+          if (!isProductPage) return;
+          const destination = document.querySelector('#popup-fbt-' + sectionId);
+          const source = html.querySelector('#popup-fbt-' + sectionId);
+          if (source && destination) destination.outerHTML = source.outerHTML;
         },
         _handleSwapProduct(html) {
           const destination = isProductPage ? document.querySelector('.main-product'):document.querySelector('.x-product-' + sectionId);

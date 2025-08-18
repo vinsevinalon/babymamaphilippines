@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('scrolling-promotion.js')) {
-  window.Eurus.loadedScript.push('scrolling-promotion.js');
+if (!window.Eurus.loadedScript.has('scrolling-promotion.js')) {
+  window.Eurus.loadedScript.add('scrolling-promotion.js');
   
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {
@@ -14,22 +14,50 @@ if (!window.Eurus.loadedScript.includes('scrolling-promotion.js')) {
           }
         },
 
+        createObserver(el, rtlCheck = false) {
+          const option = {
+            root: null,
+            rootMargin: '300px',
+            threshold: 0
+          };
+
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                this.updateRotation(el, rtlCheck)
+              } else {
+                if (this.animationFrameId) {
+                  cancelAnimationFrame(this.animationFrameId);
+                  this.animationFrameId = null;
+                }
+              }
+            });
+          }, option);
+
+          observer.observe(el);
+        },
+
         updateRotation(el, rtlCheck = false) {
-          const element = el.firstElementChild;
-          const element_rect = element.getBoundingClientRect();
-          const element_height = element_rect.top + (element_rect.bottom - element_rect.top)/2;
-          let value;
-            
-          if (element_height > -200 && element_height < this.window_height + 200) {
-            if (rtlCheck) {
-              value = Math.max(Math.min((((element_height / this.window_height) * 10) - 5), 5), -5) * -1;
-            } else {
+          const update = () => {
+            const element = el.firstElementChild;
+            if (!element) return;
+
+            const element_rect = element.getBoundingClientRect();
+            const element_height = element_rect.top + element_rect.height / 2;
+            let value;
+              
+            if (element_height > -200 && element_height < this.window_height + 200) {
               value = Math.max(Math.min((((element_height / this.window_height) * 10) - 5), 5), -5);
-            }          
-            element.style.transform = `rotate(${value}deg) translateX(-20px)`;
+              if (rtlCheck) value *= -1;
+              element.style.transform = `rotate(${value}deg) translateX(-20px)`;
+            }
+
+            this.animationFrameId = window.requestAnimationFrame(update);
           }
 
-          this.animationFrameId = window.requestAnimationFrame(() => this.updateRotation(el, rtlCheck));
+          if (!this.animationFrameId) {
+            update();
+          }
         },
       });
     })

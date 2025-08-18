@@ -17,7 +17,7 @@
       background: rgba(var(--colors-background));
     {% endif %}
   }
-  .heading--{{ section.id }} {
+  .heading-{{ section.id }} {
     font-size: {{ heading_size | times: 0.6 }}rem;
   }
   .btn-tab-{{ section.id }} {
@@ -91,7 +91,7 @@
     }
   {%- endif -%}
   @media screen and (min-width: 768px) {
-    .heading--{{ section.id }} {
+    .heading-{{ section.id }} {
       font-size: {{ heading_size }}rem;
     }
     .btn-tab-{{ section.id }} {
@@ -106,7 +106,16 @@
 {% render 'section-divider' %}
 <div class="product-tab bg-{{ section.id }} pb-[{{ section.settings.padding_bottom_mobile }}px] pt-[{{ section.settings.padding_top_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px] md:pt-[{{ section.settings.padding_top }}px]">
   {% if section.settings.heading != blank %}
-    <h2 class="heading--{{ section.id }} text-{{ section.settings.heading_alignment }} pr-5 pl-5{% unless section.settings.full_width %} x-pgw page-width{% endunless %} mb-5 md:mb-9 pb-2 leading-tight p-break-words">{{ section.settings.heading | escape }}</h2>
+    <div class="heading-{{ section.id }} text-{{ section.settings.heading_alignment }} pr-5 pl-5{% unless section.settings.full_width %} x-pgw page-width{% endunless %} mb-5 md:mb-9 pb-2">
+      {% render 'heading-highlight',
+        headingId: section.id,
+        heading: section.settings.heading,
+        highlight_type: section.settings.highlight_type,
+        class: 'h2 block leading-tight p-break-words',
+        heading_tag: section.settings.heading_tag,
+        animation_heading: true
+      %}
+    </div>
   {% endif %}
   <div 
     class="mx-auto{% if section.settings.full_width_mobile %} full-width-mobile{% endif %}{% if section.settings.full_width %} full-width{% else %} x-pgw page-width{% endif %}"
@@ -142,7 +151,8 @@
           }
         })'
       {%- endif -%}
-      >
+    >
+      {% comment %}theme-check-disable{% endcomment %}
       {%- if section.settings.tabs_mobile_layout != 'dropdown' -%}
         <div class="splide__track mb-7 md:mb-0">
       {%- endif -%}
@@ -177,6 +187,13 @@
       {%- endfor -%}
     </div>
     {%- for block in section.blocks -%}
+      {% style %}
+        @media (min-width: 768px) {
+          .content-{{ block.id }}-{{ section.id }} {
+            width: {{ block.settings.width_content }}%;
+          }
+        }
+      {% endstyle %}
       {%- case block.type -%}
         {%- when 'tab' -%}
           {%-liquid
@@ -199,7 +216,7 @@
           <template x-teleport=".content-tabs-{{ section.id }}">
             {% if block.settings.page_tab.content != blank %}
               <div
-                class="content-{{ forloop.index | minus: 1 }} tabs-aligment text-{{ block.settings.text_alignment }}"
+                class="content-{{ block.id }}-{{ section.id }} content-{{ forloop.index | minus: 1 }} tabs-aligment text-{{ block.settings.text_alignment }} {% if block.settings.text_alignment == "left" %}mr-auto{% elsif block.settings.text_alignment == "right" %}ml-auto{% else %}mx-auto{% endif %}"
                 x-cloak
                 x-show="open == {{ forloop.index | minus: 1 }}"
               >
@@ -220,7 +237,7 @@
               </div>
             {% else %}
             <div 
-              class="ltr content-{{ forloop.index | minus: 1 }} md:flex image-position-mobile-{{ block.settings.image_alignment_mobile }} image-position-{{ block.settings.image_alignment }}"
+              class="content-{{ block.id }}-{{ section.id }} ltr content-{{ forloop.index | minus: 1 }} md:flex image-position-mobile-{{ block.settings.image_alignment_mobile }} image-position-{{ block.settings.image_alignment }} {% if block.settings.text_alignment == "left" %}mr-auto{% elsif block.settings.text_alignment == "right" %}ml-auto{% else %}mx-auto{% endif %}"
               x-cloak
               x-show="open == {{ forloop.index | minus: 1 }}"
               {{ block.shopify_attributes }}
@@ -302,6 +319,7 @@
                         "
                       >
                         <div class="w-full h-full{% if block.settings.mobile_height == 'natural' %} absolute top-0 left-0 bottom-0{% else %} relative{% endif %}{% if block.settings.desktop_height == "natural" %} md:absolute md:top-0 md:left-0 md:bottom-0{% else %} md:promotion:relative{% endif %}">
+                          {% # theme-check-disable ImgLazyLoading %}
                           {% if block.settings.image != blank %}
                             <picture>
                               <source
@@ -325,7 +343,7 @@
                                   {{ block.settings.image | image_url }} {{ block.settings.image.width }}w"
                                   src="{{ block.settings.image | image_url: width: 1500 }}"
                                   alt="{{ block.settings.image.alt | escape }}"
-                                  loading="lazy"
+                                  {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                                   onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                                   sizes="(min-width: 1024px){% if section.settings.full_width %} 50vw{% else %} {{ settings.page_width | divided_by: 2 }}px{% endif %}, (min-width: 768px) 50vw, 100vw"
                                   width="{{ block.settings.image.width }}"
@@ -345,7 +363,7 @@
                               {{ block.settings.image_mobile | image_url }} {{ block.settings.image.width }}w"
                               src="{{ block.settings.image_mobile | image_url: width: 1500 }}"
                               alt="{{ block.settings.image_mobile.alt | escape }}"
-                              loading="lazy"
+                              {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                               onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                               sizes="(min-width: 768px) 50vw, 100vw"
                               width="{{ block.settings.image_mobile.width }}"
@@ -353,6 +371,7 @@
                               style="object-position: {{ block.settings.image_mobile.presentation.focal_point }}"
                             >
                           {% endif %}
+                          {% # theme-check-enable ImgLazyLoading %}
                         </div>
                       </div>        
                     {% endif %}
@@ -448,7 +467,7 @@
             </template>
             <template x-teleport=".content-tabs-{{ section.id }}">
               <div
-                class="content-{{ forloop.index | minus: 1 }} rte anm-fade-paragraph"  
+                class="content-{{ block.id }}-{{ section.id }} content-{{ forloop.index | minus: 1 }} rte anm-fade-paragraph text-{{ block.settings.text_alignment }} {% if block.settings.text_alignment == "left" %}mr-auto{% elsif block.settings.text_alignment == "right" %}ml-auto{% else %}mx-auto{% endif %}"  
                 x-cloak  
                 x-show="open == {{ forloop.index | minus: 1 }}" {{ block.shopify_attributes }}
               >
@@ -490,7 +509,7 @@
           <template x-teleport=".content-tabs-{{ section.id }}">
             {% if block.settings.page_text.content != blank %}
               <div
-                class="anm-fade-paragraph content-{{ forloop.index | minus: 1 }} tabs-aligment text-{{ block.settings.text_alignment }}"
+                class="content-{{ block.id }}-{{ section.id }} anm-fade-paragraph content-{{ forloop.index | minus: 1 }} tabs-aligment text-{{ block.settings.text_alignment }} {% if block.settings.text_alignment == "left" %}mr-auto{% elsif block.settings.text_alignment == "right" %}ml-auto{% else %}mx-auto{% endif %}"
                 x-cloak
                 x-show="open == {{ forloop.index | minus: 1 }}"
               >
@@ -508,7 +527,7 @@
               </div>
             {% else %}
             <div 
-              class="ltr anm-fade-paragraph content-{{ forloop.index | minus: 1 }} flex{% if block.settings.media_layout == 'first' %} flex-col{% else %} flex-col-reverse{% endif %} items-{{ block.settings.text_alignment }}" 
+              class="content-{{ block.id }}-{{ section.id }} ltr anm-fade-paragraph content-{{ forloop.index | minus: 1 }} flex{% if block.settings.media_layout == 'first' %} flex-col{% else %} flex-col-reverse{% endif %} items-{{ block.settings.text_alignment }} {% if block.settings.text_alignment == "left" %}mr-auto{% elsif block.settings.text_alignment == "right" %}ml-auto{% else %}mx-auto{% endif %}" 
               x-cloak 
               x-show="open == {{ forloop.index | minus: 1 }}" 
               {{ block.shopify_attributes }}
@@ -582,6 +601,7 @@
                     endif
                   -%}
                   <div class="promotion overflow-hidden border-radius-{{ section.id }} relative md:h-auto min-h-[100%]{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
+                    {% # theme-check-disable ImgLazyLoading %}
                     {% if block.settings.image != blank %}
                       <picture>
                         <source
@@ -605,7 +625,7 @@
                           {{ block.settings.image | image_url }} {{ block.settings.image.width }}w"
                           src="{{ block.settings.image | image_url: width: 1500 }}"
                           alt="{{ block.settings.image.alt | escape }}"
-                          loading="lazy"
+                          {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                           onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                           sizes="(min-width: 1024px), (min-width: 768px) 50vw, 100vw"
                           width="{{ block.settings.image.width }}"
@@ -625,7 +645,7 @@
                         {{ block.settings.image_mobile | image_url }} {{ block.settings.image.width }}w"
                         src="{{ block.settings.image_mobile | image_url: width: 1500 }}"
                         alt="{{ block.settings.image_mobile.alt | escape }}"
-                        loading="lazy"
+                        {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                         onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                         sizes="(min-width: 1024px), (min-width: 768px) 50vw, 100vw"
                         width="{{ block.settings.image_mobile.width }}"
@@ -633,6 +653,7 @@
                         style="object-position: {{ block.settings.image_mobile.presentation.focal_point }}"
                       >
                     {% endif %}
+                    {% # theme-check-enable ImgLazyLoading %}
                   </div>        
                 {% endif %}
               </div>
@@ -704,10 +725,31 @@
   "tag": "section",
   "settings": [
     {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.tabs"
+    },
+    {
       "type": "text",
       "id": "heading",
       "default": "Tabs content",
-      "label": "t:sections.all.text.heading"
+      "label": "t:sections.all.text.heading",
+      "info": "t:settings_schema.typography.settings.heading_highlight_type.info"
+    },
+    {
+      "type": "select",
+      "id": "highlight_type",
+      "default": "underline",
+      "label": "t:settings_schema.typography.settings.heading_highlight_type.label",
+      "options": [
+        {
+          "value": "underline",
+          "label": "t:settings_schema.typography.settings.heading_highlight_type.option__1.label"
+        },
+        {
+          "value": "font_highlight",
+          "label": "t:settings_schema.typography.settings.heading_highlight_type.option__3.label"
+        }
+      ]
     },
     {
       "type": "range",
@@ -718,6 +760,42 @@
       "unit": "%",
       "label": "t:sections.all.text.heading_size",
       "default": 100
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "default": "h2",
+      "label": "t:sections.all.text.heading_tag",
+      "options": [
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        },
+        {
+          "value": "h4",
+          "label": "H4"
+        },
+        {
+          "value": "h5",
+          "label": "H5"
+        },
+        {
+          "value": "h6",
+          "label": "H6"
+        },
+        {
+          "value": "p",
+          "label": "p"
+        }
+      ]
     },
     {
       "type": "select",
@@ -962,6 +1040,17 @@
           "label": "t:sections.featured-product.blocks.horizontal_tab.custom_tab.content_page"
         },
         {
+          "type": "range",
+          "id": "width_content",
+          "min": 50,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "t:sections.rich-text.settings.width_content",
+          "default": 100,
+          "info": "t:settings_schema.cart.settings.cart_page_layout.info"
+        },
+        {
           "type": "text",
           "id": "subheading",
           "default": "Example subheading",
@@ -1035,13 +1124,15 @@
           "type": "text",
           "id": "read_more_label",
           "default": "Read more",
-          "label": "t:sections.all.read_more_label.label"
+          "label": "t:sections.all.read_more_label.label",
+          "visible_if": "{{ block.settings.number_of_lines_shown != 'none' }}"
         },
         {
           "type": "text",
           "id": "see_less_label",
           "default": "See less",
-          "label": "t:sections.all.see_less_label.label"
+          "label": "t:sections.all.see_less_label.label",
+          "visible_if": "{{ block.settings.number_of_lines_shown != 'none' }}"
         },
         {
           "type": "text",
@@ -1290,6 +1381,17 @@
           "label": "t:sections.testimonials.block_author_note.label"
         },
         {
+          "type": "range",
+          "id": "width_content",
+          "min": 50,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "t:sections.rich-text.settings.width_content",
+          "default": 100,
+          "info": "t:settings_schema.cart.settings.cart_page_layout.info"
+        },
+        {
           "type": "select",
           "id": "number_of_lines_shown",
           "label": "t:sections.all.number_of_lines_shown.label",
@@ -1318,13 +1420,35 @@
           "type": "text",
           "id": "read_more_label",
           "default": "Read more",
-          "label": "t:sections.all.read_more_label.label"
+          "label": "t:sections.all.read_more_label.label",
+          "visible_if": "{{ block.settings.number_of_lines_shown != 'none' }}"
         },
         {
           "type": "text",
           "id": "see_less_label",
           "default": "See less",
-          "label": "t:sections.all.see_less_label.label"
+          "label": "t:sections.all.see_less_label.label",
+          "visible_if": "{{ block.settings.number_of_lines_shown != 'none' }}"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment",
+          "default": "center",
+          "label": "t:sections.testimonials.text_alignment.label",
+          "options": [
+            {
+              "value": "left",
+              "label": "t:sections.all.content_alignment.options__1.label"
+            },
+            {
+              "value": "center",
+              "label": "t:sections.all.content_alignment.options__2.label"
+            },
+            {
+              "value": "right",
+              "label": "t:sections.all.content_alignment.options__3.label"
+            }
+          ]
         }
       ]
     },
@@ -1363,6 +1487,17 @@
           "id": "page_text",
           "info": "t:sections.tabs.settings.page.info",
           "label": "t:sections.featured-product.blocks.horizontal_tab.custom_tab.content_page"
+        },
+        {
+          "type": "range",
+          "id": "width_content",
+          "min": 50,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "t:sections.rich-text.settings.width_content",
+          "default": 100,
+          "info": "t:settings_schema.cart.settings.cart_page_layout.info"
         },
         {
           "type": "text",
@@ -1432,13 +1567,15 @@
           "type": "text",
           "id": "read_more_label",
           "default": "Read more",
-          "label": "t:sections.all.read_more_label.label"
+          "label": "t:sections.all.read_more_label.label",
+          "visible_if": "{{ block.settings.number_of_lines_shown != 'none' }}"
         },
         {
           "type": "text",
           "id": "see_less_label",
           "default": "See less",
-          "label": "t:sections.all.see_less_label.label"
+          "label": "t:sections.all.see_less_label.label",
+          "visible_if": "{{ block.settings.number_of_lines_shown != 'none' }}"
         },
         {
           "type": "image_picker",
@@ -1534,6 +1671,7 @@
   "presets": [
     {
       "name": "t:sections.tabs.name",
+      "category": "t:categories.storytelling",
       "blocks": [
         {
           "type": "tab"

@@ -92,8 +92,8 @@
           @keyup.escape="$store.xModal.removeFocus(); show = false; $store.xPopup.open = false"
         >
           <div class="ml-10 mr-10 pt-9 pb-5 border-b border-solid">
-            <button id="ClosePickup" class="h-11 w-11 absolute pl-3.5 pr-3.5 pb-3.5 pt-3.5 right-1 rtl:left-1 rtl:right-auto top-0 cursor-pointer" @click.prevent="show = false; $store.xPopup.close(); $store.xModal.removeFocus();">
-              {% render 'icon-alls', icon: 'icon-close' %}
+            <button id="ClosePickup" class="p-3 w-fit rounded-full bg-[rgb(var(--colors-line-and-border))] group-close-btn absolute right-1 rtl:left-1 rtl:right-auto top-1 cursor-pointer" @click.prevent="show = false; $store.xPopup.close(); $store.xModal.removeFocus();">
+              {% render 'icon-alls', icon: 'icon-close', animation_class: 'icon-close-animation w-4 h-4' %}
             </button>
             <p class="leading-tight p-break-words font-medium md:text-[{{ settings.text_base_size | times: 0.00875 | times: 1.1 }}rem] text-[{{ settings.text_base_size | times: 0.00875 }}rem]">{{ product_variant.product.title | escape }}</p>
             {%- unless product_variant.product.has_only_default_variant -%}

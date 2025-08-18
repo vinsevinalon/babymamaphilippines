@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('cart-noti.js')) {
-  window.Eurus.loadedScript.push('cart-noti.js');
+if (!window.Eurus.loadedScript.has('cart-noti.js')) {
+  window.Eurus.loadedScript.add('cart-noti.js');
 
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {

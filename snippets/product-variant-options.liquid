@@ -146,6 +146,7 @@
     -%}
     {% if enable_color_swatches and settings.color_option_name contains option.name %}
       <label 
+        @click="updateActiveMedia()"
         id="color-swatch-{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}"
         class="color-watches translate-y-0 transform-none{% if color_custom != '' and settings.products_color_swatches_style != 'round' %} custom-color-swatch{% else %}{% unless swatch_natural %} overflow-hidden{% endunless %}{% endif %} variant-{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}{% if disable_option_disabled == blank %} cursor-pointer mt-2 mb-0.5{% endif %} block{% if swatch_natural and settings.replace_color_with_variant_images and ratio_image != 0 %} color-swatch-natural{% endif %} swatch-{{ swatch_size }} relative {{ rounded }}" 
         for="{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}"
@@ -175,7 +176,7 @@
         <span class="h-full w-full color-watches-disable"></span>
       </label>
     {% else %}
-      <label {% if disable_option_disabled == blank %} class="flex items-center outline-none cursor-pointer mt-2.5 pl-5 pr-5 pt-2 pb-2 border bg-[rgba(var(--background-color),1)]{% if rounded_corner_option %} rounded-md{% endif %}"{% endif %} for="{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}">
+      <label @click="updateActiveMedia()" {% if disable_option_disabled == blank %} class="flex items-center outline-none cursor-pointer mt-2.5 pl-5 pr-5 pt-2 pb-2 border bg-[rgba(var(--background-color),1)]{% if rounded_corner_option %} rounded-md{% endif %}"{% endif %} for="{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}">
         <span>{{ value | escape }}{% if section_compare %}{% unless forloop.last %}, {% endunless %}{% endif %}</span>
       </label>
     {% endif %}

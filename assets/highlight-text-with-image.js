@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('highlight-text-with-image.js')) {
-    window.Eurus.loadedScript.push('highlight-text-with-image.js');
+if (!window.Eurus.loadedScript.has('highlight-text-with-image.js')) {
+    window.Eurus.loadedScript.add('highlight-text-with-image.js');
     
     requestAnimationFrame(() => {
       document.addEventListener('alpine:init', () => {
@@ -103,12 +103,13 @@ if (!window.Eurus.loadedScript.includes('highlight-text-with-image.js')) {
             });
           },
 
-          startAnim(el, rtl_check, fullScreen, range) {
+          startAnim(el, rtl_check, fullScreen = false, range) {
+            let starts = [];
+            let ends = [];
+
             if (fullScreen) {
               let offsetStart = el.offsetParent.parentElement.getBoundingClientRect().top + window.scrollY;
 
-              let starts = [];
-              let ends = [];
               const offsets = { 3000: -200, 2000: 200 };
               let offset = offsets[range] ?? 600;
               
@@ -122,11 +123,9 @@ if (!window.Eurus.loadedScript.includes('highlight-text-with-image.js')) {
                 }
               });
               el.offsetParent.parentElement.style.height = `calc(${ends[ends.length - 1] - starts[0] + range / 2 + offset}px)`
-
-              this.updateHighlightFullscreen(el, rtl_check, starts, ends);
             } else {
-              let starts = [0.7];
-              let ends = [0.5];
+              starts = [0.7];
+              ends = [0.5];
               
               el.childNodes.forEach((element, index) => {
                 if (index != el.childNodes.length - 1) {
@@ -137,56 +136,67 @@ if (!window.Eurus.loadedScript.includes('highlight-text-with-image.js')) {
                   ends.push(Math.max(start - 0.2, 0.2));
                 }
               });
-  
-              this.updateHighlight(el, rtl_check, starts, ends);  
             }
+            this.createObserver(el, rtl_check, starts, ends, fullScreen);
+          },
+
+          createObserver(el, rtl_check, starts, ends, fullScreen = false) {
+            const option = {
+              root: null,
+              rootMargin: '300px',
+              threshold: 0
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  this.updateHighlight(el, rtl_check, starts, ends, fullScreen);
+                } else {
+                  if (this.animationFrameId) {
+                    cancelAnimationFrame(this.animationFrameId);
+                    this.animationFrameId = null;
+                  }
+                }
+              });
+            }, option);
+
+            observer.observe(el);
           },
           
-          updateHighlight(el, rtl_check = false, starts, ends) {
-            el.childNodes.forEach((element, index) => {
-              const element_rect = element.getBoundingClientRect();
-              const ratio = Math.max(Math.min((element_rect.top / this.window_height), 1), 0);
+          updateHighlight(el, rtl_check = false, starts, ends, fullScreen = false) {
+            const update = () => {
+              el.childNodes.forEach((element, index) => {
+                let value;
+                const element_rect = element.getBoundingClientRect();
+                let position = fullScreen ? window.scrollY : Math.max(Math.min((element_rect.top / this.window_height), 1), 0);
+
+                if (fullScreen) {
+                  if (position < starts[index]) {
+                    value = 0;
+                  } else if (position > ends[index]) {
+                    value = 100;
+                  } else {
+                    value = 100 * (position - starts[index]) / (ends[index] - starts[index]);
+                  }
+                } else {
+                  if (position > starts[index]) {
+                    value = 0;
+                  } else if (position < ends[index]) {
+                    value = 100;
+                  } else {
+                    value = 100 * (position - starts[index]) / (ends[index] - starts[index]);
+                  }
+                }
+    
+                element.style.backgroundPositionX = `${rtl_check ? '' : '-'}${value}%`;
+              });
               
-              let value;
-                
-              if (ratio > starts[index]) {
-                value = 0;
-              } else if (ratio < ends[index]) {
-                value = 100;
-              } else {
-                value = ((ratio - starts[index]) / (ends[index] - starts[index])) * 100;
-              }
-  
-              if (rtl_check) {
-                element.style.backgroundPositionX = `${value}%`;
-              } else {
-                element.style.backgroundPositionX = `-${value}%`;
-              }
-            });
-            
-            this.animationFrameId = window.requestAnimationFrame(() => this.updateHighlight(el, rtl_check, starts, ends));
-          },
+              this.animationFrameId = window.requestAnimationFrame(update);
+            }
 
-          updateHighlightFullscreen(el, rtl_check = false, starts, ends) {
-            el.childNodes.forEach((element, index) => {
-              let value;
-
-              if (window.scrollY < starts[index]) {
-                value = 0;
-              } else if (window.scrollY > ends[index]) {
-                value = 100;
-              } else {
-                value = 100 * (window.scrollY - starts[index]) / (ends[index] - starts[index]);
-              }
-
-              if (rtl_check) {
-                element.style.backgroundPositionX = `${value}%`;
-              } else {
-                element.style.backgroundPositionX = `-${value}%`;
-              }
-            });
-
-            this.animationFrameId = window.requestAnimationFrame(() => this.updateHighlightFullscreen(el, rtl_check, starts, ends));
+            if (!this.animationFrameId) {
+              update();
+            }
           }
         }));
       })

@@ -73,7 +73,9 @@
     %}
     {% comment %}theme-check-enable TranslationKeyExists{% endcomment %}
     <div class="mb-3 mt-3 pt-1.5 flex justify-between"{% if is_update_date %} x-data="xCart" x-init="updateDate(`{{ update_date_string }}`)"{% endif %}>
-      <{{ section.settings.heading_tag }} class="flex items-center h2">{{ 'sections.cart.title' | t }}</{{ section.settings.heading_tag }}>
+      {% unless settings.disable_heading_animation %}<div class="overflow-hidden" x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')">{% endunless %}
+        <{{ section.settings.heading_tag }} class="flex items-center h2{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ 'sections.cart.title' | t }}</{{ section.settings.heading_tag }}>
+      {% unless settings.disable_heading_animation %}</div>{% endunless %}
       <div class="flex items-center justify-end pb-1.5 lg:pb-2">
         <a 
           class="nav-link effect-inline relative hover-text-link leading-normal pt-2.5 lg:pt-3" 
@@ -90,7 +92,7 @@
           {{ settings.countdown_minute_number }},
           {{ settings.action_after_time_expired | json }}
         )'
-        x-init="initCountdown()"
+        x-init="initCountdown('{{ 'sections.popup.mins' | t | downcase }}')"
       >
         <div class="countdown-message inline-block pt-3 pb-3 pl-4 pr-4 bg-[rgb(var(--colors-background-secondary))] text-[rgb(var(--colors-text-secondary))]{% if settings.edges_type == 'rounded_corners' %} rounded-lg{% endif %}">
           <span x-html="formattedMessage"></span>
@@ -844,19 +846,22 @@
                   {%- endcapture -%}
                 {% endif %}
                 <tr class="cart-item border-b lg:gap-4 grid grid-cols-4 md:table-row auto-rows-auto relative" id="CartItem-{{ item.index | plus: 1 }}"
-                  {% if is_update_date %} x-intersect.once="updateEstimateShipping($el, `{{ item.index | plus: 1 }}`, `{{ item.key }}`,`{{ settings.estimate_delivery_cutoff_hour }}`, `{{ settings.estimate_delivery_cutoff_minute }}`, `{{ 'sections.popup.hours' | t | downcase }}`, `{{ 'sections.popup.mins' | t | downcase }}`)" x-data-properties="{{ properties | escape }}"{% endif %}
+                  {% if is_update_date %} x-intersect.once="updateEstimateShipping($el, `{{ item.index | plus: 1 }}`, `{{ item.key }}`,`{{ settings.estimate_delivery_cutoff_hour }}`, `{{ settings.estimate_delivery_cutoff_minute }}`, `{{ 'sections.popup.hours' | t | downcase }}`, `{{ 'sections.popup.mins' | t | downcase }}`, {{ cart.items.size }})" x-data-properties="{{ properties | escape }}"{% endif %}
                 >
                   <td class="md:w-1/12 pt-7 pb-0 md:pt-5 md:pb-5 col-start-1 col-end-1 align-top">
                     <div class="relative w-full md:w-32 float-left before:h-0 before:block{% unless settings.product_image_ratio == "natural" %} before:pb-[{{ ratio }}%]{% endunless %}" {% if settings.product_image_ratio == "natural" and item.image %}style="padding-bottom: {{ 1 | divided_by: item.image.aspect_ratio | times: 100 }}%;"{% endif %}>
                       <a href="{{ item.url }}" class="absolute top-0 left-0 disable-effect w-full h-full overflow-hidden{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}" aria-label="{{ 'general.cart.item_added' | t }}">
                         {%- if item.image -%}
+                          {% # theme-check-disable ImgLazyLoading %}
                           <img 
                             src="{{ item.image | image_url: width: 300 }}"
                             class="object-cover h-full w-full top-0 left-0 absolute duration-300 image-hover z-0"
                             alt="{{ item.image.alt | escape }}"
-                            loading="lazy"
+                            {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                             width="150"
-                            height="{{ 150 | divided_by: item.image.aspect_ratio | ceil }}">
+                            height="{{ 150 | divided_by: item.image.aspect_ratio | ceil }}"
+                          >
+                          {% # theme-check-enable ImgLazyLoading %}
                         {%- else -%}
                           <div class='bg-[#c9c9c9] flex{% unless settings.product_image_ratio == "natural" %} absolute{% endunless %} top-0 left-0 w-full h-full items-center'>
                             {% render 'icon-placeholder', icon: 'icon-product' | class: 'w-full h-full' %}
@@ -1082,14 +1087,16 @@
                     endif
                     assign gift_wrapping_item_key = nil
                     for lineItem in cart.items
-                      if lineItem.properties._key_link == item.properties._gift_wrapping_id
-                        assign gift_wrapping_item_key = lineItem.key
+                      if lineItem.properties._key_link
+                        if lineItem.properties._key_link == item.properties._gift_wrapping_id
+                          assign gift_wrapping_item_key = lineItem.key
+                        endif
                       endif
                     endfor
                   %}
                   <td class="lg:pl-2 pt-0 pb-5 pl-5 mt-2 md:pr-5 lg:pr-0 md:mt-3.5 md:pl-0 md:pt-5 rtl:pr-5 rtl:md:pr-0 rtl:md:pl-5 rtl:lg:pl-0 col-start-2 col-end-4 flex items-center md:table-cell md:align-top">
-                    <div class="{% if item.product.selected_or_first_available_variant.id == settings.gift_wrapping_product.selected_or_first_available_variant.id or item.product.selected_or_first_available_variant.id == settings.product_shipping_insurance.selected_or_first_available_variant.id and settings.enable_shipping_insurance %}hidden{% else %}flex{% endif %}">
-                      <div class="relative flex w-28 h-10 border border-solid justify-between{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}">
+                    <div class="x-cart-item-quantity {% if item.product.selected_or_first_available_variant.id == settings.gift_wrapping_product.selected_or_first_available_variant.id or item.product.selected_or_first_available_variant.id == settings.product_shipping_insurance.selected_or_first_available_variant.id and settings.enable_shipping_insurance %}hidden{% else %}flex{% endif %}">
+                      <div class="relative flex w-28 h-10 border border-solid justify-between{% if settings.buttons_type == 'rounded_corners' or settings.buttons_type == 'mixed' %} rounded-md{% elsif settings.buttons_type == 'rounded' %} rounded-full {% else %} rounded-none{% endif %}">
                         <button class="items-center w-1/3 justify-center flex opacity-70 cursor-pointer" @click.prevent="minusItemQty('{{ item.key }}', {{ item.index | plus: 1 }}, '{{ item.variant.inventory_policy }}', '{{ item.variant.inventory_management }}', {{ item.variant.inventory_quantity }}, '{{ gift_wrapping_item_key }}')" aria-label="button-minus">
                           {% render 'icon-alls', icon: 'icon-minus', class: "w-3" %}
                         </button>
@@ -1331,7 +1338,7 @@
                     <div class="flex justify-end w-full">
                       <div
                         class="pb-5 lg:pb-8 w-full z-[19] pl-[1px] pr-[1px]{% unless forloop.first %} mt-5{% endunless %}"
-                        x-intersect.once.margin.200px="$store.xCartHelper.generateUrl()"
+                        x-intersect.once.margin.200px="$store.xCartShare.generateUrl()"
                       >
                         <label for="x-share-cart-field" class="block w-full h4 text-medium mb-2 md:mb-3 text-left rtl:text-right">{{ 'general.cart.share_link' | t }}</label>
                         <div class="flex pt-1 pb-1 pl-1 pr-1 border border-solid{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}">
@@ -1340,15 +1347,15 @@
                               id="x-share-cart-field"
                               type="text"
                               class="w-full pl-5 pr-5 pt-2.5 pb-2.5 focus:outline-none focus-within:outline-none focus:border-0 bg-transparent placeholder:text-current placeholder:opacity-60"
-                              :value="$store.xCartHelper.cartShareUrl"
+                              :value="$store.xCartShare.cartShareUrl"
                             />
                           </div>
-                          <button @click="$store.xCartHelper.copyURL()"
+                          <button @click="$store.xCartShare.copyURL()"
                             class="button button-solid min-w-[90px] whitespace-nowrap p-break-words border inline-block empty:hidden pl-4 pr-4 pt-2 pb-2 leading-normal cursor-pointer pointer-events-auto"
                           >
                             <span
                               class="whitespace-nowrap ease-in-out duration-300"
-                              x-show="!$store.xCartHelper.copySuccess"
+                              x-show="!$store.xCartShare.copySuccess"
                             >
                               <span class="flex items-center justify-center">
                                 {% assign button_label = 'general.cart.copy_link' | t %}
@@ -1357,7 +1364,7 @@
                             </span>
 
                             <span class="whitespace-nowrap ease-in-out duration-300" 
-                              x-show="$store.xCartHelper.copySuccess" 
+                              x-show="$store.xCartShare.copySuccess" 
                               x-cloak>
                               <span class="flex items-center justify-center">
                                 {% assign button_label = 'general.global.copied' | t %}
@@ -1420,12 +1427,13 @@
                       <div x-data="xCart" class="flex justify-between border-b border-solid gap-4 mb-4 w-full pb-2.5 bg-[rgb(var(--colors-background-secondary))]">
                         <div class="flex gap-2.5 w-full text-left">
                           {% if settings.show_image_shipping_insurance %}
+                            {% # theme-check-disable ImgLazyLoading %}
                             {% if settings.custom_image_shipping_insurance != blank %}
                               <img
                                 src="{{ settings.custom_image_shipping_insurance | image_url: width: 100 }}"
                                 alt="{{ settings.custom_image_shipping_insurance.alt | split: "#" | first | escape }}"
                                 width="{{ settings.custom_image_shipping_insurance.width }}"
-                                loading="lazy"
+                                {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                                 height="{{ settings.custom_image_shipping_insurance.height }}"
                                 class="w-14 min-w-[56px] h-14"
                               >
@@ -1434,11 +1442,12 @@
                                 src="{{ settings.product_shipping_insurance.featured_media | image_url: width: 100 }}"
                                 alt="{{ settings.product_shipping_insurance.featured_media.alt | split: "#" | first | escape }}"
                                 width="{{ settings.product_shipping_insurance.featured_media.width }}"
-                                loading="lazy"
+                                {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                                 height="{{ settings.product_shipping_insurance.featured_media.height }}"
                                 class="w-14 min-w-[56px] h-14"
                               >
                             {% endif %}
+                            {% # theme-check-enable ImgLazyLoading %}
                           {% endif %}
                           <div class="w-full p-break-words">
                             {% if settings.title_shipping_insurance != blank %}
@@ -1548,7 +1557,7 @@
                       <p class="text-center">{{ 'general.cart.payment_methods' | t }}</p>
                       {% if settings.custom_payment != blank %}
                         {% assign enabled_payment_types = settings.custom_payment | remove: ' ' | split: ',' %}
-                        <ul class="flex justify-center gap-2 flex-wrap" role="list">
+                        <ul class="icon-payment justify-center gap-2 flex-wrap" role="list">
                         {%- for type in enabled_payment_types -%}
                           <li class="pl-1 pr-1">
                             {{ type | payment_type_svg_tag }}
@@ -1556,7 +1565,7 @@
                         {%- endfor -%}
                         </ul>
                       {% else %}
-                        <ul class="flex justify-center gap-2 flex-wrap" role="list">
+                        <ul class="icon-payment flex justify-center gap-2 flex-wrap" role="list">
                           {%- for type in shop.enabled_payment_types -%}
                             <li class="pl-1 pr-1">
                               {{ type | payment_type_svg_tag }}
@@ -1576,11 +1585,36 @@
     </div>
   {%- else -%}
     <div class="block items-center justify-center text-center pb-9">
-      <{{ section.settings.heading_tag }} class="h2 block mt-6 mb-6">{{ 'sections.cart.empty' | t }}</{{ section.settings.heading_tag }}>
-      <a class="disable-effect button button-solid inline-block leading-normal py-2.5 lg:py-3 px-6" href="{{ settings.continue_shopping }}">
-        {%- assign button_label = 'general.continue_shopping' | t -%}
-        {% render 'button-label', button_label: button_label, show_button_style: 'primary' %}
-      </a>
+      <div class="mt-6 mb-6">
+        {% unless settings.disable_heading_animation %}<div class="overflow-hidden" x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')">{% endunless %}
+          <{{ section.settings.heading_tag }} class="h2 block{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ 'sections.cart.empty' | t }}</{{ section.settings.heading_tag }}>
+        {% unless settings.disable_heading_animation %}</div>{% endunless %}
+      </div>
+      <div class="rte mb-6">{{ settings.empty_cart_recommendation_text }}</div>
+      {% if settings.collection_list_recommendation == blank %}
+        <div class="pt-6 pb-6 pl-12 pr-12 text-center">
+          {% assign continue_shopping_button_label = 'general.continue_shopping' | t %}
+          <a
+            href="{{ settings.continue_shopping }}"
+            class="button pt-2.5 pb-2.5 pl-7 pr-7 md:pl-9 md:pr-9 md:pt-3 md:pb-3{% if settings.empty_cart_recommendation_button_style == 'secondary' %} button-outline{% elsif settings.empty_cart_recommendation_button_style == 'text-link' %} button-text-link {% else %} button-solid{% endif %} text-center inline-block border leading-normal"
+          >
+            {% render 'button-label', button_label: continue_shopping_button_label, show_button_style: settings.empty_cart_recommendation_button_style %}
+          </a>
+        </div>
+      {% else %}
+        <ul class="flex flex-col gap-y-3 list-none">
+          {% for recommend_collection in settings.collection_list_recommendation %}
+            <li>
+              <a
+                href="{{ recommend_collection.url }}"
+                class="button pt-2.5 pb-2.5 pl-7 pr-7 md:pl-9 md:pr-9 md:pt-3 md:pb-3{% if settings.empty_cart_recommendation_button_style == 'secondary' %} button-outline{% elsif settings.empty_cart_recommendation_button_style == 'text-link' %} button-text-link {% else %} button-solid{% endif %} text-center inline-block border empty:hidden leading-normal"
+              >
+                {% render 'button-label', button_label: recommend_collection.title, show_button_style: settings.empty_cart_recommendation_button_style %}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
       {%- if shop.customer_accounts_enabled and customer == nil -%}
         <div class="mt-10">
           <p class="block mb-4 text-medium">{{ 'sections.cart.login.title' | t }}</p>
@@ -1609,6 +1643,10 @@
   "name": "t:sections.main-cart-items.name",
   "class": "x-section-main-cart-items",
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.pages_and_templates.cart_page"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.main-cart-items.settings.info"

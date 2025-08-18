@@ -1,13 +1,19 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
+  "categories": {
+    "additional_information": "Additional information",
+    "basics": "Basics",
+    "blog_and_page": "Blog & Page",
+    "collections": "Collections",
+    "brand_trust": "Brand Trust",
+    "cross_selling": "Cross-Selling",
+    "forms": "Forms",
+    "purchase_and_pricing": "Purchase & Pricing",
+    "utilities_and_layout": "Utilities & Layout",
+    "promotions": "Promotions",
+    "products": "Products",
+    "storytelling": "Storytelling",
+    "trust_and_social_proof": "Trust & Social Proof"
+  },
   "settings_schema": {
     "theme-mode": {
       "name": "Theme mode",
@@ -151,6 +157,15 @@
         "card_button_preorder": "Button label on product card",
         "message_preorder": "Pre-order message in shopping cart"
       },
+      "highlighted_features": {
+        "header": "Highlighted features",
+        "paragraph": "Showcase standout product qualities on cards to communicate value at a glance and support quicker, more confident purchase decisions. Learn more in our [user guide](https:\/\/support.omnithemes.com\/blogs\/theme-settings\/custom-text-on-product-cards).",
+        "highlighted_features_position": {
+          "option__1": "Top of card",
+          "option__2": "Below product title",
+          "option__3": "Below product price"
+        }
+      },
       "card_product_background_color_light": "Background color(Light)",
       "card_product_background_color_dark": "Background color(Dark)",
       "product_image_ratio": {
@@ -215,7 +230,7 @@
       "low_stock_message_info": "Personalize the message that follows the default theme text when enabling Show quantity. For example, 5 low in stock - [Your message].",
       "show_quantity": "Show quantity",
       "additional_option": "Product additional options",
-      "gift_wrapping": "Gift wrapping option",
+      "gift_wrapping": "Gift wrapping",
       "gift_wrapping_product": "Gift wrapping product",
       "gift_wrapping_label": "Default gift wrapping label",
       "default_gift_wrapping_label": "Gift wrap this product",
@@ -254,7 +269,8 @@
       }
     },
     "buttons": {
-      "adapt_edge_setting": "Adapt to edge setting",
+      "adapt_edge_setting": "Adapt to button setting",
+      "adapt_to_edge": "Adapt to edge setting",
       "rounded": "Rounded",
       "rounded_corners": "Rounded corners",
       "mixed": "Mixed",
@@ -486,7 +502,8 @@
             "label": "Popup"
           }
         },
-        "show_minicart": "Show minicart after adding to cart",
+        "show_minicart": "Show cart drawer/popup after adding product to cart",
+        "show_minicart_info": "If disabled, display a notification to inform product is sucessfully added to cart.",
         "cart_drawer_size_mobile": {
           "label": "Cart drawer size on mobile",
           "fullscreen": {
@@ -539,7 +556,8 @@
             "hide": "Hide the message",
             "clear": "Clear the cart"
           }
-        }
+        },
+        "empty_cart_recommendation": "Empty cart recommendations"
       }
     },
     "shipping_delivery": {
@@ -556,10 +574,16 @@
         },
         "order_amount_freeshipping": {
           "label": "Order amount for freeshipping",
-          "note": "Enter the rules for order amount(s) to qualify for freeshipping (one rule per line). Format instructions and examples are as follow:",
+          "note": "Enter the rules for order amount(s) to qualify for freeshipping/other offer (one rule per line). Format instructions and examples are as follow:",
           "example_1": "amount (100) for orders from any country and currency without individually defined amount.",
           "example_2": "currency code:amount (USD:100) for orders from any country using USD without individually defined amount.",
           "example_3": "country code:currency code:amount (US:USD:100) for any orders from the US with the currency USD."
+        }
+      },
+      "other_offer": {
+        "label": "Other offer",
+        "order_amount_other_offer": {
+          "label": "Order amount for other offer"
         }
       },
       "shipping_discounts": {
@@ -722,6 +746,10 @@
         "label": "Selected preset",
         "info": "This automatically detects your theme style and keeps necessary data when switching between presets. DO NOT EDIT, or it might result in losing theme settings and media. "
       },
+      "enable_lazy_loading_for_images": {
+        "label": "Enable lazy loading for images",
+        "info": "WARNING: Adjust this setting may affect your website's performance. We recommend reviewing the configuration details before making any changes."
+      },
       "tab_attention": {
         "label": "Tab attention",
         "enable_tab_attention": {
@@ -773,6 +801,7 @@
         "label": "Product card image reveal effect",
         "info": "The product image reveal effect fades automatically when the carousel hover effect is used without navigation arrows"
       },
+      "disable_heading_animation": "Disable heading and subheading animation",
       "disable_parallax_effect": "Disable parallax effect",
       "disable_parallax_effect_info": "Parallax effect used in: Slideshow, Promotion banner, Media with text, Collection banner, Map, Age Verification popup.",
       "disable_zoom": "Disable image zoom-in animation",
@@ -833,6 +862,130 @@
     "group": {
       "aside": {
         "name": "Overlay"
+      }
+    },
+    "user_guide_link": {
+      "header": {
+        "header_general": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/user-guide-header-section-header-block) this section.",
+        "mega_menu": {
+          "simple_menu": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-simple-menu-style) this block.",
+          "tree_menu": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-tree-menu-style) this block.",
+          "banner_menu": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-banner-menu-style) this block.",
+          "product_menu": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-product-menu-style) this block.",
+          "blog_menu": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-blog-menu-style) this block.",
+          "tabbed_menu": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-tabbed-menu-style) this block.",
+          "contact_menu": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-contact-menu-style) this block.",
+          "cta_button": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-add-a-cta-button-on-the-menu) this block."
+        },
+        "announcement_bar": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/user-guide-group-section-header-section-announcement-bar) this section.",
+        "mobile_navigation": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/mobile-navigation) this section."
+      },
+      "footer": {
+        "footer": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/footer\/footer) this section.",
+        "quicklinks": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/footer\/quicklinks) this section."
+      },
+      "section_and_blocks": {
+        "blog_post": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/blog-post) this section.",
+        "collection_list": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/collection-list) this section.",
+        "collage": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/collage) this section.",
+        "collection_list_banner": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/collection-list-banner) this section.",
+        "collection_list_carousel": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/collection-list-carousel) this section.",
+        "comparison_table": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/comparison-table) this section.",
+        "contact_form": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/contact-form) this section.",
+        "custom_liquid": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/custom-liquid) this section.",
+        "email_signup": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/email-signup-newsletter) this section.",
+        "event_calendar": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/user-guide-event-calendar) this section.",
+        "faq": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/faqs) this section.",
+        "featured_category": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/featured-categories) this section.",
+        "featured_collection": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/featured-collections) this section.",
+        "featured_product": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/featured-product) this section.",
+        "flash_sale": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/flash-sale) this section.",
+        "flow": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/flow) this section.",
+        "highlight_text_with_image": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/highlight-text-with-image) this section.",
+        "image_comparison": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/image-comparison) this section.",
+        "logo_list": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/logo-list) this section.",
+        "map": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/map-1) this section.",
+        "media_gallery": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/media-gallery) this section.",
+        "media_with_text": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/media-with-text) this section.",
+        "multiple_store": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/multiple-stores) this section.",
+        "page": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/page) this section.",
+        "product_attribute_table": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/product-attribute-table) this section.",
+        "product_bundle": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/product-bundle) this section.",
+        "product_comparison_table": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/product-comparison-table) this section.",
+        "product_highlight": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/product-highlight) this section.",
+        "product_grid": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/product-grid) this section.",
+        "promo_code_list": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/promo-code-list) this section.",
+        "promotion_banner": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/promotion-banner) this section.",
+        "promotion_grid": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/promotion-grid) this section.",
+        "recently_viewed_products": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/recently-viewed-products) this section.",
+        "related_blog_posts": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/related-blog-posts) this section.",
+        "related_collections": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/related-collections) this section.",
+        "rich_text": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/rich-text) this section.",
+        "scrolling_promotion": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/scrolling-promotion) this section.",
+        "shop_the_look": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/shop-the-look) this section.",
+        "slideshow": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/slideshow) this section.",
+        "social_feeds": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/social-feeds) this section.",
+        "tabs": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/tabs) this section.",
+        "testimonial": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/testimonial) this section.",
+        "testimonial_with_cards": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/testimonial-with-cards) this section.",
+        "text_columns_with_icons": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/text-columns-with-icons) this section.",
+        "text_columns_with_images": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/text-columns-with-images) this section.",
+        "timeline": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/timeline) this section.",
+        "vertical_slideshow": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/vertical-slideshow) this section.",
+        "video": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/video) this section.",
+        "video_hero": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/video-hero) this section.",
+        "video_looping": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/video-looping) this section.",
+        "video_shopping": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/video-shopping) this section."
+      },
+      "product_page": {
+        "product_description": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/product-description) this section.",
+        "product_information": {
+          "product_information_general": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/product-information) this section.",
+          "buy_buttons": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-set-up-add-to-cart-and-buy-buttons) this block.",
+          "back_in_stock_alert": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-a-back-in-stock-alert) this block.",
+          "basic_info": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-product-basic-information-title-price-description-etc) this block.",
+          "collapsible_tab": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-create-collapsible-tabs) this block.",
+          "collection_link": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-add-a-collection-link) this block.",
+          "complementary_product": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-complementary-products) this block.",
+          "customizable_options": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/user-guide\/customizable-options) this block.",
+          "estimate_delivery": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-estimated-shipping-date-of-the-product) this block.",
+          "engraving": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/engraving) this block.",
+          "featured_icon": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-highlighted-information-optional-icons) this block.",
+          "frequently_bought_together": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-frequently-bought-together-products) this block.",
+          "gift_wrapping": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-the-gift-wrapping-option) this block.",
+          "horizontal_tab": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-add-the-horizontal-tabs) this block.",
+          "inventory_status": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-product-inventory-status) this block.",
+          "nutrition_fact_bar": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-add-a-nutrition-fact-bar) this block.",
+          "payment_method": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-the-payment-method-for-each-product) this block.",
+          "product_sibling": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/user-guide\/product-siblings) this block.",
+          "rating": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-ratings) this block.",
+          "size_chart": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-add-size-chart) this block.",
+          "social_sharing": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-social-sharing-icons) this block.",
+          "sticky_add_to_cart": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-a-sticky-add-to-cart-bar) this block.",
+          "table_of_information": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-add-a-table-of-information) this block.",
+          "trust_badge": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-trust-badges) this block.",
+          "volume_pricing": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/volume-pricing-table) this block.",
+          "other_blocks": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-other-blocks) this block."
+        },
+        "product_specification": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/product-specifications) this section.",
+        "product_recommendation": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/product-recommendations) this section.",
+        "quick_order_list": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/product-page\/quick-order-list) this section."
+      },
+      "collection_page": {
+        "collection_banner": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/collection-page\/collection-banner) this section."
+      },
+      "pages_and_templates": {
+        "blog_post_page": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/page-templates\/blog-blog-detail-pages) this section.",
+        "blog_page": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/page-templates\/blog-page) this section.",
+        "cart_page": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/page-templates\/cart-page) this section.",
+        "collection_list_page": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/page-templates\/collection-list-page) this section.",
+        "search_page": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/page-templates\/search-page) this section."
+      },
+      "overlay_group": {
+        "cookie_banner": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/overlay-group-1\/cookie-banner) this section.",
+        "popup": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/overlay-group-1\/popup) this section.",
+        "store_selector": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/overlay-group-1\/store-selector) this section.",
+        "quick_view": "Learn [how to use](https:\/\/support.omnithemes.com\/blogs\/overlay-group-1\/quick-view) this section."
       }
     },
     "all": {
@@ -1168,7 +1321,8 @@
       "number_of_lines_shown": {
         "default": "Show full content",
         "label": "Default content height",
-        "info": "Decide the height of content block shown before clicking \"Read more\"."
+        "info": "Decide the height of content block shown before clicking \"Read more\".",
+        "mobile_info": "Decide the height of the content block shown before the \"Read more\" action appears. This setting applies to mobile only."
       },
       "read_more_label": {
         "label": "\"Read more\" label"
@@ -1205,11 +1359,23 @@
             },
             "menu": {
               "info": "Choose a menu to apply for this menu item. Learn how to create a 4-level menu [here.](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-create-mega-menus)"
+            },
+            "image_style": {
+              "info": "Applies for tab and submenu items. For large image size, rounded option is not available."
             }
           },
           "submenu_layout": {
             "label": "Submenu layout"
           }
+        },
+        "accordion_menu": {
+          "name": "Accordion menu",
+          "image_style": {
+            "info": "Applies for tab and submenu items"
+          }
+        },
+        "carousel_menu": {
+          "name": "Carousel menu"
         },
         "account": {
           "name": "Account and log in"
@@ -1887,6 +2053,17 @@
         }
       }
     },
+    "featured-category":{
+      "name": "Featured categories",
+      "category_card": {
+        "name": "Category card",
+        "show_line_border": "Show line and border"
+      },
+      "category_block": {
+        "name": "Category",
+        "category_title": "Category title"
+      }
+    },
     "quick_view": {
       "name": "Quick view",
       "show_quickview_button": "Show Quick View button",
@@ -1959,6 +2136,15 @@
             "show_add_to_cart": {
               "label": "Show add to cart"
             },
+            "show_atc_quantity": {
+              "label": "Show quantity selector"
+            },
+            "show_price": {
+              "label": "Show price on Add to cart button"
+            },
+            "hide_sale_price": {
+              "label": "Hide sale price"
+            },
             "pickup_availability": {
               "content": "Pickup availability",
               "label": "Enable pickup availability feature",
@@ -2027,7 +2213,13 @@
           }
         },
         "badges": {
-          "name": "Labels and badges"
+          "name": "Labels and badges",
+          "settings": {
+            "position_adapt": {
+              "label": "Adapt to product labels and badges setting",
+              "info": "Only available with Thumbnail slider and Stacked layout"
+            }
+          }
         },
         "estimate_delivery": {
           "name": "Estimated delivery time",
@@ -2199,6 +2391,12 @@
                 "label": "Time"
               }
             },
+            "option_style": {
+              "label": "Option style",
+              "options": {
+                "option__2": "Bold"
+              }
+            },
             "option_name": {
               "label": "Option name",
               "info": "The option name must be unique and must not be blank to prevent errors occured when adding the product to cart."
@@ -2331,7 +2529,7 @@
         },
         "option_to_classify_variant_media": {
           "label": "Options to classify variant media",
-          "info": "Fill in the option name used to classify each variant's media. Add one option name per line. Use semicolons to separate the option labels in different languages (e.g. Color;Colour;Couleur). Learn more about [setting up products](https://support.omnithemes.com/blogs/product-page/product-information#index=8)."
+          "info": "Fill in the option name used to classify each variant's media. Add one option name per line. Use semicolons to separate the option labels in different languages (e.g. Color;Colour;Couleur). Learn more about [setting up products](https://support.omnithemes.com/blogs/product-page/how-to-show-multiple-images-for-each-product-variant)."
         },
         "show_product_name": {
           "label": "Show product title"
@@ -2430,7 +2628,7 @@
           "label": "Show payment icons"
         },
         "custom_payment": {
-          "info": "Customize your payment icons. For example, fill in this field your chosen methods: apple_pay, google_pay, tabby, tamara. [Learn more](https:\/\/help.shopify.com\/en\/manual\/online-store\/themes\/themes-by-shopify\/vintage-themes\/customizing-vintage-themes\/add-credit-card-icons#edit-the-code-for-your-payment-icons)",
+          "info": "Customize your payment icons. For example, fill in this field your chosen methods: apple_pay, google_pay, tabby, tamara. [Learn more](https:\/\/shopify.dev\/docs\/api\/checkout-ui-extensions\/2024-10\/components\/media\/paymenticon#paymentmethod)",
           "label": "Custom payment icons SVG"
         },
         "header_add_info": {
@@ -2863,6 +3061,22 @@
         "countdown": {
           "content": "Add a countdown timer to instill a sense of urgency among your customers and encourages them to buy a product.",
           "settings": {
+            "countdown_type": {
+              "label": "Countdown type",
+              "standard": "Standard timer",
+              "evergreen": "Evergreen timer",
+              "info": "Standard timer counts down to a set end time while Evergreen timer automatically restarts from the beginning when it reaches zero, forming a continuous loop."
+            },
+            "countdown_interval": {
+              "label": "Duration (per loop)"
+            },
+            "interval_unit": {
+              "label": "Unit",
+              "options": {
+                "days": "Days",
+                "hours": "Hours"
+              }
+            },
             "year": {
               "label": "Year"
             },
@@ -2880,6 +3094,12 @@
             },
             "border": {
               "label": "Border"
+            },
+            "start_date_group": {
+              "info": "Set the time to begin looping. If the start date is after the current time, the timer will not count."
+            },
+            "timer_style_group": {
+              "content": "Timer style"
             }
           }
         },
@@ -3458,6 +3678,31 @@
               "default": "Your transaction is protected with advanced security measures to keep your information confidential"
             }
           }
+        },
+        "coupon_code": {
+          "settings": {
+            "block_edges": {
+              "label": "Block edges style"
+            },
+            "coupon_box_edges": {
+              "label": "Coupon code edges style"
+            },
+            "code_position": {
+              "label": "Coupon code position"
+            },
+            "header_1": {
+              "content": "Coupon code 1"
+            },
+            "header_2": {
+              "content": "Coupon code 2"
+            },
+            "coupon_box_color_light": {
+              "label": "Coupon box background color (light)"
+            },
+            "coupon_box_color_dark": {
+              "label": "Coupon box background color (dark)"
+            }
+          }
         }
       },
       "settings": {
@@ -3468,7 +3713,8 @@
           "label": "Enable sticky content on desktop"
         },
         "show_thumnail_mobile": {
-          "label": "Show thumbnails on mobile"
+          "label": "Show thumbnails on mobile",
+          "info": "Hidden when product have only one image."
         },
         "desktop_media_layout": {
           "label": "Desktop media layout",
@@ -3664,10 +3910,13 @@
       "name": "Product recommendations",
       "settings": {
         "paragraph__1": {
-          "content": "Dynamic recommendations use order and product information to change and improve over time. [Learn more](https:\/\/help.shopify.com\/themes\/development\/recommended-products)"
+          "content": "Dynamic recommendations use order and product information to change and improve over time. [Learn more](https://support.omnithemes.com/blogs/product-page/product-recommendations)"
         },
         "show_highlighted_attributes": {
           "label": "Show highlighted attributes"
+        },
+        "show_highlighted_features": {
+          "label": "Show highlighted features"
         }
       }
     },
@@ -3834,6 +4083,7 @@
     "slideshow": {
       "name": "Slideshow",
       "settings": {
+        "enable_adapt": "Adapt to edges style in theme settings",
         "layout": {
           "layout_desktop": {
             "label": "Image desktop position"
@@ -3881,7 +4131,7 @@
           "label": "Image pagination background"
         },
         "image_pagination_text": {
-          "label": "Image pagination text"
+          "label": "Image pagination arrows"
         },
         "transition_style": {
           "label": "Transition style",
@@ -4275,10 +4525,10 @@
         "countdown_timer": {
           "settings": {
             "schedule_start_time": {
-              "content": "Setup the exact time to start countdown timer and show the popup on the storefront."
+              "info": "Setup the exact time to start countdown timer and show the popup on the storefront."
             },
             "schedule_end_time": {
-              "content": "Setup the exact time to end countdown timer and hide the popup on the storefront."
+              "info": "Setup the exact time to end countdown timer and hide the popup on the storefront."
             },
             "time_color": {
               "label": "Time color (light)"
@@ -5077,14 +5327,15 @@
         },
         "anim_speed": {
           "label": "Animation speed",
-          "info": "Only apply to fullscreen height. With fit content height, animation speed depends on content height.",
+          "info": "Only applies to fullscreen height. With fit content height, animation speed depends on content height.",
           "options": {
             "option__1": "Slow",
             "option__3": "Fast"
           }
         },
         "equal_lines": {
-          "label": "Enable equal line height"
+          "label": "Enable equal line height",
+          "info": "Ensure consistent line spacing regardless of different image height."
         },
         "section_text": {
           "info": "Insert placeholders [img1], [img2], and so on to specify image positions. The numbers correspond to the image order in the section.",
@@ -5114,7 +5365,7 @@
     "store-selector": {
       "name": "Store selector",
       "settings": {
-        "paragraph": "Add store blocks and match the store information to your location settings to showcase the pickup availability of your products. [Learn more in our guide.](https://support.omnithemes.com/blogs/user-guide/store-selector)",
+        "paragraph": "Add store blocks and match the store information to your location settings to showcase the pickup availability of your products. [Learn more in our guide.](https://support.omnithemes.com/blogs/overlay-group-1/store-selector)",
         "store_selector_header_label": {
           "label": "Default label"
         }
@@ -5188,15 +5439,82 @@
       "name": "Product highlight",
       "settings": {
         "block_layout": {
-          "label": "Media ratio"
+          "label": "Media ratio",
+          "info": "If both Media ratio and Desktop height are set up, height takes priority."
+        },
+        "desktop_height": {
+          "option__6": "Adapt to media ratio"
         }
       }
     },
-    "text-with-image-scrolling": {
-      "name": "Text with image scrolling",
+    "social-feeds": {
+      "name": "Social feeds",
       "settings": {
-        "rotation": {
-          "label": "Image rotation"
+        "integrated_social_media": "Integrated social media",
+        "carousel": {
+          "change_slides_every": {
+            "note": "Select 0 to disable auto-switch"
+          }
+        },
+        "show_border": {
+          "note": "Show border between product cards"
+        },
+        "media_ratio": {
+          "original": "Original post ratio"
+        }
+      },
+      "blocks":{
+        "social_post": {
+          "social_post_image": {
+            "name": "Social post image"
+          },
+          "social_post_video": {
+            "name": "Social post video",
+            "auto_play_note": "Enable to autoplay video when scrolling to section"
+          },
+          "social_post_content": {
+            "name": "Social post content"
+          },
+          "social_post_link": {
+            "name": "Social post link"
+          },
+          "social_account": {
+            "account_avatar": {
+              "name": "Account avatar"
+            }
+          }
+        },
+        "social_account": {
+          "name": "Social account"
+        },
+        "products": {
+          "show_products": {
+            "name": "Show products on images"
+          },
+          "select_products": {
+            "note": "Select up to 4 products"
+          }
+        }
+      }
+    },
+    "timeline": {
+      "name": "Timeline",
+      "settings": {
+        "change_milestone_every": {
+          "label": "Change milestones every",
+          "info": "Select 0 to disable auto-switch"
+        },
+        "media_width_desktop": {
+          "label": "Desktop media width",
+          "info": "Defaults to Medium when Image ratio is set to 1:1 or Adapt to media."
+        }
+      },
+      "blocks": {
+        "milestone": {
+          "name": "Milestone"
+        },
+        "navigation_label": {
+          "label": "Navigation label"
         }
       }
     }

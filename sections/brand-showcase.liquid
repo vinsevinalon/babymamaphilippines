@@ -1,0 +1,704 @@
+{%- comment -%}
+  Brand Showcase - JavaScript Powered with Full Alphabetical Navigation
+{%- endcomment -%}
+
+<section class="brand-showcase" id="brand-showcase">
+  <div class="container">
+    {%- if section.settings.heading != blank -%}
+      <div class="brand-showcase__header">
+        <h2 class="brand-showcase__title">{{ section.settings.heading }}</h2>
+        {%- if section.settings.description != blank -%}
+          <p class="brand-showcase__description">{{ section.settings.description }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <!-- Alphabetical Navigation -->
+    <nav class="brand-showcase__nav" id="brand-nav">
+      <div class="brand-showcase__nav-wrapper">
+        <!-- Numbers Navigation -->
+        <a
+          href="#letter-numbers"
+          class="brand-showcase__nav-link"
+          data-letter="numbers"
+          aria-label="Jump to brands starting with numbers"
+        >
+          0-9
+        </a>
+
+        <!-- Letters Navigation A-Z -->
+        {%- assign alphabet = 'A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z' | split: ',' -%}
+        {%- for letter in alphabet -%}
+          <a
+            href="#letter-{{ letter | downcase }}"
+            class="brand-showcase__nav-link"
+            data-letter="{{ letter | downcase }}"
+            aria-label="Jump to brands starting with {{ letter }}"
+          >
+            {{ letter }}
+          </a>
+        {%- endfor -%}
+      </div>
+    </nav>
+
+    <!-- Brand List -->
+    <div class="brand-showcase__content" id="brand-content">
+      <div class="brand-showcase__loading">
+        <p>Loading brands...</p>
+      </div>
+    </div>
+
+    {%- if section.settings.show_count -%}
+      <div class="brand-showcase__footer">
+        <p class="brand-showcase__count" id="brand-count">Loading brands...</p>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<!-- Hidden data for JavaScript -->
+<script type="application/json" id="brand-data">
+  {{ section.settings.brands_data | json }}
+</script>
+
+<!-- Brand URL Configuration -->
+<script type="application/json" id="brand-config">
+  {
+    "linkType": {{ section.settings.brand_link_type | json }},
+    "pagePrefix": {{ section.settings.brand_page_prefix | json }},
+    "customUrl": {{ section.settings.custom_brand_url | json }}
+  }
+</script>
+
+<style>
+  .brand-showcase {
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+    background-color: {{ section.settings.background_color }};
+  }
+
+  .brand-showcase .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .brand-showcase__header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .brand-showcase__title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: {{ section.settings.heading_color }};
+    margin-bottom: 16px;
+  }
+
+  .brand-showcase__description {
+    font-size: 1.1rem;
+    color: {{ section.settings.text_color }};
+    margin: 0;
+  }
+
+  .brand-showcase__nav {
+    position: sticky;
+    top: 80px;
+    background-color: {{ section.settings.nav_background }};
+    padding: 16px 0;
+    margin-bottom: 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 100;
+  }
+
+  .brand-showcase__nav-wrapper {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .brand-showcase__nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    background-color: {{ section.settings.nav_link_background }};
+    color: {{ section.settings.nav_link_color }};
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+  }
+
+  .brand-showcase__nav-link:hover,
+  .brand-showcase__nav-link.active {
+    background-color: {{ section.settings.nav_link_hover_background }};
+    color: {{ section.settings.nav_link_hover_color }};
+    border-color: {{ section.settings.nav_link_hover_background }};
+    transform: translateY(-2px);
+  }
+
+  .brand-showcase__nav-link.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .brand-showcase__loading {
+    text-align: center;
+    padding: 40px 0;
+    color: {{ section.settings.text_color }};
+  }
+
+  .brand-showcase__section {
+    margin-bottom: 60px;
+  }
+
+  .brand-showcase__letter-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: {{ section.settings.letter_title_color }};
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid {{ section.settings.accent_color }};
+  }
+
+  .brand-showcase__brands {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .brand-showcase__brand {
+    background-color: {{ section.settings.brand_background }};
+    border-radius: 8px;
+    border: 1px solid {{ section.settings.brand_border_color }};
+    transition: all 0.3s ease;
+  }
+
+  .brand-showcase__brand:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: {{ section.settings.accent_color }};
+  }
+
+  .brand-showcase__brand-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+
+  .brand-showcase__brand-link:hover .brand-showcase__brand-name {
+    color: {{ section.settings.accent_color }};
+  }
+
+  .brand-showcase__brand-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: {{ section.settings.brand_text_color }};
+    transition: color 0.3s ease;
+  }
+
+  .brand-showcase__brand-arrow {
+    opacity: 0.5;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .brand-showcase__brand-link:hover .brand-showcase__brand-arrow {
+    opacity: 1;
+    transform: translateX(4px);
+    color: {{ section.settings.accent_color }};
+  }
+
+  .brand-showcase__footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid {{ section.settings.brand_border_color }};
+  }
+
+  .brand-showcase__count {
+    font-size: 1rem;
+    color: {{ section.settings.text_color }};
+    font-weight: 500;
+    margin: 0;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .brand-showcase__title {
+      font-size: 2rem;
+    }
+
+    .brand-showcase__nav {
+      position: static;
+      top: auto;
+    }
+
+    .brand-showcase__nav-wrapper {
+      gap: 6px;
+    }
+
+    .brand-showcase__nav-link {
+      min-width: 35px;
+      height: 35px;
+      font-size: 0.8rem;
+      padding: 0 8px;
+    }
+
+    .brand-showcase__brands {
+      grid-template-columns: 1fr;
+    }
+
+    .brand-showcase__letter-title {
+      font-size: 1.5rem;
+    }
+
+    .brand-showcase__brand-link {
+      padding: 12px 16px;
+    }
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const brandDataEl = document.getElementById('brand-data');
+  const brandConfigEl = document.getElementById('brand-config');
+  const brandContent = document.getElementById('brand-content');
+  const brandCount = document.getElementById('brand-count');
+  const navLinks = document.querySelectorAll('.brand-showcase__nav-link');
+  
+  if (!brandDataEl || !brandConfigEl) {
+    console.error('Brand data or config not found');
+    return;
+  }
+  
+  // Parse configuration
+  const config = JSON.parse(brandConfigEl.textContent);
+  
+  // Parse the brand data
+  const rawData = JSON.parse(brandDataEl.textContent);
+  const lines = rawData.split('\n').map(line => line.trim()).filter(line => line);
+  
+  // Organize brands by letter
+  const brandsByLetter = {};
+  let currentLetter = '';
+  let totalBrands = 0;
+  
+  lines.forEach(line => {
+    if (line.length === 1) {
+      // This is a section header
+      currentLetter = line.toUpperCase();
+      if (!brandsByLetter[currentLetter]) {
+        brandsByLetter[currentLetter] = [];
+      }
+    } else if (currentLetter) {
+      // This is a brand name
+      brandsByLetter[currentLetter].push(line);
+      totalBrands++;
+    }
+  });
+  
+  console.log('Organized brands:', brandsByLetter);
+  
+  // Clear loading message
+  brandContent.innerHTML = '';
+  
+  // Generate brand sections
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const numbers = '0123456789'.split('');
+  
+  // Handle numbers section
+  const numberBrands = [];
+  numbers.forEach(num => {
+    if (brandsByLetter[num]) {
+      numberBrands.push(...brandsByLetter[num]);
+    }
+  });
+  
+  if (numberBrands.length > 0) {
+    createSection('numbers', '0-9', numberBrands);
+  }
+  
+  // Handle letter sections
+  alphabet.forEach(letter => {
+    if (brandsByLetter[letter] && brandsByLetter[letter].length > 0) {
+      createSection(letter.toLowerCase(), letter, brandsByLetter[letter]);
+    }
+  });
+  
+  // Update brand count
+  if (brandCount) {
+    brandCount.textContent = `Total brands: ${totalBrands}`;
+  }
+  
+  // Update navigation link states
+  updateNavLinkStates();
+  
+  // Set up navigation event listeners
+  setupNavigation();
+  
+  // Set up scroll spy
+  setupScrollSpy();
+  
+  // Helper Functions
+  function createSection(sectionId, title, brands) {
+    const section = document.createElement('div');
+    section.className = 'brand-showcase__section';
+    section.id = 'letter-' + sectionId;
+    
+    const titleEl = document.createElement('h3');
+    titleEl.className = 'brand-showcase__letter-title';
+    titleEl.textContent = title;
+    section.appendChild(titleEl);
+    
+    const brandsContainer = document.createElement('div');
+    brandsContainer.className = 'brand-showcase__brands';
+    
+    brands.forEach(brandName => {
+      const brandDiv = document.createElement('div');
+      brandDiv.className = 'brand-showcase__brand';
+      
+      const brandLink = document.createElement('a');
+      brandLink.className = 'brand-showcase__brand-link';
+      brandLink.href = generateBrandUrl(brandName);
+      brandLink.setAttribute('aria-label', `View ${brandName} products`);
+      
+      const brandNameSpan = document.createElement('span');
+      brandNameSpan.className = 'brand-showcase__brand-name';
+      brandNameSpan.textContent = brandName;
+      
+      const arrow = createArrowSvg();
+      
+      brandLink.appendChild(brandNameSpan);
+      brandLink.appendChild(arrow);
+      brandDiv.appendChild(brandLink);
+      brandsContainer.appendChild(brandDiv);
+    });
+    
+    section.appendChild(brandsContainer);
+    brandContent.appendChild(section);
+  }
+  
+  function createArrowSvg() {
+    const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    arrow.className = 'brand-showcase__brand-arrow';
+    arrow.setAttribute('width', '16');
+    arrow.setAttribute('height', '16');
+    arrow.setAttribute('viewBox', '0 0 16 16');
+    arrow.setAttribute('fill', 'none');
+    
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M6 12L10 8L6 4');
+    path.setAttribute('stroke', 'currentColor');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+    
+    arrow.appendChild(path);
+    return arrow;
+  }
+  
+  function generateBrandUrl(brandName) {
+    const handle = brandName.toLowerCase()
+      .replace(/[^a-z0-9\s&'-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/&/g, 'and')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    
+    switch(config.linkType) {
+      case 'collection':
+        return `/collections/${handle}`;
+      case 'page':
+        return `/pages/${config.pagePrefix}${handle}`;
+      case 'search':
+        return `/search?q=${encodeURIComponent(brandName)}`;
+      case 'custom':
+        return `${config.customUrl}${handle}`;
+      default:
+        return `/collections/${handle}`;
+    }
+  }
+  
+  function updateNavLinkStates() {
+    navLinks.forEach(link => {
+      const letter = link.getAttribute('data-letter');
+      const targetSection = document.getElementById('letter-' + letter);
+      
+      if (!targetSection) {
+        link.classList.add('disabled');
+      } else {
+        link.classList.remove('disabled');
+      }
+    });
+  }
+  
+  function setupNavigation() {
+    navLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        if (this.classList.contains('disabled')) {
+          return;
+        }
+        
+        const letter = this.getAttribute('data-letter');
+        const targetSection = document.getElementById('letter-' + letter);
+        
+        if (targetSection) {
+          const offsetTop = targetSection.offsetTop - 120; // Account for sticky nav
+          window.scrollTo({
+            top: offsetTop,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+  }
+  
+  function setupScrollSpy() {
+    let ticking = false;
+    
+    function updateActiveNavLink() {
+      const sections = document.querySelectorAll('.brand-showcase__section');
+      let currentSection = '';
+      
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop - 150;
+        const sectionHeight = section.offsetHeight;
+        const scrollPosition = window.pageYOffset;
+        
+        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+          currentSection = section.id;
+        }
+      });
+      
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        const letter = link.getAttribute('data-letter');
+        if (currentSection === 'letter-' + letter) {
+          link.classList.add('active');
+        }
+      });
+    }
+    
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        requestAnimationFrame(function() {
+          updateActiveNavLink();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+    
+    // Initial call
+    updateActiveNavLink();
+  }
+});
+</script>
+
+{% schema %}
+{
+  "name": "Brand Showcase",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Our Brands"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Discover our extensive collection of trusted brands"
+    },
+    {
+      "type": "textarea",
+      "id": "brands_data",
+      "label": "Brand Data",
+      "info": "Paste your complete brand list here exactly as provided",
+      "default": "A\nAdam & Eve\nAden + Anais\nB\nB. Toys\nB.box"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_count",
+      "label": "Show brand count",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Brand Links"
+    },
+    {
+      "type": "select",
+      "id": "brand_link_type",
+      "label": "Brand link type",
+      "options": [
+        {
+          "value": "collection",
+          "label": "Collection page (/collections/brand-name)"
+        },
+        {
+          "value": "page",
+          "label": "Custom page (/pages/prefix-brand-name)"
+        },
+        {
+          "value": "search",
+          "label": "Search results (/search?q=brand-name)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom URL structure"
+        }
+      ],
+      "default": "collection"
+    },
+    {
+      "type": "text",
+      "id": "brand_page_prefix",
+      "label": "Page prefix",
+      "info": "Used when 'Custom page' is selected",
+      "default": "brand-"
+    },
+    {
+      "type": "text",
+      "id": "custom_brand_url",
+      "label": "Custom URL base",
+      "info": "Used when 'Custom URL structure' is selected",
+      "default": "/brands/"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#007bff"
+    },
+    {
+      "type": "color",
+      "id": "nav_background",
+      "label": "Navigation background",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "color",
+      "id": "nav_link_background",
+      "label": "Navigation link background",
+      "default": "#e9ecef"
+    },
+    {
+      "type": "color",
+      "id": "nav_link_color",
+      "label": "Navigation link color",
+      "default": "#495057"
+    },
+    {
+      "type": "color",
+      "id": "nav_link_hover_background",
+      "label": "Navigation link hover background",
+      "default": "#007bff"
+    },
+    {
+      "type": "color",
+      "id": "nav_link_hover_color",
+      "label": "Navigation link hover color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "letter_title_color",
+      "label": "Letter title color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "brand_background",
+      "label": "Brand card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "brand_text_color",
+      "label": "Brand text color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "brand_border_color",
+      "label": "Brand card border color",
+      "default": "#e9ecef"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    }
+  ],
+  "presets": [
+    {
+      "name": "Brand Showcase"
+    }
+  ]
+}
+{% endschema %}

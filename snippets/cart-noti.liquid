@@ -32,10 +32,10 @@
   x-cloak
   >
   <div class="relative md:w-[400px] text-[rgb(var(--colors-text))] pt-5 pb-5 pl-5 pr-5 md:pt-[30px] md:pb-[30px] md:pl-[30px] md:pr-[30px] bg-[rgba(var(--colors-background))] shadow-[4px_8px_16px_0px_rgba(0,0,0,0.2)]{% if settings.edges_type == 'rounded_corners' %} rounded-xl{% endif %}">
-    <button @click="$store.xCartNoti.show = false" class="cursor-pointer rounded-full bg-[rgba(var(--colors-line-and-border))] top-2 right-2 rtl:right-auto rtl:left-2 absolute h-10 w-10 z-10 pt-3 pb-3 pl-3 pr-3">
-      {%- render 'icon-alls', icon: 'icon-close' -%}
+    <button @click="$store.xCartNoti.show = false" class="cursor-pointer rounded-full group-close-btn bg-[rgba(var(--colors-line-and-border))] top-2 right-2 rtl:right-auto rtl:left-2 absolute w-fit z-10 pt-3 pb-3 pl-3 pr-3">
+      {%- render 'icon-alls', icon: 'icon-close', animation_class: 'icon-close-animation w-4 h-4' -%}
     </button>
-    <div class="flex gap-2 items-center mb-1 md:mb-3">
+    <div class="x-cart-noti-container flex gap-2 items-center mb-1 md:mb-3">
       <div :class="$store.xCartNoti.show  && 'active'" class="w-9 h-9 min-w-[36px] rounded-full cart-noti flex justify-center items-center bg-[rgba(var(--colors-line-and-border))]">
         <div class="w-[34px] h-[34px] flex justify-center items-center rounded-full bg-[rgba(var(--colors-background))]">
           <span class="icon-tick w-5 h-5 text-[rgba(var(--color-success))]">
@@ -57,14 +57,16 @@
         <div class="bundler-product-image min-w-[72px] w-[72px] h-[72px] relative">
           <a x-bind:href="item.productUrl" class="block disable-effect w-full">
             <div class="relative w-full overflow-hidden float-left before:h-0 before:block before:pb-[100.0%]{% if settings.edges_type == 'rounded_corners' %} rounded-lg{% endif %}">
+              {% # theme-check-disable ImgLazyLoading %}
               <img
                 x-show="item.featured_image.url"
                 class="absolute top-0 right-0 left-0 bottom-0 object-cover h-full w-full image-hover" 
                 x-bind:src="`${ item.featured_image.url }`"
-                loading="lazy"
+                {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                 width="150"
                 height="150"
               >
+              {% # theme-check-enable ImgLazyLoading %}
               <div class="bg-[#c9c9c9] absolute top-0 left-0 w-full h-full" x-show="!item.featured_image.url">{%- render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}</div>
             </div>
           </a>

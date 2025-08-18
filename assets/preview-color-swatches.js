@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('preview-color-swatches.js')) {
-  window.Eurus.loadedScript.push('preview-color-swatches.js');
+if (!window.Eurus.loadedScript.has('preview-color-swatches.js')) {
+  window.Eurus.loadedScript.add('preview-color-swatches.js');
 
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {
@@ -26,7 +26,7 @@ if (!window.Eurus.loadedScript.includes('preview-color-swatches.js')) {
             this.isSelect = true;
           }
         }
-      }))
+      }));
 
       Alpine.data('xDoubleTouch', (productUrl) => ({
         lastTapTime: 0,
@@ -82,12 +82,8 @@ if (!window.Eurus.loadedScript.includes('preview-color-swatches.js')) {
           if (carousel) {
             Alpine.store('xSplide').togglePlayPause(splide)
           } else {
-            if (this.showSecond == true) {
-              this.showSecond = false;
-            } else {
-              this.showSecond = true;
-            }
-          }        
+            this.showSecond = !this.showSecond;
+          }
         }
       }));
 
@@ -189,24 +185,34 @@ if (!window.Eurus.loadedScript.includes('preview-color-swatches.js')) {
             }
           }
         },
-
-        updateQuickAdd(productUrl, variantId, quickAddPageParam, productId){
+        updateQuickAdd(productUrl, variantId, quickAddPageParam, productId, el){
+          return;
           let url = `${productUrl}?variant=${variantId}&section_id=choose-option&page=${quickAddPageParam}`
           fetch(url)
           .then((response) => response.text())
           .then((responseText) => {
             const html = new DOMParser().parseFromString(responseText, 'text/html');
-            const listCurrent = document.querySelectorAll(`#product-form-choose-option${productId}${quickAddPageParam}`);
-            const destination = html.querySelector(`#product-form-choose-option${productId}${quickAddPageParam}`);
-            if(listCurrent.length>0 && destination){
+            const listCurrent = document.querySelectorAll(`#product-form-choose-option${productId}${quickAddPageParam ?? ''}`);
+            const destination = html.querySelector(`#product-form-choose-option${productId}${quickAddPageParam ?? ''}`);
+            if (listCurrent.length > 0 && destination) {
               listCurrent.forEach((item)=>{
-                item.innerHTML = destination.innerHTML;
                 const currentPrice = item.closest('.card-product').querySelector(".main-product-price");
                 const updatePrice = html.querySelector(".main-product-price");
                 if(currentPrice && updatePrice){
                   currentPrice.innerHTML = updatePrice.innerHTML
                 }
               })
+            } else {
+              if (listCurrent.length > 0) {
+                listCurrent.forEach((item) => {
+                  item.innerHTML = html.querySelector('.form').innerHTML;
+                })
+              }
+              const currentPrice = el?.closest('.card-product')?.querySelector(".main-product-price");
+              const updatePrice = html.querySelector(".main-product-price");
+              if(currentPrice && updatePrice){
+                currentPrice.innerHTML = updatePrice.innerHTML
+              }
             }
           })
         }

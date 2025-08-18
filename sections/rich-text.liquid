@@ -42,7 +42,7 @@
 {% render 'section-divider' %}
 
 <div class="section--{{ section.id }} relative x-pgw page-width mx-auto pt-[{{ section.settings.padding_top_mobile }}px] md:pt-[{{ section.settings.padding_top }}px] pb-[{{ section.settings.padding_bottom_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px]">
-  <div class="md:flex justify-{{ section.settings.content_alignment }}">
+  <div class="md:flex justify-center">
     <div class="x-container-rich-text w-full text-{{ section.settings.content_alignment_mobile }} md:text-{{ section.settings.content_alignment }}{% unless section.settings.make_full_page_width %} max-w-4xl{% endunless %}">
       {%- for block in section.blocks -%}
         {%- case block.type -%}
@@ -69,7 +69,8 @@
                   color_heading_highlight_dark: section.settings.color_heading_highlight_dark,
                   color_heading_highlight_light: section.settings.color_heading_highlight_light,
                   is_intersect: true,
-                  class: 'anm-fade-element h2 block pt-2 pb-2 leading-tight',
+                  animation_heading: false,
+                  class: 'h2 block pt-2 pb-2 leading-tight',
                   heading_tag: block.settings.heading_tag,
                 %}
               </div>
@@ -210,8 +211,13 @@
                   {% liquid
                     assign image_width = block.settings.media_size | times: settings.page_width | divided_by: 100 | times: 1.1 | ceil
                     assign width_tag = '375, 450, 750, 900, 1100, 1500, 1780, ' | append: image_width
+                    if settings.enable_lazy_loading_image
+                      assign loading = 'lazy'
+                    else
+                      assign loading = 'eager'
+                    endif
                   %}
-                  {{ block.settings.image | image_url: width: 1780 | image_tag: loading: "lazy", sizes: sizes, widths: width_tag, class: 'w-full image-hover' }}
+                  {{ block.settings.image | image_url: width: 1780 | image_tag: loading: loading, sizes: sizes, widths: width_tag, class: 'w-full image-hover' }}
                 </div>
               {%- elsif video_type -%}
                 <div class="flex items-center w-full width-{{ block.id }}">
@@ -263,6 +269,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.rich_text"
+    },
     {
       "type": "color",
       "id": "heading_light",
@@ -574,13 +584,15 @@
           "type": "text",
           "id": "read_more_label",
           "default": "Read more",
-          "label": "t:sections.all.read_more_label.label"
+          "label": "t:sections.all.read_more_label.label",
+          "visible_if": "{{ block.settings.number_of_lines_shown != 'none' }}"
         },
         {
           "type": "text",
           "id": "see_less_label",
           "default": "See less",
-          "label": "t:sections.all.see_less_label.label"
+          "label": "t:sections.all.see_less_label.label",
+          "visible_if": "{{ block.settings.number_of_lines_shown != 'none' }}"
         }
       ]
     },
@@ -775,6 +787,7 @@
   "presets": [
     {
       "name": "t:sections.rich-text.name",
+      "category": "t:categories.storytelling",
       "blocks": [
         {
           "type": "heading"

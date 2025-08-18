@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('product-recommendations.js')) {
-  window.Eurus.loadedScript.push('product-recommendations.js');
+if (!window.Eurus.loadedScript.has('product-recommendations.js')) {
+  window.Eurus.loadedScript.add('product-recommendations.js');
 
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {

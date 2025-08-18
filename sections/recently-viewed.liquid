@@ -26,6 +26,11 @@
   if swiper_on_mobile and section.settings.enable_arrow_mobile
     assign arrow_swipe_mobile = true
   endif
+  if settings.enable_lazy_loading_image
+    assign loading = 'lazy'
+  else
+    assign loading = 'eager'
+  endif
 -%}
 {%- style -%}
   #shopify-section-{{ section.id }} {
@@ -70,7 +75,8 @@
         highlight_type: section.settings.highlight_type,
         class: 'h2 block',
         heading_tag: section.settings.heading_tag,
-        heading_alignment: section.settings.heading_alignment
+        heading_alignment: section.settings.heading_alignment,
+        animation_heading: true
       %}
       {%- if section.settings.enable_clear_history -%}
         <div class="text-right">
@@ -82,7 +88,7 @@
     </div>
   {% endif %}
   <div class="mx-auto{% if swiper_on_mobile %} carousel-mobile {% endif %}{% if enable_desktop_slider %} carousel-tablet{% endif %}{% if section.settings.full_width %} full-width{% else %} x-pgw page-width{% endif %}">
-    <div id="x-recently-viewed-{{ section.id }}" class="{% if section.settings.heading != blank or section.settings.enable_clear_history %}mt-6{% endif %}{% if enable_desktop_slider or swiper_on_mobile %} overflow-hidden x-splide splide{% endif %}"
+    <div id="x-recently-viewed-{{ section.id }}" class="{% if section.settings.heading != blank or section.settings.enable_clear_history %}mt-6{% endif %}{% if enable_desktop_slider or swiper_on_mobile %} overflow-hidden x-splide splide{% endif %}{% if arrow_swipe_mobile %} flex flex-col{% endif %}"
       {% if enable_desktop_slider or swiper_on_mobile %}
         x-data-slider="{{ section.id }}"
         x-intersect.once.margin.200px='$store.xSplide.load($el, {  
@@ -141,7 +147,8 @@
             }
           ]
         })'
-      {% endif %}>
+      {% endif %}
+    >
       {%- style -%}
         .gap-mobile-{{ section.id }} {
           gap: {{ section.settings.spacing_mobile }}px;
@@ -169,36 +176,9 @@
           }
         }
       {%- endstyle -%}
-      <div class="splide__track{% if enable_desktop_slider %} md:cursor-grab{% endif %}">
-        <div class="splide__list gap-{{ section.id }}{% if enable_desktop_slider %} md:flex md:gap-0{% else %}{% if section.settings.enable_carousel_desktop %} md:flex{% else %} md:grid {% if columns_desktop == 5 %} md:grid-cols-4{% else %} md:grid-cols-{{ columns_desktop }}{% endif %} lg:grid-cols-{{ section.settings.columns_desktop }}{% endif %}{% endif %}{% if swiper_on_mobile %} flex{% else %} gap-mobile-{{ section.id }} grid grid-cols-{{ section.settings.columns_mobile }}{% endif %}">
-          {%- for item in search.results limit: products_to_show -%}
-            {% liquid
-              assign index_param = section.index | append: forloop.index | plus: 0 
-            %}
-            <div class="splide__slide x-splide-slide w-full{% if section.settings.enable_carousel_desktop %} preload-slide--{{ section.id }}{% endif %}">
-              {% render 'card-product',
-                card_product: item,
-                show_vendor: section.settings.show_vendor,
-                show_highlighted_attributes: section.settings.show_highlighted_attributes,
-                show_rating: section.settings.show_rating,
-                lazy_load: true,
-                columns_desktop: section.settings.columns_desktop,
-                column_mobile: section.settings.columns_mobile | plus: 0,
-                block_id: forloop.index,
-                section_id: section.id,
-                product_card_id: forloop.index,
-                disable_quickview: disable_quickview,
-                index_param: index_param,
-                animation_loading: true,
-                show_price_range: true
-              %}
-            </div>
-          {%- endfor -%}
-        </div>
-      </div>
       {%- if search.results_count > 0 -%}
         {%- if swiper_on_mobile or enable_desktop_slider -%}
-          <div class="splide__arrows{% if swiper_on_mobile %} flex items-center justify-center{% endif %}" x-show="$store.xProductRecently.show">
+          <div class="splide__arrows order-2{% if swiper_on_mobile %} flex items-center justify-center{% endif %}" x-show="$store.xProductRecently.show">
             <button 
               class="splide__arrow splide__arrow--prev button-arrow p-4 rounded-full none_border z-10 w-12 h-12 after:text-[20px] rtl:-rotate-90 rotate-90 opacity-100 disabled:cursor-not-allowed disabled:opacity-30
               {%- unless arrow_swipe_mobile %} hidden{% else %} block{% endunless -%}
@@ -218,6 +198,35 @@
           </div>
         {%- endif -%}
       {%- endif -%}
+      <div class="splide__track{% if enable_desktop_slider %} md:cursor-grab{% endif %}">
+        <div class="splide__list gap-{{ section.id }}{% if enable_desktop_slider %} md:flex md:gap-0{% else %}{% if section.settings.enable_carousel_desktop %} md:flex{% else %} md:grid {% if columns_desktop == 5 %} md:grid-cols-4{% else %} md:grid-cols-{{ columns_desktop }}{% endif %} lg:grid-cols-{{ section.settings.columns_desktop }}{% endif %}{% endif %}{% if swiper_on_mobile %} flex{% else %} gap-mobile-{{ section.id }} grid grid-cols-{{ section.settings.columns_mobile }}{% endif %}">
+          {%- for item in search.results limit: products_to_show -%}
+            {% liquid
+              assign index_param = section.index | append: forloop.index | plus: 0
+            %}
+            <div class="splide__slide x-splide-slide w-full{% if section.settings.enable_carousel_desktop %} preload-slide--{{ section.id }}{% endif %}">
+              {% render 'card-product',
+                card_product: item,
+                show_vendor: section.settings.show_vendor,
+                show_highlighted_features: section.settings.show_highlighted_features,
+                show_highlighted_attributes: section.settings.show_highlighted_attributes,
+                show_rating: section.settings.show_rating,
+                lazy_load: true,
+                columns_desktop: section.settings.columns_desktop,
+                column_mobile: section.settings.columns_mobile | plus: 0,
+                block_id: forloop.index,
+                section_id: section.id,
+                product_card_id: forloop.index,
+                disable_quickview: disable_quickview,
+                index_param: index_param,
+                animation_loading: true,
+                loading: loading,
+                show_price_range: true
+              %}
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
       {%- if search.results_count > 0 and enable_desktop_slider or swiper_on_mobile -%}
         <div
           x-show="$store.xProductRecently.show"
@@ -263,6 +272,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.recently_viewed_products"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.recently-viewed-products.settings.paragraph.content"
@@ -383,7 +396,7 @@
     },
     {
       "type": "header",
-      "content": "t:sections.quick_view.settings.button_style.label"
+      "content": "t:settings_schema.products.product_cards"
     },
     {
       "type": "checkbox",
@@ -397,6 +410,12 @@
       "default": false,
       "label": "t:sections.featured-collection.blocks.collection.settings.show_rating.label",
       "info": "t:sections.featured-collection.blocks.collection.settings.show_rating.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_highlighted_features",
+      "default": true,
+      "label": "t:sections.product-recommendations.settings.show_highlighted_features.label"
     },
     {
       "type": "checkbox",
@@ -430,7 +449,8 @@
       "type": "checkbox",
       "id": "enable_arrow_mobile",
       "default": false,
-      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile"
+      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile",
+      "visible_if": "{{ section.settings.enable_swiper_mobile }}"
     },
     {
       "type": "header",
@@ -546,7 +566,8 @@
   ],
   "presets": [
     {
-      "name": "t:sections.recently-viewed-products.name"
+      "name": "t:sections.recently-viewed-products.name",
+      "category": "t:categories.products"
     }
   ]
 }

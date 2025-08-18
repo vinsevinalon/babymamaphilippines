@@ -32,11 +32,34 @@ requestAnimationFrame(() => {
       >
         {content}
       </div>`,
-      productDetailTemplate: `<div
-        class="x-badge-{label-id} x-badge-container min-w-fit max-w-full max-h-full bottom-0 pointer-events-none{container-css-class}{container-img-class}"
-      >
-        {content}
-      </div>`,
+      productDetailTemplate: `
+      {teleport-template-open}
+        <div
+          class="x-badge-{label-id} x-badge-container min-w-fit max-w-full max-h-full bottom-0 pointer-events-none{container-css-class}{container-img-class}"
+          style="{css-position}"
+          x-data="{
+            contentHeight: 1,
+            rePosition() {
+              this.$nextTick(() => {
+                this.contentHeight = this.$refs.content ? this.$refs.content.offsetHeight : contentHeight;
+              });
+            }
+          }"
+          x-intersect.once="rePosition();
+            if (Shopify.designMode) {
+              window.addEventListener('resize', () => {
+                if ($store.xBadges.lastWindowWidth != window.innerWidth) {
+                  rePosition();
+                }
+              });
+            } else {
+              installMediaQueryWatcher('(min-width: 768px)', (matches) => rePosition());
+            }"
+        >
+          {content}
+        </div>
+      {teleport-template-close}
+      `,
       outSideImageTemplate: `<div class="hidden" 
         x-data="{
           setPosition() {
@@ -110,7 +133,7 @@ requestAnimationFrame(() => {
               let currentLabels = cardProduct.getElementsByClassName('x-badge-container');
               while (currentLabels?.length > 0) {
                 currentLabels[0].remove();
-              }  
+              }
             }
           }
 
@@ -159,8 +182,20 @@ requestAnimationFrame(() => {
           }
       },
       appendLabel(el, label, productData) {
-        if (productData.container == 'product-info' || label.settings.position == 'custom') {
+        if (productData.container == 'product-info') {
           el.innerHTML += this.processTemplate(el, label, productData);
+          return;
+        }
+
+        if (label.settings.position == 'custom') {
+          let container = el.querySelector(`.custom-label-container`);
+          if (!container) {
+            container = document.createElement("div");
+            let HTMLClass = `custom-label-container pointer-events-none`;
+            container.setAttribute('class', HTMLClass);
+            el.appendChild(container);
+          }
+          container.innerHTML += this.processTemplate(el, label, productData);
           return;
         }
 
@@ -173,9 +208,9 @@ requestAnimationFrame(() => {
         container.innerHTML += this.processTemplate(el, label, productData);
       },
       createFixedPositionContainer(position) {
-        let HTMLClass = `${position}-container label-container absolute gap-1 space-y-1`;
-        HTMLClass += position.includes('top') ? ' top-1 flex-col' : ' bottom-1 flex-col-reverse';
-        HTMLClass += position.includes('left') ? ' left-1' : ' right-1';
+        let HTMLClass = `${position}-container label-container flex absolute gap-1 space-y-1`;
+        HTMLClass += position.includes('top') ? ' top-1 flex-col' : ' bottom-1 flex-col';
+        HTMLClass += position.includes('left') ? ' items-start left-1' : ' items-end right-1';
 
         container = document.createElement("div");
         container.setAttribute('class', HTMLClass);
@@ -211,7 +246,7 @@ requestAnimationFrame(() => {
             var imageDirection = productData.make_content_center ? "justify-center" : "justify-start";
             var styleImage = '';
           }
-          content = `<div x-ref="content" class='x-badge-content flex ${imageDirection}{css-opacity}'>
+          content = `<div x-ref="content" class='x-badge-content w-fit flex ${imageDirection}{css-opacity}'>
             <img 
               loading="lazy"
               width="` + imageWidth + `"
@@ -255,45 +290,103 @@ requestAnimationFrame(() => {
 
           if (countDown.length > 0 && label.settings.schedule_enabled) {
             Alpine.store('xHelper').countdown(label.settings, function(canShow, seconds, minutes, hours, days) {
-              let container = el.container ? el.container : el;
-              const countdownElements = container.getElementsByClassName('x-badge-countdown-' + label.id);
-
-              if (!canShow) {
-                for (let i = 0;i < countdownElements.length;i++) {
-                  countdownElements[i].innerHTML = '';
+              let container;
+              if (productData.container === "card") {
+                container = el.container ? el.container : el;
+                if (label.settings.position == "below-image" || label.settings.position == "bottom-card") {
+                  container = el.closest('.card-product')
                 }
-
-                return;
+              } else {
+                if (label.settings.position == "next-price") {
+                  container = document.querySelector(productData.teleport_dest_price);
+                } else if (label.settings.position == "below-image" || label.settings.position == "bottom-card") {
+                  container = el.container ? el.container : el;
+                } else {
+                  container = document.querySelector(productData.teleport_dest_image);
+                }
               }
 
+              const countdownElements = container?.getElementsByClassName('x-badge-countdown-' + label.id);
+              if (!canShow) {
+                for (let i = 0;i < countdownElements?.length;i++) {
+                  countdownElements[i].innerHTML = '';
+                }
+                return;
+              }
               days = days > 0 ? days + "D&nbsp;&nbsp;&nbsp;" : "";
               hours = hours == 0 && days.length == 0 ? "" : hours + " : ";
               const timeLeft = days + hours + minutes + " : " + seconds;
-
-              for (let i = 0;i < countdownElements.length;i++) {
+              for (let i = 0;i < countdownElements?.length;i++) {
                 countdownElements[i].innerHTML = timeLeft;
               }
             });
           }
         }
-
         return content;
       },
       processTemplate(el, label, productData) {
         let template = '';
+        let teleportTemplateOpen = '';
+        let teleportTemplateClose = '';
         if (content = this.processContent(el, label, productData)) {
           const cssOpacity = " opacity-" + label.settings.opacity;
-          const cssPosition = productData.container == "card" ? "left: " + label.settings.horizontal_position + "%;" + " transform: translate(-"+ label.settings.horizontal_position+"%, -"+ label.settings.vertical_position+"%);"
+          let cssPosition = ''
+          let containerCssClass = ''
+
+          if (productData.container == "product-info" && label.settings.position == "custom" && productData.position_adapt) {
+            cssPosition = "left: " + label.settings.horizontal_position + "%;" + " transform: translate(-" + label.settings.horizontal_position+"%, -" + label.settings.vertical_position+"%);" + " top: " + (label.settings.vertical_position) + "%;";
+          } else {
+            cssPosition = productData.container == "card" ? "left: " + label.settings.horizontal_position + "%;" + " transform: translate(-"+ label.settings.horizontal_position+"%, -"+ label.settings.vertical_position+"%);"
             + " top: " + (label.settings.vertical_position) + "%;"
             : "";
+          }
           let cssType = '';
           if (label.settings.type == 'round') cssType = ' rounded-md';
           if (label.settings.type == 'rounded-full') cssType = ' rounded-full';
 
-          let containerCssClass = productData.container == "card" ? " absolute w-max" : "";
+          if (productData.container === "card") {
+            containerCssClass = " absolute w-max";
+          } else if (productData.position_adapt) {
+            containerCssClass = (label.settings.position === "custom") ? " absolute w-max h-fit product-info-custom-label" : " w-fit h-fit product-info-custom-label";
+          }
+
+          if (productData.container == "product-info" && productData.position_adapt) {
+            if (productData.teleport_dest_price || productData.teleport_dest_image) {
+              teleportTemplateClose = "</template>"
+            }
+            if (label.settings.position == "next-price") {
+              if (productData.teleport_dest_price) {
+                teleportTemplateOpen = `<template x-teleport="${productData.teleport_dest_price}">`;
+              }
+            } else if (label.settings.position == "custom") {
+              if (productData.teleport_dest_image) {
+                teleportTemplateOpen = `<template x-teleport="${productData.teleport_dest_image}">`
+              }
+            } else if (label.settings.position == "below-image" || label.settings.position == "bottom-card") {
+              teleportTemplateOpen = "";
+              teleportTemplateClose = "";
+            } else {
+              const imageContainer = document.querySelector(productData.teleport_dest_image);
+              let container = imageContainer.querySelector(`.${label.settings.position}-container`);
+              if (!container) {
+                container = this.createFixedPositionContainer(label.settings.position);
+                imageContainer.appendChild(container);
+              }
+              if (productData.teleport_dest_image) {
+                teleportTemplateOpen = `<template x-teleport="${productData.teleport_dest_image} .${label.settings.position}-container">`
+              }
+            }
+          }
+
           containerCssClass += label.settings.horizontal_position > 50 ? " text-end" : " text-start";
           const previewShowCondition = productData.isXBadgesPreview ? `x-show="$store.xBadges.previewActiveBlock == '{label-id}'"` : '';
-          const imgClass = label.settings.image ? ' label-img' : '';
+          let imgClass;
+          if (productData.container == "product-info" && (label.settings.position == "below-image" || label.settings.position == "bottom-card" || !productData.position_adapt)) {
+            let imageContainerAlignment = productData.make_content_center ? 'flex justify-center' : ''
+            imgClass = label.settings.image ? ` label-img ${imageContainerAlignment}` : '';
+          } else {
+            imgClass = label.settings.image ? ' label-img' : '';
+          }
 
           template = this.getLableTemplate(productData.container, label.settings.position);
           template = template.replace('{preview-show-condition}', previewShowCondition)
@@ -303,6 +396,8 @@ requestAnimationFrame(() => {
             .replace('{css-type}', cssType)
             .replace('{container-css-class}', containerCssClass)
             .replace('{container-img-class}', imgClass)
+            .replace('{teleport-template-open}', teleportTemplateOpen)
+            .replace('{teleport-template-close}', teleportTemplateClose)
             .replace(/{label-id}/gi, label.id);
         }
         return template;

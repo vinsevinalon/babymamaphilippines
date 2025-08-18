@@ -1,14 +1,9 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "general": {
+    "theme-mode": {
+      "light": "Luz",
+      "dark": "Oscuro"
+    },
     "global": {
       "cancel": "Cancelar",
       "copy_code": "copiar codigo",
@@ -78,8 +73,11 @@
       "view": "Ver mi carrito ({{ count }})",
       "item_added": "Artículo añadido a tu carrito",
       "terms_confirm": "Por favor acepte los términos y condiciones.",
-      "enable_amount_freeship_html": "Añade <span class=\"text-medium font-medium\">{{ amount_to_freeshipping }}</span> más para conseguir <span class=\"font-medium\">GRATIS</span> gastos de envío.",
+      "enable_amount_freeship_html": "Añade <span class=\"text-medium font-medium\">{{ amount_to_freeshipping }}</span> más para conseguir <span class=\"font-medium\">GRATIS<\/span> gastos de envío.",
+      "enable_amount_freegift_html": "Añade <span class=\"text-medium font-medium\">{{ amount_to_freegift }}<\/span> más para obtener {{ other_offer }}",
       "freeshipping": "¡Felicidades! ¡Eres elegible para el envío gratis!",
+      "freegift": "¡Felicitaciones! Eres elegible para {{ other_offer }}",
+      "free_all_offer": "¡Felicitaciones! ¡Tienes derecho a envío gratis y {{ other_offer }}!",
       "freeshipping_value": "Envío gratis",
       "apply": "Aplicar",
       "copy_link": "Copiar enlace",
@@ -426,7 +424,8 @@
       "choose_option": "Elija una variante primero",
       "add_to_bundle": "Añadir al paquete",
       "bundle_empty": "Tu paquete está vacío.",
-      "discount_label": "APAGADA"
+      "discount_label": "APAGADA",
+      "save": "Ahorra"
     },
     "promo-code-list": {
       "expired": "Venció",
@@ -452,6 +451,9 @@
       "hours": "HRS",
       "mins": "MINS",
       "secs": "SEG"
+    },
+    "social-feeds": {
+      "view_on_social": "View on social"
     }
   },
   "localization": {

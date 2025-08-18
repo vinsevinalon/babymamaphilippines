@@ -47,7 +47,7 @@
           {%- if results_size > 0 and predictive_search.resources.pages.size > 0 -%}
             {%- if predictive_search.resources.queries.size > 0 and settings.search_style == 'vertical' -%}<div class="line-spacing flex-shrink-0 lg:mb-5"></div>{%- endif -%}
             <div class="query-and-page-content flex-1">
-              <h2 id="predictive-search-pages" class="predictive-search-heading pl-6 pr-6 lg:pl-10 lg:pr-10 pb-5 uppercase{% if predictive_search.resources.queries.size > 0 and settings.search_style == 'horizontal' %} border-t pt-6 lg:pt-7{% else %} pt-6 lg:pt-2{% endif %} text-[{{ settings.text_base_size | times: 0.007875 }}rem] md:text-[{{ settings.text_base_size | times: 0.00875 }}rem]">
+              <h2 id="predictive-search-pages" class="predictive-search-heading pl-6 pr-6 lg:pl-10 lg:pr-10 pb-2 md:pb-5 uppercase{% if predictive_search.resources.queries.size > 0 and settings.search_style == 'horizontal' %} border-t pt-6 lg:pt-7{% else %} pt-6 lg:pt-2{% endif %} text-[{{ settings.text_base_size | times: 0.007875 }}rem] md:text-[{{ settings.text_base_size | times: 0.00875 }}rem]">
                 {{ 'templates.search.pages' | t }}
               </h2>
               <div class="predictive-result-item pb-7 pl-6 pr-6 lg:pl-10 lg:pr-10 gap-5{% if settings.search_style == 'horizontal' %} flex{% endif %}">
@@ -68,7 +68,7 @@
           <div class="predictive-search-results-list predictive-search-others{% if settings.search_style == 'vertical' %} lg:flex{% if predictive_search.resources.queries.size > 0 or predictive_search.resources.pages.size > 0 %} lg:pt-5{% endif %}{% else %} lg:w-3/4{% endif %}">
         {%- if predictive_search.resources.products.size > 0 -%}
           <div class="flex-1">
-            <h2 id="predictive-search-products" class="predictive-search-heading pl-6 pr-6 lg:pl-10 lg:pr-10{% if predictive_search.resources.queries.size > 0 and settings.search_style == 'vertical' or predictive_search.resources.pages.size > 0 and settings.search_style == 'vertical' %} pt-6 lg:pt-7{% else %} pt-2{% endif %} pb-2 uppercase text-[{{ settings.text_base_size | times: 0.007875 }}rem] md:text-[{{ settings.text_base_size | times: 0.00875 }}rem]">
+            <h2 id="predictive-search-products" class="predictive-search-heading pl-6 pr-6 lg:pl-10 lg:pr-10{% if predictive_search.resources.queries.size > 0 and settings.search_style == 'vertical' or predictive_search.resources.pages.size > 0 and settings.search_style == 'vertical' %} pt-6 lg:pt-7{% else %} pt-6 md:pt-2{% endif %} pb-2 uppercase text-[{{ settings.text_base_size | times: 0.007875 }}rem] md:text-[{{ settings.text_base_size | times: 0.00875 }}rem]">
               {{ 'templates.search.products' | t }}
             </h2> 
             <ul role="listbox" aria-labelledby="predictive-search-products" class="predictive-result-item grid grid-cols-1 gap-2 pl-6 pr-6 lg:pl-10 lg:pr-10 pb-2.5">
@@ -79,15 +79,17 @@
                       <div class="w-24 relative">
                         <div class="relative overflow-hidden w-full float-left before:h-0 before:block{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}{% unless settings.product_image_ratio == "natural" %} before:pb-[{{ ratio | times: 100.0 }}%]{% else %}{% if product.featured_media.media_type == "model" %} pb-[100%]{% endif %}{% endunless %}"{% if settings.product_image_ratio == "natural" and product.featured_media and product.featured_media.media_type != "model" %} style="padding-bottom: {{ 1 | divided_by: product.featured_media.aspect_ratio | times: 100 }}%;"{% endif %} >
                           {%- if product.featured_media != blank -%}
+                            {% # theme-check-disable ImgLazyLoading %}
                             <img
                               src="{{ product.featured_media | image_url: width: 150 }}"
                               alt="{{ product.featured_media.alt | split: "#" | first | escape }}"
                               width="{{ product.featured_media.width }}"
-                              loading="lazy"
+                              {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                               onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                               height="{{ product.featured_media.height }}"
                               class="h-full w-full object-cover absolute top-0 left-0 image-hover z-0 animate-Xpulse skeleton-image"
                             >
+                            {% # theme-check-enable ImgLazyLoading %}
                           {%- else -%}
                             <div class="bg-[#c9c9c9]{% unless settings.product_image_ratio == "natural" %} absolute{% endunless %} top-0 left-0 w-full h-full">{%- render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}</div>
                           {%- endif -%}
@@ -125,15 +127,17 @@
                         <div class="w-24 relative">
                           <div class="relative overflow-hidden w-full float-left before:h-0 before:block before:pb-[75.0%]{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}">
                             {%- if collection.featured_image != blank -%}
+                              {% # theme-check-disable ImgLazyLoading %}
                               <img
                                 src="{{ collection.featured_image | image_url: width: 300 }}"
                                 alt="{{ collection.featured_image.alt }}"
                                 width="{{ collection.featured_image.width }}"
-                                loading="lazy"
+                                {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                                 onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                                 height="{{ collection.featured_image.height }}"
                                 class="h-full w-full object-cover absolute top-0 left-0 z-0 image-hover animate-Xpulse skeleton-image"
                               >
+                              {% # theme-check-enable ImgLazyLoading %}
                             {%- else -%}
                               <div class="bg-[#c9c9c9] absolute top-0 left-0 w-full h-full">{%- render 'icon-placeholder', icon: 'icon-collection', class: 'w-full h-full' %}</div>
                             {%- endif -%}
@@ -162,15 +166,17 @@
                       <div class="w-24 relative">
                         <div class="relative overflow-hidden w-full float-left before:h-0 before:block before:pb-[75.0%]{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}">
                           {%- if article.image != blank -%}
+                            {% # theme-check-disable ImgLazyLoading %}
                             <img
                               src="{{ article.image.src | image_url: width: 300 }}"
                               alt="{{ article.image.alt }}"
                               width="{{ article.image.width }}"
-                              loading="lazy"
+                              {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                               onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                               height="{{ article.image.height }}"
                               class="h-full w-full object-cover absolute top-0 left-0 image-hover z-0 animate-Xpulse skeleton-image"
                             >
+                            {% # theme-check-enable ImgLazyLoading %}
                           {%- else -%}
                             <div class="bg-[#c9c9c9] absolute top-0 left-0 w-full h-full">{%- render 'icon-placeholder', icon: 'icon-image', class: 'w-full h-full' %}</div>
                           {%- endif -%}

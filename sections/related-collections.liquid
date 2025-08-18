@@ -153,12 +153,13 @@
           heading: section.settings.heading,
           highlight_type: section.settings.highlight_type,
           class: 'h2 block leading-tight flex-auto p-break-words',
-          heading_tag: section.settings.heading_tag
+          heading_tag: section.settings.heading_tag,
+          animation_heading: true
         %}
       </div>
     {%- endunless -%}
     <div class="mx-auto{% if swiper_on_mobile %} carousel-mobile carousel-tablet{% endif %}{% if section.settings.full_width %} full-width{% else %} x-pgw page-width{% endif %}">
-      <div class="{% if enable_desktop_slider %}lg:pl-24 lg:pr-24{% else %} lg:pl-0 lg:pr-0{% endif %}">
+      <div>
         <div
           id="x-collection-{{ section.id }}"
           {% if enable_desktop_slider or swiper_on_mobile -%}
@@ -481,6 +482,10 @@
   "settings": [
     {
       "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.related_collections"
+    },
+    {
+      "type": "paragraph",
       "content": "t:sections.related_collections.info"
     },
     {
@@ -672,7 +677,8 @@
         }
       ],
       "label": "t:sections.all.content_position.label",
-      "default": "bottom"
+      "default": "bottom",
+      "visible_if": "{{ section.settings.show_text_overlay }}"
     },
     {
       "type": "range",
@@ -682,7 +688,8 @@
       "step": 5,
       "default": 5,
       "unit": "%",
-      "label": "t:sections.all.overlay_opacity.label"
+      "label": "t:sections.all.overlay_opacity.label",
+      "visible_if": "{{ section.settings.show_text_overlay }}"
     },
     {
       "type": "color",
@@ -772,7 +779,8 @@
       "type": "checkbox",
       "id": "enable_arrow_mobile",
       "default": false,
-      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile"
+      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile",
+      "visible_if": "{{ section.settings.swiper_on_mobile }}"
     },
     {
       "type": "header",
@@ -882,6 +890,10 @@
             {
               "value": "none",
               "label": "t:sections.all.icon.options.none"
+            },
+            {
+              "value": "another_icon",
+              "label": "t:sections.all.icon.another_icon_label"
             },
             {
               "value": "activity",
@@ -1167,13 +1179,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "range",
@@ -1183,7 +1197,8 @@
           "step": 1,
           "unit": "px",
           "label": "t:sections.multicolumn.settings.icon_size.label",
-          "default": 45
+          "default": 45,
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "text",
@@ -1457,7 +1472,8 @@
   ],
   "presets": [
     {
-      "name": "t:sections.related_collections.name"
+      "name": "t:sections.related_collections.name",
+      "category": "t:categories.collections"
     }
   ]
 }

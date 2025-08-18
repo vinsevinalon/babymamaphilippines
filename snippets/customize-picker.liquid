@@ -2,7 +2,7 @@
   {% case picker_type %}
     {% when 'single_text' %}
       {% if option_label %}
-        <p class="mb-3 font-medium">{{ option_label }}{% if required %} *{% endif %}</p>
+        <p class="mb-3 font-{{ option_style }}">{{ option_label }}{% if required %} *{% endif %}</p>
       {% endif %}
       <div class="flex-1 relative" x-data="{ single_text_input: '' }">
         <input
@@ -29,13 +29,13 @@
           <p class="mt-2">{{ option_text_note | escape }}</p>
         {% endif %}
         {% unless required or hide_when_empty %} 
-          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" value="{{ 'general.custom_option.text_blank' | t }}">
+          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" :value="disableInput ? '{{ 'general.custom_option.text_blank' | t }}' : single_text_input" >
         {% endunless %}
         <input class="hidden" :value="single_text_input" type="text" name="properties[{{ option_name }}]" form="{{ product_form_id_sticky }}" placeholder="{{ option_name }}">
       </div>
     {% when 'multi_text' %}
       {% if option_label %}
-        <p class="mb-3 font-medium">{{ option_label }}{% if required %} *{% endif %}</p>
+        <p class="mb-3 font-{{ option_style }}">{{ option_label }}{% if required %} *{% endif %}</p>
       {% endif %}
       <div class="relative" x-data="{ multi_text_input: '' }">
         <textarea
@@ -61,7 +61,7 @@
           <p class="mt-2">{{ option_text_note | escape }}</p>
         {% endif %}
         {% unless required or hide_when_empty %} 
-          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" value="{{ 'general.custom_option.text_blank' | t }}">
+          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" :value="disableInput ? '{{ 'general.custom_option.text_blank' | t }}' : multi_text_input">
         {% endunless %}
         <textarea
           class="hidden"
@@ -74,7 +74,7 @@
       </div>
     {% when 'radio_button' %}
       <fieldset>
-        <legend class="mb-3 font-medium">
+        <legend class="mb-3 font-{{ option_style }}">
           {{ option_label }}{% if required %} *{% endif %}
         </legend>
         {% liquid
@@ -107,7 +107,7 @@
           <p class="mt-2">{{ option_select_note | escape }}</p>
         {% endif %}
         {% unless required or hide_when_empty %}
-          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" value="{{ 'general.custom_option.option_blank' | t }}">
+          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" :value="disableInput ? '{{ 'general.custom_option.option_blank' | t }}' : radioChecked">
         {% endunless %}
         <input
           class="hidden"
@@ -129,8 +129,8 @@
       %} 
       <div x-data="{ color: '#000000'}">
         {% if option_label %}
-          <div class="mb-3 font-medium">
-            <span>{{ option_label }}{% if required %} *{% endif %}: </span><span class="text-[rgba(var(--colors-text-link))]" x-text="color"></span>
+          <div class="mb-3">
+            <span class="font-{{ option_style }}">{{ option_label }}{% if required %} *{% endif %}: </span><span class="text-[rgba(var(--colors-text-link))]" x-text="color"></span>
           </div>
         {% endif %}
         <div class="w-full{% if show_content_center %} text-center{% endif %}">
@@ -151,7 +151,7 @@
     {% when 'date' %}
       <div x-data="{ date: '' }">
         {% if option_label %}
-          <p class="mb-3 font-medium">{{ option_label }}{% if required %} *{% endif %}</p>
+          <p class="mb-3 font-{{ option_style }}">{{ option_label }}{% if required %} *{% endif %}</p>
         {% endif %}
         <input 
           type="date"
@@ -173,7 +173,7 @@
           <span class="mt-1 text-required text-[rgba(var(--color-error))] hidden">{{ 'products.product.customize_option_required' | t }}</span>
         {% endif %}
         {% unless required or hide_when_empty %}
-          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" value="{{ 'general.custom_option.option_blank' | t }}">
+          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" :value="disableInput ? '{{ 'general.custom_option.option_blank' | t }}' : date">
         {% endunless %}
         <input
           class="hidden"
@@ -187,7 +187,7 @@
     {% when 'time' %}
       <div x-data="{ time: '' }">
         {% if option_label %}
-          <p class="mb-3 font-medium">{{ option_label }}{% if required %} *{% endif %}</p>
+          <p class="mb-3 font-{{ option_style }}">{{ option_label }}{% if required %} *{% endif %}</p>
         {% endif %}
         <input 
           type="time" 
@@ -208,7 +208,7 @@
           <span class="mt-1 text-required text-[rgba(var(--color-error))] hidden">{{ 'products.product.customize_option_required' | t }}</span>
         {% else %}
           {% unless hide_when_empty %}
-            <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" value="{{ 'general.custom_option.option_blank' | t }}">
+            <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" :value="disableInput ? '{{ 'general.custom_option.option_blank' | t }}' : time">
           {% endunless %}
         {% endif %}
         <input
@@ -223,7 +223,7 @@
     {% when 'checkbox' %}
       <div class="customize-checkbox eurus">
         {% if option_label %}
-          <p class="option-name mb-3 font-medium">{{ option_label }}{% if required %} *{% endif %}</p>
+          <p class="option-name mb-3 font-{{ option_style }}">{{ option_label }}{% if required %} *{% endif %}</p>
         {% endif %}
         {% liquid
           assign option_lists = option_list | split: ";"
@@ -263,7 +263,7 @@
         >
         <p class="text-required hidden text-[rgba(var(--color-error))] top-full mt-1">{{ 'products.product.customize_option_msg_checkbox' | t: minimum_select_value: minimum_select_value }}</p>
         {% unless required or hide_when_empty %}
-          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" value="{{ 'general.custom_option.option_blank' | t }}">
+          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" :value="disableInput ? '{{ 'general.custom_option.option_blank' | t }}' : dataCheckbox.join('; ')">
         {% endunless %}
         <input
           class="hidden"
@@ -279,12 +279,12 @@
       {% endif %}
     {% when 'dropdown' %}
       {% if option_label %}
-        <p class="mb-3 font-medium">{{ option_label }}{% if required %} *{% endif %}</p>
+        <p class="mb-3 font-{{ option_style }}">{{ option_label }}{% if required %} *{% endif %}</p>
       {% endif %}
       {% liquid
         assign option_lists = option_list | split: ";"
       %}
-      <div class="select relative outline-none eurus" x-data="{ dropdown: '{{ option_lists[0] }}' }">
+      <div class="select relative outline-none eurus" x-data="{ dropdown: {% if required %}'{{ option_lists[0] }}'{% else %}''{% endif %} }">
         <select
           class="customization-picker w-full capitalize pt-3 pb-3 md:pt-4 md:pb-4 pl-5 pr-8 bg-transparent focus:border-current border appearance-none outline-none border-solid focus-visible:outline-none cursor-pointer{% if settings.edges_type == 'rounded_corners' %} !rounded-md{% endif %}"
           form="{{ product_form_id }}"
@@ -296,7 +296,7 @@
           {% endunless %}
         >
           {% unless required %}
-            <option class="bg-[rgba(var(--background-color),1)]" value="" selected disabled hidden>{{ 'products.product.choose_here' | t }}</option>
+            <option class="bg-[rgba(var(--background-color),1)]" value="" selected disabled>{{ 'products.product.choose_here' | t }}</option>
           {% endunless %}
           {% for option in option_lists %}  
             <option class="bg-[rgba(var(--background-color),1)]" {% if forloop.index == 1 and required %} selected="selected"{% endif %}>{{ option }}</option>
@@ -306,7 +306,7 @@
           {% render 'icon-alls', icon: 'icon-caret' %}
         </span>
         {% unless required %}
-          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" value="{% unless hide_when_empty %}{{ 'general.custom_option.option_blank' | t }}{% endunless %}">
+          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" :value="disableInput ? '{% unless hide_when_empty %}{{ 'general.custom_option.option_blank' | t }}{% endunless %}' : dropdown">
         {% endunless %}
         <input
           class="hidden"
@@ -322,8 +322,8 @@
       {% endif %}
     {% when 'color_swatches' %}
       <fieldset class="" x-data="{ datachecked: ''}">
-        <legend class="mb-1 font-medium">
-            <span>{{ option_label }}{% if required %} *{% endif %}: </span><span class="text-[rgba(var(--colors-text-link))]" x-text="datachecked"></span>
+        <legend class="mb-1">
+            <span class="font-{{ option_style }}">{{ option_label }}{% if required %} *{% endif %}: </span><span class="text-[rgba(var(--colors-text-link))]" x-text="datachecked"></span>
         </legend>
         {% liquid
           if settings.edges_type == 'rounded_corners'
@@ -392,7 +392,7 @@
           >
         </div>
         {% unless required or hide_when_empty %}
-          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" value="{{ 'general.custom_option.option_blank' | t }}">
+          <input :disabled="!disableInput" class="hidden" name="properties[{{ option_name }}]" form="{{ product_form_id }}" :value="disableInput ? '{{ 'general.custom_option.option_blank' | t }}' : datachecked">
         {% endunless %}
         <input
           class="hidden"
@@ -405,7 +405,7 @@
       </fieldset>
     {% when 'button' %}
       <fieldset x-data="{ datachecked: ''}">
-        <legend class="mb-3 font-medium">
+        <legend class="mb-3 font-{{ option_style }}">
           {{ option_label }}{% if required %} *{% endif %}
         </legend>
         {% liquid
@@ -450,7 +450,7 @@
     {% when 'file_upload' %}
       <div class="drop-zone-wrap" x-init="setDragAndDrop($el)" x-data="{file: null}">
         {% if option_label %}
-          <p class="mb-3 font-medium">{{ option_label }}{% if required %} *{% endif %}</p>
+          <p class="mb-3 font-{{ option_style }}">{{ option_label }}{% if required %} *{% endif %}</p>
         {% endif %}
         <input 
           class="customization-picker drop-zone__input hidden customization-file"

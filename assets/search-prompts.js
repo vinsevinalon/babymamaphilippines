@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('search-prompts.js')) {
-    window.Eurus.loadedScript.push('search-prompts.js');
+if (!window.Eurus.loadedScript.has('search-prompts.js')) {
+    window.Eurus.loadedScript.add('search-prompts.js');
   
     requestAnimationFrame(() => {
       document.addEventListener("alpine:init", () => {
@@ -43,21 +43,24 @@ if (!window.Eurus.loadedScript.includes('search-prompts.js')) {
           },
 
           async updatePlaceholder(el) {
-            await new Promise(r => setTimeout(r, 1000)); // 1000ms delay before start removing chars
+            const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+            await sleep(500);
+
             if (this.diffIndex[this.index] < el.placeholder.length - 1) {
               for (let i = el.placeholder.length - 1; i > this.diffIndex[this.index]; i--) {
-                  el.placeholder = el.placeholder.slice(0, i - 1); 
-                  await new Promise(r => setTimeout(r, 80)); // 750cpm typing speed
+                el.placeholder = el.placeholder.slice(0, i - 1); 
+                await sleep(80); // 750cpm typing speed
               }
             } else if (this.diffIndex[this.index] === el.placeholder.length - 1) {
               el.placeholder = el.placeholder.slice(0, this.diffIndex[this.index]);
-              await new Promise(r => setTimeout(r, 80));
+              await sleep(80);
             }
 
-            await new Promise(r => setTimeout(r, 800)); // 800ms delay before start adding chars
+            await sleep(800); // 800ms delay before start adding chars
             for (let i = 0; i < this.diffStr[this.index].length; i++) {
               el.placeholder += this.diffStr[this.index][i];
-              await new Promise(r => setTimeout(r, 100)); // 600cpm typing speed
+              await sleep(100); // 600cpm typing speed
             }
             
             if (this.index === this.indexMax) {
@@ -66,7 +69,7 @@ if (!window.Eurus.loadedScript.includes('search-prompts.js')) {
               this.index++;
             }
             
-            window.requestAnimationFrame(() => this.updatePlaceholder(el));
+            setTimeout(() => this.updatePlaceholder(el), 500);
           },
           
           init() {

@@ -12,6 +12,22 @@
         color: var(--colors-text);
       {% endif %}
     }
+    {% if show_border %}
+      .border-{{ section.id }}-{{ block_id }} {
+        {% if border_color_light.alpha != 0.0 %}
+          --colors-line-and-border: {{ border_color_light.red }}, {{ border_color_light.green }}, {{ border_color_light.blue }};
+        {% else %}
+          --colors-line-and-border: {{ settings.colors_line_and_borders.red }}, {{ settings.colors_line_and_borders.green }}, {{ settings.colors_line_and_borders.blue }};
+        {% endif %}
+      }
+      .dark .border-{{ section.id }}-{{ block_id }} {
+        {% if border_color_dark.alpha != 0.0 %}
+          --colors-line-and-border: {{ border_color_dark.red }}, {{ border_color_dark.green }}, {{ border_color_dark.blue }};
+        {% else %}
+          --colors-line-and-border: {{ settings.colors_dark_line_and_borders.red }}, {{ settings.colors_dark_line_and_borders.green }}, {{ settings.colors_dark_line_and_borders.blue }};
+        {% endif %}
+      }
+    {% endif %}
   {% endstyle %}
   {% liquid 
     assign gift_wrapping_label =  'products.product.gift_wrapping_label' | t | default: 'Gift wrap this product'
@@ -23,7 +39,7 @@
     endif 
   %}
   <div 
-    class="x-gift-wrapping w-full flex{% if show_content_center %} justify-center{% endif %} relative items-center mb-4 md:mb-6 eurus">
+    class="x-gift-wrapping w-full flex{% if show_content_center %} justify-center{% endif %} relative items-center mb-4 md:mb-6 eurus{% if show_border %} pt-4 pb-4 pl-4 pr-4 border border-solid border-{{ section.id }}-{{ block_id }}{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}{% endif %}" {{ block.shopify_attributes }}>
     <input
       id="x-gift-wrapping-{{ product_form_id }}"
       form="{{ product_form_id }}"

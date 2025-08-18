@@ -4,15 +4,17 @@
       {% unless block.settings.custom_image == blank and block.settings.custom_icon == blank and block.settings.another_icon == blank and block.settings.icon == 'another_icon' %}
         <span class="inline-block relative w-[30px] h-[30px] min-w-[30px] text-[rgb(var(--colors-text))] mr-2.5 rtl:ml-2.5 rtl:mr-0">
           {% if block.settings.custom_image != blank %}
+            {% # theme-check-disable ImgLazyLoading %}
             <img 
               src="{{ block.settings.custom_image | image_url: width: 30 }}"
               alt="{{ block.settings.custom_image.alt | escape }}"
-              loading="lazy" 
+              {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
               width="{{ block.settings.custom_image.width }}"
               height="{{ block.settings.custom_image.height }}"
               style="object-position: {{ block.settings.custom_image.presentation.focal_point }}"
               class="object-cover absolute top-0 left-0 w-full h-full"
             >
+            {% # theme-check-enable ImgLazyLoading %}
           {% else %}
             {% if block.settings.custom_icon == blank %}
               {% if block.settings.another_icon != blank and block.settings.icon == 'another_icon' %}
@@ -114,7 +116,7 @@
                     <p class="rte">{{ row | split: ':' | last }}</p>
                   {% endif %}
                 </div>
-                <div class="h-1.5 w-full relative overflow-hidden bg-bar-{{ block.id }}{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}" style="--width--loading-bar: {{ row | split: ':' | last | remove: ' ' | remove: '<strong>' | remove: '</strong>' | remove: '<em>' | remove: '</em>' }}">
+                <div class="h-1.5 w-full relative overflow-hidden bg-bar-{{ block.id }}{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}" style="--width--loading-bar: {{ row | split: ':' | last | remove: ' ' | remove: '<strong>' | remove: '</strong>' | remove: '<em>' | remove: '</em>' | remove: '</span>' }}">
                   <div :class="active && 'active'" class="absolute left-0 rtl:left-auto rtl:right-0 top-0 h-full width-nutrition-bar color-bar-{{ block.id }}{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"></div>
                 </div>
               </div>

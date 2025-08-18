@@ -7,7 +7,7 @@ else
 endif
 %}
 <div x-data="xModalSearch('{{ search_type }}','{{ settings.search_desktop_maximun_results }}',{{ settings.search_mobile_maximun_results }}, '{{ 'templates.search.product_type_default' | t }}')" 
-  class="header-search flex lg:flex items-center justify-center" 
+  class="header-search {% if settings.mobile_search_position == 'header' %}flex lg:flex{% else %}hidden md:flex{% endif %} items-center justify-center" 
   x-init="if ($store.xModal.activeElement == 'SearchOpen') {  open(); $store.xHeaderMenu.hideMenu($el); }"
   x-on:click.away="close();"
   @keyup.escape="close(); $store.xModal.removeFocus();"
@@ -19,7 +19,7 @@ endif
     class="flex items-center cursor-pointer justify-center link focus-inset bg-none" 
     @click.prevent="setTimeout(() => { $store.xModal.setActiveElement('SearchOpen'); open(); $store.xHeaderMenu.hideMenu($el); }, 0)"
   >
-    <span class="w-11 h-10 px-3 pt-2.5 pb-2">{% render 'icon-alls', icon: 'icon-search' %}</span>
+    <span class="w-11 h-10 px-3 pt-2.5 pb-2">{% render 'icon-alls', icon: 'icon-search', animation_class: 'icon-animation' %}</span>
   </a>
   <div 
     id="FormSearch" 
@@ -122,7 +122,7 @@ endif
             <button 
               class="btn-search absolute none_border w-7 h-7 p-1 top-1/2 -translate-y-1/2 opacity-60 bg-none text-current{% if is_rtl %} lg:left-2{% if settings.search_refined %} left-2{% else %} left-7{% endif %}{% else %} lg:right-2{% if settings.search_refined %} right-2{% else %} right-7{% endif %}{% endif %}"
               aria-label="{{ 'general.search.search' | t }}">
-              {%- render 'icon-alls', icon: 'icon-search' -%}
+              {%- render 'icon-alls', icon: 'icon-search', animation_class: 'icon-animation' -%}
             </button>
             {% if settings.show_speech_search %}
               <button class="search__speech absolute cursor-pointer w-7 h-7 p-1{% if is_rtl %}{% if settings.search_refined %} left-10{% else %} left-16{% endif %} lg:left-12{% else %}{% if settings.search_refined %} right-10{% else %} right-16{% endif %} lg:right-12{% endif %} top-1/2 -translate-y-1/2 opacity-60 bg-none text-current" x-data="xSpeechSearch($el)" x-init="initSpeechSearch()" x-show="show">
@@ -161,10 +161,10 @@ endif
       {%- endif -%}
       <button 
         id="SearchClose"
-        class="link link--text focus-inset cursor-pointer h-10 w-11 p-3 absolute top-1 opacity-60{% if is_rtl %} left-2{% else %} right-2{% endif %}"
+        class="link link--text focus-inset group-close-btn bg-[rgb(var(--colors-line-and-border))] rounded-full cursor-pointer w-fit p-3 absolute top-1 opacity-60{% if is_rtl %} left-2{% else %} right-2{% endif %}"
         x-on:click="close(); $store.xModal.removeFocus();"
       >
-        {% render 'icon-alls', icon: 'icon-close' %}
+        {% render 'icon-alls', icon: 'icon-close', animation_class: 'icon-close-animation w-4 h-4' %}
       </button>
     </div>
   </div>

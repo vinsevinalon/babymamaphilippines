@@ -1,6 +1,6 @@
 {%- style -%}
   {%- if show_background -%}
-    {{ container_id }} .x-estimate-delivery {
+    #{{ container_id }} {
       {% if background_color_light.alpha != 0.0 %}
         background: {{ background_color_light }};
         --background-color: {{ background_color_light.red }}, {{ background_color_light.green }}, {{ background_color_light.blue }};
@@ -9,7 +9,7 @@
         --background-color: {{ settings.secondary_background.red }}, {{ settings.secondary_background.green }}, {{ settings.secondary_background.blue }};
       {% endif %}
     }
-    .dark {{ container_id }} .x-estimate-delivery {
+    .dark #{{ container_id }} {
       {% if background_color_dark.alpha != 0.0 %}
         background: {{ background_color_dark }};
         --background-color: {{ background_color_dark.red }}, {{ background_color_dark.green }}, {{ background_color_dark.blue }};
@@ -18,16 +18,31 @@
         --background-color: {{ settings.secondary_background_dark.red }}, {{ settings.secondary_background_dark.green }}, {{ settings.secondary_background_dark.blue }};
       {% endif %}
     }
+  {% elsif show_border %}
+    .border-{{ section.id }}-{{ block_id }} {
+      {% if border_color_light.alpha != 0.0 %}
+        border-color: {{ border_color_light }};
+      {% else %}
+        border-color: rgba(var(--colors-line-and-border));
+      {% endif %}
+    }
+    .dark .border-{{ section.id }}-{{ block_id }} {
+      {% if border_color_dark.alpha != 0.0 %}
+        border-color: {{ border_color_dark }};
+      {% else %}
+        border-color: rgba(var(--colors-line-and-border));
+      {% endif %}
+    }
   {% endif %}
 
-  {{ container_id }} {
+  #{{ container_id }} {
     {%- if message_color_light != 'rgba(0,0,0,0)' -%}
       color: {{ message_color_light }};
       --colors-heading: {{ message_color_light.red }}, {{ message_color_light.green }}, {{ message_color_light.blue }};
     {%- endif -%}
   }
 
-  .dark {{ container_id }} {
+  .dark #{{ container_id }} {
     {%- if message_color_dark != 'rgba(0,0,0,0)' -%}
       color: {{ message_color_dark }};
       --colors-text: {{ message_color_dark.red }}, {{ message_color_dark.green }}, {{ message_color_dark.blue }};
@@ -63,7 +78,6 @@
   elsif data_min contains ':'
     assign code_market_min = data_min | split: ":" | first | remove: " "
     assign min_value_market = data_min | split: ":" | last
-
     if code_market_min == market
       assign delivery_date_min = min_value_market | plus: 0
     endif 
@@ -314,7 +328,7 @@
 {% if delivery_date_min != 0 or delivery_date_max != 0 %}
   {% if message contains 'delivery_tooltip' %}
     {% style %}
-      {{ container_id }} .tooltip-popup {
+      #{{ container_id }} .tooltip-popup {
         {% if bg_tooltip_color_light.alpha != 0.0 %}
           background: {{ bg_tooltip_color_light }};
         {% else %}
@@ -324,7 +338,7 @@
           color: {{ tooltip_color_light }};
         {% endif %}
       }
-      .dark {{ container_id }} .tooltip-popup {
+      .dark #{{ container_id }} .tooltip-popup {
         {% if bg_tooltip_color_dark.alpha != 0.0 %}
           background: {{ bg_tooltip_color_dark }};
         {% else %}
@@ -359,7 +373,9 @@
       {% endif %}
     {% endcapture %}
   {% endif %}
-  <div class="x-estimate-delivery{% if show_background %} pt-3 pb-3 pr-5 pl-5 lg:pl-7 lg:pr-7{% endif %}{% if box_type == 'round' %} rounded-md{% endif %}"
+  <div
+    id="{{ container_id }}"
+    class="x-estimate-delivery{% if show_background %} pt-3 pb-3 pr-5 pl-5 lg:pl-7 lg:pr-7{% elsif show_border %} pt-4 pb-4 pl-4 pr-4 border border-solid border-{{ section.id }}-{{ block_id }}{% endif %}{% if box_type == 'round' or box_type == 'adapt' and settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"
     x-intersect.once="$store.xEstimateDelivery.countdownCutOffTime('{{ settings.estimate_delivery_cutoff_hour }}', '{{ settings.estimate_delivery_cutoff_minute }}', '{{ 'sections.popup.hours' | t | downcase }}', '{{ 'sections.popup.mins' | t | downcase }}')"
   >
     {%- capture cut_off_time -%} 

@@ -53,16 +53,22 @@
     {% else %}
       <div class="hidden">{{ target.price }}</div>
       {%- if compare_at_price > price %}
-        <div class="{% if price_class != blank %}{{ price_class }}{% endif %}">
-          {%- unless product.price_varies == false and product.compare_at_price_varies %}
-            <small class="cap rtl:inline-block">
-              <s class="rtl:leading-tight">{% if settings.currency_code_enable %}{{ compare_at_price | money_with_currency }}{% else %}{{ compare_at_price | money }}{% endif %}</s>
-            </small>
-          {%- endunless -%}
-          <span {% unless product.price_varies == false and product.compare_at_price_varies %} class="price-sale selection:bg-text-[rgb(var(--colors-price-sale),0.2)] ml-1{% unless align_left %} rtl:mr-1 rtl:ml-0{% endunless %}"{% endunless %}>{{ money_price }}</span>
-        </div>
+        {%- if hide_sale_price %}
+          <p class="price {{ price_class }}">
+            <span>{{ money_price }}</span>
+          </p>
+        {%- else -%}
+          <div class="{{ price_class }}">
+            {%- unless product.price_varies == false and product.compare_at_price_varies %}
+              <small class="cap rtl:inline-block">
+                <s class="rtl:leading-tight">{% if settings.currency_code_enable %}{{ compare_at_price | money_with_currency }}{% else %}{{ compare_at_price | money }}{% endif %}</s>
+              </small>
+            {%- endunless -%}
+            <span {% unless product.price_varies == false and product.compare_at_price_varies %} class="price-sale selection:bg-text-[rgb(var(--colors-price-sale),0.2)] ml-1{% unless align_left %} rtl:mr-1 rtl:ml-0{% endunless %}"{% endunless %}>{{ money_price }}</span>
+          </div>
+        {%- endif -%}
       {%- else -%}
-        <p class="price{% if price_class != blank %} {{ price_class }}{% endif %}">
+        <p class="price {{ price_class }}">
           <span>{{ money_price }}</span>
         </p>
       {%- endif -%}

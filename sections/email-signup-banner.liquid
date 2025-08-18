@@ -36,6 +36,7 @@
 <div class="relative flex flex-col justify-center w-full min-h-[450px] md:min-h-[650px] heading-color--{{ section.id }}">
   <div class="overflow-hidden h-full w-full relative md:absolute top-0 left-0{% unless section.settings.show_background_image %} hidden md:block{% endunless %}{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
     {%- if section.settings.image != blank -%}
+      {% # theme-check-disable ImgLazyLoading %}
       <parallax-image class="h-full w-full animate-Xpulse skeleton-image">
         <parallax-movement x-data="xParallax" x-intersect.once.margin.200px="load({{ settings.disable_parallax_effect }})">
           <img
@@ -52,7 +53,7 @@
               {{ section.settings.image | image_url: width: 3840 }} 3840w"
             sizes="100vw"
             src="{{ section.settings.image | image_url: width: 3840 }}"
-            loading="lazy"
+            {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
             onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
             alt="{{ section.settings.image.alt | escape }}"
             width="{{ section.settings.image.width }}"
@@ -61,6 +62,7 @@
           >
         </parallax-movement>
       </parallax-image>
+      {% # theme-check-enable ImgLazyLoading %}
       <span class="absolute top-0 left-0 bottom-0 right-0 image-treatment-overlay opacity-{{ section.settings.image_overlay_opacity }}"></span>
     {%- endif -%}
   </div>
@@ -159,6 +161,10 @@
   "tag": "section",
   "class": "section section-email-signup-banner x-section",
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.email_signup"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.footer.settings.paragraph.content"
@@ -381,6 +387,7 @@
   "presets": [
     {
       "name": "t:sections.email-signup-banner.name",
+      "category": "t:categories.forms",
       "blocks": [
         {
           "type": "heading"

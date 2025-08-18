@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('cart-fields.js')) {
-  window.Eurus.loadedScript.push('cart-fields.js');
+if (!window.Eurus.loadedScript.has('cart-fields.js')) {
+  window.Eurus.loadedScript.add('cart-fields.js');
 
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {

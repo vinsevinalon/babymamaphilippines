@@ -67,6 +67,7 @@
     {% if blog.metafields.custom.image.value != blank %}
       <div class="{% if section.settings.full_width %} md:pl-0 md:pr-0{% else %} x-pgw page-width mx-auto{% endif %}{% if section.settings.full_width_mobile %} full-width-mobile{% else %} pr-5 pl-5{% endif %}">
         <div class="w-full relative min-h-[420px] md:min-h-[500px]">
+          {% # theme-check-disable ImgLazyLoading %}
           <img
             srcset="
             {{ blog.metafields.custom.image.value | image_url: width: 375 }} 375w,
@@ -81,15 +82,20 @@
             {{ blog.metafields.custom.image.value | image_url: width: 3840 }} 3840w"
             src="{{ blog.metafields.custom.image.value | image_url: width: 3840 }}"
             alt="{{ blog.metafields.custom.image.value.alt | escape }}"
-            loading="lazy"
+            {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
             sizes="100vw"
             width="{{ blog.metafields.custom.image.value.width }}"
             height="{{ blog.metafields.custom.image.value.height }}"
             class="animate-Xpulse skeleton-image h-full w-full object-cover absolute top-0 left-0{% if section.settings.full_width %} md:rounded-none{% else %}{% if settings.edges_type == 'rounded_corners' %} md:rounded-[10px]{% endif %}{% endif %}{% unless section.settings.full_width_mobile %}{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}{% endunless %}"
             onload='this.classList.remove("animate-Xpulse", "skeleton-image");'
           >
+          {% # theme-check-enable ImgLazyLoading %}
           <div class="absolute bottom-12 md:bottom-[90px] w-full left-1/2 -translate-x-1/2 z-10">
-            <{{ section.settings.heading_tag }} class="x-pgw page-width h2 mt-2 mb-2 md:pt-4 md:pb-4 font-semibold leading-tight">{{ blog.title | escape }}</{{ section.settings.heading_tag }}>
+            <div class="x-pgw page-width mt-2 mb-2 md:pt-4 md:pb-4">
+              {% unless settings.disable_heading_animation %}<div class="overflow-hidden" x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')">{% endunless %}
+                <{{ section.settings.heading_tag }} class="h2 font-semibold leading-tight{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ blog.title | escape }}</{{ section.settings.heading_tag }}>
+              {% unless settings.disable_heading_animation %}</div>{% endunless %}
+            </div>
           </div> 
         </div>
       </div>
@@ -344,6 +350,10 @@
   "class": "section",
   "settings": [
     {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.pages_and_templates.blog_page"
+    },
+    {
       "type": "select",
       "id": "heading_tag",
       "default": "h1",
@@ -450,7 +460,8 @@
       ],
       "default": "circle",
       "label": "t:sections.main-collection-product-grid.settings.paginate_type.label",
-      "info": "t:sections.main-collection-product-grid.settings.paginate_type.info"
+      "info": "t:sections.main-collection-product-grid.settings.paginate_type.info",
+      "visible_if": "{{ section.settings.pagination == 'pagination' }}"
     },
     {
       "type": "richtext",
@@ -507,13 +518,15 @@
       "type": "checkbox",
       "id": "show_breadcrumbs_border",
       "default": false,
-      "label": "t:settings_schema.search_navigation.show_breadcrumb_borders"
+      "label": "t:settings_schema.search_navigation.show_breadcrumb_borders",
+      "visible_if": "{{ section.settings.show_breadcrumbs }}"
     },
     {
       "type": "checkbox",
       "id": "full_width_breadcrumb",
       "default": true,
-      "label": "t:settings_schema.search_navigation.full_width"
+      "label": "t:settings_schema.search_navigation.full_width",
+      "visible_if": "{{ section.settings.show_breadcrumbs }}"
     },
     {
       "type": "select",
@@ -533,7 +546,8 @@
         }
       ],
       "default": "text-left",
-      "label": "t:sections.main-collection-banner.settings.desktop_content_alignment.label"
+      "label": "t:sections.main-collection-banner.settings.desktop_content_alignment.label",
+      "visible_if": "{{ section.settings.show_breadcrumbs }}"
     },
     {
       "type": "select",
@@ -553,43 +567,50 @@
         }
       ],
       "default": "text-left",
-      "label": "t:sections.main-collection-banner.settings.mobile_content_alignment.label"
+      "label": "t:sections.main-collection-banner.settings.mobile_content_alignment.label",
+      "visible_if": "{{ section.settings.show_breadcrumbs }}"
     },
     {
       "type": "color",
       "id": "background_color_light",
       "default": "#f2f2f2",
-      "label": "t:sections.all.background.background_color_light"
+      "label": "t:sections.all.background.background_color_light",
+      "visible_if": "{{ section.settings.show_breadcrumbs }}"
     },
     {
       "type": "color",
       "id": "text_color_light",
       "default": "rgba(0,0,0,0)",
-      "label": "t:sections.all.text.color"
+      "label": "t:sections.all.text.color",
+      "visible_if": "{{ section.settings.show_breadcrumbs }}"
     },
     {
       "type": "color",
       "id": "textlink_color_light",
       "default": "rgba(0,0,0,0)",
-      "label": "t:sections.main-collection-banner.block.textlink_color_light"
+      "label": "t:sections.main-collection-banner.block.textlink_color_light",
+      "visible_if": "{{ section.settings.show_breadcrumbs }}"
     },
     {
       "type": "color",
       "id": "background_color_dark",
       "default": "#313131",
-      "label": "t:sections.all.background.background_color_dark"
+      "label": "t:sections.all.background.background_color_dark",
+      "visible_if": "{{ section.settings.show_breadcrumbs }}"
     },
     {
       "type": "color",
       "id": "text_color_dark",
       "default": "rgba(0,0,0,0)",
-      "label": "t:sections.all.text.color_dark"
+      "label": "t:sections.all.text.color_dark",
+      "visible_if": "{{ section.settings.show_breadcrumbs }}"
     },
     {
       "type": "color",
       "id": "textlink_color_dark",
       "default": "rgba(0,0,0,0)",
-      "label": "t:sections.main-collection-banner.block.textlink_color_dark"
+      "label": "t:sections.main-collection-banner.block.textlink_color_dark",
+      "visible_if": "{{ section.settings.show_breadcrumbs }}"
     },
     {
       "type": "header",
@@ -635,7 +656,8 @@
         }
       ],
       "default": "1",
-      "label": "t:sections.all.padding.section_layout_mobile"
+      "label": "t:sections.all.padding.section_layout_mobile",
+      "visible_if": "{{ section.settings.show_image }}"
     },
     {
       "type": "select",
@@ -667,13 +689,15 @@
         }
       ],
       "default": "75",
-      "label": "t:sections.all.image_ratio.label"
+      "label": "t:sections.all.image_ratio.label",
+      "visible_if": "{{ section.settings.show_image }}"
     },
     {
       "type": "checkbox",
       "id": "item_secondary_background",
       "default": false,
-      "label": "t:sections.featured-blog.settings.item_secondary_background.label"
+      "label": "t:sections.featured-blog.settings.item_secondary_background.label",
+      "visible_if": "{{ section.settings.show_image }}"
     },
     {
       "type": "checkbox",
@@ -721,7 +745,8 @@
       "type": "text",
       "id": "button_read_more_label",
       "default": "READ NOW",
-      "label": "t:sections.featured-blog.settings.button_read_more_label.label"
+      "label": "t:sections.featured-blog.settings.button_read_more_label.label",
+      "visible_if": "{{ section.settings.show_read_more }}"
     },
     {
       "type": "header",

@@ -109,13 +109,14 @@
 
 <div class="x-container-collection-list pt-[{{ section.settings.padding_top_mobile }}px] md:pt-[{{ section.settings.padding_top }}px] pb-[{{ section.settings.padding_bottom_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px]">
   {%- unless section.settings.heading == blank -%}
-    <div class="x-block-header text-center mb-5{% unless section.settings.heading_alignment contains 'center' %} flex items-center{% endunless %} heading-{{ section.settings.heading_alignment }} pr-5 pl-5{% unless section.settings.full_width %} x-pgw page-width{% endunless %}">
+    <div class="x-block-header text-center mb-5{% unless section.settings.heading_alignment contains 'center' %} flex items-center justify-between{% endunless %} heading-{{ section.settings.heading_alignment }} pr-5 pl-5{% unless section.settings.full_width %} x-pgw page-width{% endunless %}">
       {% render 'heading-highlight',
         headingId: section.id,
         heading: section.settings.heading,
         highlight_type: section.settings.highlight_type,
-        class: 'section-header h2 block leading-tight flex-auto p-break-words',
-        heading_tag: section.settings.heading_tag
+        class: 'h2 block leading-tight p-break-words',
+        heading_tag: section.settings.heading_tag,
+        animation_heading: true
       %}
       {%- if section.settings.show_view_all -%}
         <div class="flex justify-center pt-0.5 pb-0.5 md:pb-2.5 md:pt-2.5">
@@ -317,6 +318,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.collection_list"
+    },
     {
       "type": "text",
       "id": "heading",
@@ -625,7 +630,8 @@
       "type": "checkbox",
       "id": "enable_arrow_mobile",
       "default": false,
-      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile"
+      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile",
+      "visible_if": "{{ section.settings.swiper_on_mobile }}"
     },
     {
       "type": "header",
@@ -1066,13 +1072,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "range",
@@ -1082,7 +1090,8 @@
           "step": 1,
           "unit": "px",
           "label": "t:sections.multicolumn.settings.icon_size.label",
-          "default": 45
+          "default": 45,
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "text",
@@ -1377,6 +1386,7 @@
   "presets": [
     {
       "name": "t:sections.collection-list.name",
+      "category": "t:categories.collections",
       "blocks": [
         {
           "type": "featured_collection"

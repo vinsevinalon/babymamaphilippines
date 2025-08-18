@@ -53,10 +53,17 @@
     >
       <div class="h-full transition ease-in-out duration-500">
         {%- if section.settings.image != blank -%}
+          {% liquid
+            if settings.enable_lazy_loading_image
+              assign loading = 'lazy'
+            else
+              assign loading = 'eager'
+            endif
+          %}
           <parallax-image class="block absolute w-full h-full overflow-hidden">
             <parallax-movement x-data="xParallax" x-intersect.once.margin.200px="load({{ settings.disable_parallax_effect }})">
               {%- capture sizes -%} 100vw{%- endcapture -%}
-              {{ section.settings.image | image_url: width: 3840 | image_tag: loading: "lazy", sizes: sizes, widths: '375, 450, 750, 900, 1100, 1500, 2000, 3000, 3840', class: 'h-full w-full object-cover' }}
+              {{ section.settings.image | image_url: width: 3840 | image_tag: loading: loading, sizes: sizes, widths: '375, 450, 750, 900, 1100, 1500, 2000, 3000, 3840', class: 'h-full w-full object-cover' }}
             </parallax-movement>
           </parallax-image>
         {%- endif -%}  
@@ -394,6 +401,7 @@
   "presets": [
     {
       "name": "t:sections.age-verification-popup.name",
+      "category": "t:categories.utilities_and_layout",
       "blocks": [
         {
           "type": "content"

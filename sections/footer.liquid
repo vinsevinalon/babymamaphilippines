@@ -7,7 +7,10 @@
     assign is_rtl = false
   endif
 %}
-<div class="section-footer relative background-footer sticky-footer selection:bg-[rgba(var(--colors-text-footer),0.2)] pt-[{{ section.settings.top_padding_mobile }}px] md:pt-[{{ section.settings.top_padding }}px] pb-[{{ section.settings.bottom_padding_mobile }}px] md:pb-[{{ section.settings.bottom_padding }}px]">
+<div
+  id="section-footer"
+  class="section-footer relative background-footer sticky-footer selection:bg-[rgba(var(--colors-text-footer),0.2)] pt-[{{ section.settings.top_padding_mobile }}px] md:pt-[{{ section.settings.top_padding }}px] pb-[{{ section.settings.bottom_padding_mobile }}px] md:pb-[{{ section.settings.bottom_padding }}px]"
+>
   {%- if section.settings.show_social_icons -%}
     <div class="flex items-center">
       {% render 'toolbar', show_social_icons: section.settings.show_social_icons %}
@@ -34,9 +37,21 @@
             >
               {%- case block.type -%}
                 {%- when 'text' -%}
+                  {% style %}
+                    .text-block-{{ block.id }} {
+                      padding-left: {{ block.settings.side_padding_left_mobile }}px;
+                      padding-right: {{ block.settings.side_padding_right_mobile }}px;
+                    }
+                    @media (min-width: 768px) {
+                      .text-block-{{ block.id }} {
+                        padding-left: {{ block.settings.side_padding_left }}px;
+                        padding-right: {{ block.settings.side_padding_right }}px;
+                      }
+                    }
+                  {% endstyle %}
                   <div
                     x-data="{ open: {{ block.settings.open_by_default }} }"
-                    class="py-4 border-b border-b-solid md:border-none"
+                    class="text-block-{{ block.id }} py-4 border-b border-b-solid md:border-none"
                   >
                     {%- if block.settings.heading_text != blank -%}
                       <div
@@ -45,19 +60,22 @@
                       >
                         <p class="h6 text-[115%]">{{- block.settings.heading_text | escape -}}</p>
                         <span
-                          class="md:hidden absolute w-2.5	h-2.5 top-1/2 -translate-y-1/2 flex{% if is_rtl %} left-3.5{% else %} right-3.5{% endif %}"
+                          class="md:hidden absolute w-2.5 h-2.5 top-1/2 -translate-y-1/2 duration-500 flex{% if is_rtl %} left-3.5{% else %} right-3.5{% endif %}"
                           :class="open ? 'rotate-180' : ''"
                         >
                           {%- render 'icon-alls', icon: 'icon-caret' -%}
                         </span>
                       </div>
                     {%- endif -%}
-                    <div
-                      {% if block.settings.heading_text != blank %}
-                        :class="open ? 'block' : 'hidden md:block'"
-                      {% endif %}
-                    >
+                    <div class="hidden md:block">
                       {%- if block.settings.image != blank -%}
+                        {% liquid
+                          if settings.enable_lazy_loading_image
+                            assign loading = 'lazy'
+                          else
+                            assign loading = 'eager'
+                          endif
+                        %}
                         {%- capture sizes -%}
                           {{ block.settings.image_width | times: 1.1 | ceil }}px
                         {%- endcapture -%}
@@ -84,7 +102,7 @@
                                 class: 'image-hover',
                                 width: block.settings.image.width,
                                 sizes: sizes,
-                                loading: 'lazy',
+                                loading: loading,
                                 alt: block.settings.image.alt
                               | escape
                             }}
@@ -100,7 +118,83 @@
                                 class: 'image-hover',
                                 width: block.settings.image.width,
                                 sizes: sizes,
-                                loading: 'lazy',
+                                loading: loading,
+                                alt: block.settings.image.alt
+                              | escape
+                            }}
+                          </div>
+                        {%- endif -%}
+                      {%- endif -%}
+                      <div class="rte{% if block.settings.image != blank %} mt-2{% else %} mt-6{% endif %}">
+                        {{ block.settings.subtext }}
+                      </div>
+                      {%- if block.settings.show_social_icons -%}
+                        <div class="mt-2">
+                          {% render 'toolbar',
+                            enable_footer: true,
+                            show_social_icons: block.settings.show_social_icons,
+                            social_icons_layout: block.settings.icon_layout
+                          %}
+                        </div>
+                      {%- endif -%}
+                    </div>
+                    <div
+                      class="md:hidden"
+                      {% if block.settings.heading_text != blank %}
+                        x-show="open" x-collapse x-cloak
+                      {% endif %}
+                    >
+                      {%- if block.settings.image != blank -%}
+                        {% liquid
+                          if settings.enable_lazy_loading_image
+                            assign loading = 'lazy'
+                          else
+                            assign loading = 'eager'
+                          endif
+                        %}
+                        {%- capture sizes -%}
+                          {{ block.settings.image_width | times: 1.1 | ceil }}px
+                        {%- endcapture -%}
+                        {% style %}
+                          .image-{{ block.id }} {
+                            width: {{ block.settings.image_width }}px;
+                          }
+                        {% endstyle %}
+                        {% assign image_tags = block.settings.image_width | times: 1.1 | ceil | append: '' %}
+                        {%- if block.settings.link_image_footer != blank -%}
+                          <a
+                            href="{{ block.settings.link_image_footer }}"
+                            {% if block.settings.open_new_window %}
+                              target="_blank"
+                            {% endif %}
+                            class="image-{{ block.id }} h-full inline-block overflow-hidden{% if block.settings.heading_text != blank %} mt-6{% endif %}{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}"
+                          >
+                            {{
+                              block.settings.image
+                              | image_url: width: block.settings.image.width
+                              | image_tag:
+                                widths: image_tags,
+                                height: block.settings.image.height,
+                                class: 'image-hover',
+                                width: block.settings.image.width,
+                                sizes: sizes,
+                                loading: loading,
+                                alt: block.settings.image.alt
+                              | escape
+                            }}
+                          </a>
+                        {%- else -%}
+                          <div class="image-{{ block.id }} h-full inline-block overflow-hidden{% if block.settings.heading_text != blank %} mt-6{% endif %}{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
+                            {{
+                              block.settings.image
+                              | image_url: width: block.settings.image.width
+                              | image_tag:
+                                widths: image_tags,
+                                height: block.settings.image.height,
+                                class: 'image-hover',
+                                width: block.settings.image.width,
+                                sizes: sizes,
+                                loading: loading,
                                 alt: block.settings.image.alt
                               | escape
                             }}
@@ -121,8 +215,367 @@
                       {%- endif -%}
                     </div>
                   </div>
+
+                {%- when 'social_qr' -%}
+                  <div
+                    x-data="{ open: {{ block.settings.open_by_default }} }"
+                    class="py-4 border-b border-b-solid md:border-none"
+                  >
+                    <!-- Social Media Section -->
+                    {%- if block.settings.social_heading != blank -%}
+                      <div
+                        @click="open = ! open"
+                        class="relative{% if is_rtl %} pl-5{% else %} pr-5{% endif %} cursor-pointer md:cursor-default duration-200 transition"
+                      >
+                        <p class="h6 text-[115%]">{{- block.settings.social_heading | escape -}}</p>
+                        <span
+                          class="md:hidden absolute w-2.5 h-2.5 top-1/2 -translate-y-1/2 duration-500 flex{% if is_rtl %} left-3.5{% else %} right-3.5{% endif %}"
+                          :class="open ? 'rotate-180' : ''"
+                        >
+                          {%- render 'icon-alls', icon: 'icon-caret' -%}
+                        </span>
+                      </div>
+                    {%- endif -%}
+
+                    <!-- Desktop View -->
+                    <div class="hidden md:block">
+                      {%- if block.settings.show_social_icons -%}
+                        <div class="mt-4">
+                          {% render 'toolbar',
+                            enable_footer: true,
+                            show_social_icons: block.settings.show_social_icons,
+                            social_icons_layout: block.settings.icon_layout
+                          %}
+                        </div>
+                      {%- endif -%}
+
+                      <!-- Viber Community Section -->
+                      {%- if block.settings.viber_heading != blank -%}
+                        <div class="mt-8">
+                          <p class="h6 text-[115%]">{{- block.settings.viber_heading | escape -}}</p>
+                        </div>
+                      {%- endif -%}
+
+                      {%- if block.settings.qr_code != blank -%}
+                        {% liquid
+                          if settings.enable_lazy_loading_image
+                            assign loading = 'lazy'
+                          else
+                            assign loading = 'eager'
+                          endif
+                        %}
+                        {% style %}
+                          .qr-image-{{ block.id }} {
+                            width: {{ block.settings.qr_width }}px;
+                            max-width: 100%;
+                          }
+                        {% endstyle %}
+
+                        <div class="mt-4">
+                          {%- if block.settings.qr_link != blank -%}
+                            <a
+                              href="{{ block.settings.qr_link }}"
+                              {% if block.settings.open_new_window %}
+                                target="_blank"
+                              {% endif %}
+                              class="qr-image-{{ block.id }} inline-block overflow-hidden{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}"
+                            >
+                              {{
+                                block.settings.qr_code
+                                | image_url: width: block.settings.qr_width
+                                | image_tag:
+                                  width: block.settings.qr_width,
+                                  class: 'w-full h-auto',
+                                  loading: loading,
+                                  alt: block.settings.qr_code.alt
+                                | default: block.settings.viber_heading
+                              }}
+                            </a>
+                          {%- else -%}
+                            <div class="qr-image-{{ block.id }} inline-block overflow-hidden{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
+                              {{
+                                block.settings.qr_code
+                                | image_url: width: block.settings.qr_width
+                                | image_tag:
+                                  width: block.settings.qr_width,
+                                  class: 'w-full h-auto',
+                                  loading: loading,
+                                  alt: block.settings.qr_code.alt
+                                | default: block.settings.viber_heading
+                              }}
+                            </div>
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+
+                      <!-- Newsletter Section -->
+                      {%- if block.settings.enable_newsletter -%}
+                        <div class="mt-8">
+                          {%- if block.settings.newsletter_heading != blank -%}
+                            <div class="mb-4">
+                              <p class="h6 text-[115%] font-bold">{{- block.settings.newsletter_heading | escape -}}</p>
+                            </div>
+                          {%- endif -%}
+
+                          {%- form 'customer', id: 'ContactFooterQR', class: 'footer__newsletter newsletter-form' -%}
+                            <input type="hidden" name="contact[tags]" value="newsletter">
+                            <div class="flex">
+                              <div class="relative w-full">
+                                <input
+                                  id="NewsletterFormQR--{{ block.id }}"
+                                  type="email"
+                                  name="contact[email]"
+                                  class="w-full h-full pl-2.5 pr-4 pt-5 input border-b-2 border-current rounded-none border-b-solid focus:outline-none focus:border-current bg-transparent placeholder:opacity-0"
+                                  aria-required="true"
+                                  autocorrect="off"
+                                  autocapitalize="off"
+                                  autocomplete="email"
+                                  {% if form.errors %}
+                                    autofocus
+                                    aria-invalid="true"
+                                    aria-describedby="ContactFooterQR-error"
+                                  {% elsif form.posted_successfully? %}
+                                    aria-describedby="ContactFooterQR-success"
+                                  {% endif %}
+                                  placeholder="{{ 'newsletter.label' | t }}"
+                                  required
+                                >
+                                <label
+                                  class="absolute top-1/2{% if is_rtl %} right-2.5{% else %} left-2.5{% endif %} -translate-y-1/2 input_focus:text-xs input_focus:top-2.5 input_not_empty:top-2.5 input_not_empty:text-xs"
+                                  for="NewsletterFormQR--{{ block.id }}"
+                                >
+                                  {{ 'newsletter.label' | t }}
+                                </label>
+                              </div>
+                              <div>
+                                <button
+                                  type="submit"
+                                  class="rounded-none border-solid border-current ml-1 w-12 h-full flex justify-center items-center bg-transparent border-b-2 border-b-solid border-x-0 border-t-0"
+                                  name="commit"
+                                  aria-label="{{ 'newsletter.button_label' | t }}"
+                                >
+                                  <span class="{% if is_rtl %} rotate-180{% endif %}">
+                                    {% render 'icon-alls', icon: 'icon-arrow', enable_email_footer: true %}
+                                  </span>
+                                </button>
+                              </div>
+                            </div>
+
+                            {%- if form.errors -%}
+                              <div
+                                class="flex items-center text-left px-4 py-3 mt-4 bg-[rgba(var(--color-error),0.1)] selection:bg-[rgba(var(--color-error),0.2)]{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"
+                                id="ContactFooterQR-error"
+                              >
+                                <span class="inline-block w-6 mr-2 text-[rgba(var(--color-error)))]">
+                                  {%- render 'icon-alls', icon: 'icon-error' %}
+                                </span>
+                                <p class="flex-1">
+                                  {{ form.errors.translated_fields.email | capitalize }}
+                                  {{ form.errors.messages.email }}
+                                </p>
+                              </div>
+                            {%- endif -%}
+
+                            {%- if form.posted_successfully? -%}
+                              <div
+                                class="flex items-center text-left px-3 py-3 mt-4 bg-[rgba(var(--color-success),0.1)] selection:bg-[rgba(var(--color-success),0.2)] focus:shadown-none focus-visible:outline-none focus:outline-none focus-visible:shadow-none"
+                                id="ContactFooterQR-success"
+                                tabindex="-1"
+                                autofocus
+                              >
+                                <span class="inline-block w-6 mr-2 text-[rgba(var(--color-success))]">
+                                  {%- render 'icon-alls', icon: 'icon-success' -%}
+                                </span>
+                                <p class="flex-1">{{ 'newsletter.success' | t }}</p>
+                              </div>
+                            {%- endif -%}
+                          {%- endform -%}
+
+                          {%- if block.settings.newsletter_description != blank -%}
+                            <div class="mt-4 text-sm opacity-80">
+                              {{ block.settings.newsletter_description }}
+                            </div>
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+                    </div>
+
+                    <!-- Mobile View (Collapsible) -->
+                    <div
+                      class="md:hidden"
+                      {% if block.settings.social_heading != blank %}
+                        x-show="open" x-collapse x-cloak
+                      {% endif %}
+                    >
+                      {%- if block.settings.show_social_icons -%}
+                        <div class="mt-4">
+                          {% render 'toolbar',
+                            enable_footer: true,
+                            show_social_icons: block.settings.show_social_icons,
+                            social_icons_layout: block.settings.icon_layout
+                          %}
+                        </div>
+                      {%- endif -%}
+
+                      <!-- Viber Community Section -->
+                      {%- if block.settings.viber_heading != blank -%}
+                        <div class="mt-8">
+                          <p class="h6 text-[115%]">{{- block.settings.viber_heading | escape -}}</p>
+                        </div>
+                      {%- endif -%}
+
+                      {%- if block.settings.qr_code != blank -%}
+                        {% liquid
+                          if settings.enable_lazy_loading_image
+                            assign loading = 'lazy'
+                          else
+                            assign loading = 'eager'
+                          endif
+                        %}
+
+                        <div class="mt-4">
+                          {%- if block.settings.qr_link != blank -%}
+                            <a
+                              href="{{ block.settings.qr_link }}"
+                              {% if block.settings.open_new_window %}
+                                target="_blank"
+                              {% endif %}
+                              class="inline-block overflow-hidden{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}"
+                            >
+                              {{
+                                block.settings.qr_code
+                                | image_url: width: block.settings.qr_width
+                                | image_tag:
+                                  width: block.settings.qr_width,
+                                  class: 'w-full h-auto max-w-[200px]',
+                                  loading: loading,
+                                  alt: block.settings.qr_code.alt
+                                | default: block.settings.viber_heading
+                              }}
+                            </a>
+                          {%- else -%}
+                            <div class="inline-block overflow-hidden{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
+                              {{
+                                block.settings.qr_code
+                                | image_url: width: block.settings.qr_width
+                                | image_tag:
+                                  width: block.settings.qr_width,
+                                  class: 'w-full h-auto max-w-[200px]',
+                                  loading: loading,
+                                  alt: block.settings.qr_code.alt
+                                | default: block.settings.viber_heading
+                              }}
+                            </div>
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+
+                      <!-- Newsletter Section Mobile -->
+                      {%- if block.settings.enable_newsletter -%}
+                        <div class="mt-8">
+                          {%- if block.settings.newsletter_heading != blank -%}
+                            <div class="mb-4">
+                              <p class="h6 text-[115%] font-bold">{{- block.settings.newsletter_heading | escape -}}</p>
+                            </div>
+                          {%- endif -%}
+
+                          {%- form 'customer',
+                            id: 'ContactFooterQRMobile',
+                            class: 'footer__newsletter newsletter-form'
+                          -%}
+                            <input type="hidden" name="contact[tags]" value="newsletter">
+                            <div class="flex">
+                              <div class="relative w-full">
+                                <input
+                                  id="NewsletterFormQRMobile--{{ block.id }}"
+                                  type="email"
+                                  name="contact[email]"
+                                  class="w-full h-full pl-2.5 pr-4 pt-5 input border-b-2 border-current rounded-none border-b-solid focus:outline-none focus:border-current bg-transparent placeholder:opacity-0"
+                                  aria-required="true"
+                                  autocorrect="off"
+                                  autocapitalize="off"
+                                  autocomplete="email"
+                                  {% if form.errors %}
+                                    autofocus
+                                    aria-invalid="true"
+                                    aria-describedby="ContactFooterQRMobile-error"
+                                  {% elsif form.posted_successfully? %}
+                                    aria-describedby="ContactFooterQRMobile-success"
+                                  {% endif %}
+                                  placeholder="{{ 'newsletter.label' | t }}"
+                                  required
+                                >
+                                <label
+                                  class="absolute top-1/2{% if is_rtl %} right-2.5{% else %} left-2.5{% endif %} -translate-y-1/2 input_focus:text-xs input_focus:top-2.5 input_not_empty:top-2.5 input_not_empty:text-xs"
+                                  for="NewsletterFormQRMobile--{{ block.id }}"
+                                >
+                                  {{ 'newsletter.label' | t }}
+                                </label>
+                              </div>
+                              <div>
+                                <button
+                                  type="submit"
+                                  class="rounded-none border-solid border-current ml-1 w-12 h-full flex justify-center items-center bg-transparent border-b-2 border-b-solid border-x-0 border-t-0"
+                                  name="commit"
+                                  aria-label="{{ 'newsletter.button_label' | t }}"
+                                >
+                                  <span class="{% if is_rtl %} rotate-180{% endif %}">
+                                    {% render 'icon-alls', icon: 'icon-arrow', enable_email_footer: true %}
+                                  </span>
+                                </button>
+                              </div>
+                            </div>
+
+                            {%- if form.errors -%}
+                              <div
+                                class="flex items-center text-left px-4 py-3 mt-4 bg-[rgba(var(--color-error),0.1)] selection:bg-[rgba(var(--color-error),0.2)]{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"
+                                id="ContactFooterQRMobile-error"
+                              >
+                                <span class="inline-block w-6 mr-2 text-[rgba(var(--color-error)))]">
+                                  {%- render 'icon-alls', icon: 'icon-error' %}
+                                </span>
+                                <p class="flex-1">
+                                  {{ form.errors.translated_fields.email | capitalize }}
+                                  {{ form.errors.messages.email }}
+                                </p>
+                              </div>
+                            {%- endif -%}
+
+                            {%- if form.posted_successfully? -%}
+                              <div
+                                class="flex items-center text-left px-3 py-3 mt-4 bg-[rgba(var(--color-success),0.1)] selection:bg-[rgba(var(--color-success),0.2)] focus:shadown-none focus-visible:outline-none focus:outline-none focus-visible:shadow-none"
+                                id="ContactFooterQRMobile-success"
+                                tabindex="-1"
+                                autofocus
+                              >
+                                <span class="inline-block w-6 mr-2 text-[rgba(var(--color-success))]">
+                                  {%- render 'icon-alls', icon: 'icon-success' -%}
+                                </span>
+                                <p class="flex-1">{{ 'newsletter.success' | t }}</p>
+                              </div>
+                            {%- endif -%}
+                          {%- endform -%}
+
+                          {%- if block.settings.newsletter_description != blank -%}
+                            <div class="mt-4 text-sm opacity-80">
+                              {{ block.settings.newsletter_description }}
+                            </div>
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  </div>
+
                 {%- when 'link_list' -%}
-                  <div x-data="{ open: {{ block.settings.open_by_default }} }" class="py-4 border-b md:border-none">
+                  <div
+                    x-data="
+                      {
+                        open: {{ block.settings.open_by_default }},
+                        subMenus: {}
+                      }
+                    "
+                    class="py-4 border-b md:border-none"
+                  >
                     {%- if block.settings.heading_menu != blank -%}
                       <div
                         @click="open = ! open"
@@ -130,27 +583,129 @@
                       >
                         <p class="h6 text-[115%]">{{- block.settings.heading_menu | escape -}}</p>
                         <span
-                          class="md:hidden absolute w-2.5	h-2.5 top-1/2 -translate-y-1/2 flex{% if is_rtl %} left-3.5{% else %} right-3.5{% endif %}"
+                          class="md:hidden absolute w-2.5 h-2.5 top-1/2 -translate-y-1/2 duration-500 flex{% if is_rtl %} left-3.5{% else %} right-3.5{% endif %}"
                           :class="open ? 'rotate-180' : ''"
                         >
                           {%- render 'icon-alls', icon: 'icon-caret' -%}
                         </span>
                       </div>
                     {%- endif -%}
+
                     {%- if block.settings.menu != blank -%}
+                      <!-- Desktop Menu -->
+                      <ul class="mt-6 hidden md:block">
+                        {%- for link in block.settings.menu.links -%}
+                          <li class="mb-4 first:pt-0 pt-2">
+                            <div class="flex items-center justify-between">
+                              <a href="{{ link.url }}" class="hover-text-link nav-link relative block lg:inline-block">
+                                {{ link.title }}
+                              </a>
+
+                              {%- if block.settings.show_submenus and link.links.size > 0 -%}
+                                <button
+                                  @click="subMenus['desktop-{{ forloop.index }}'] = !subMenus['desktop-{{ forloop.index }}']"
+                                  class="ml-2 p-1 focus:outline-none"
+                                  :aria-expanded="subMenus['desktop-{{ forloop.index }}'] || false"
+                                  aria-label="Toggle submenu for {{ link.title | escape }}"
+                                >
+                                  <span
+                                    class="w-2.5 h-2.5 inline-block transition-transform duration-200"
+                                    :class="subMenus['desktop-{{ forloop.index }}'] ? 'rotate-180' : ''"
+                                  >
+                                    {%- render 'icon-alls', icon: 'icon-caret' -%}
+                                  </span>
+                                </button>
+                              {%- endif -%}
+                            </div>
+
+                            {%- if block.settings.show_submenus and link.links.size > 0 -%}
+                              <ul
+                                class="ml-4 mt-2 space-y-1 overflow-hidden"
+                                x-show="subMenus['desktop-{{ forloop.index }}']"
+                                x-collapse
+                                x-cloak
+                              >
+                                {%- for child_link in link.links -%}
+                                  <li>
+                                    <a
+                                      href="{{ child_link.url }}"
+                                      class="text-sm opacity-80 hover:opacity-100 hover-text-link nav-link relative block transition-opacity duration-200"
+                                    >
+                                      {{ child_link.title }}
+                                    </a>
+                                  </li>
+                                {%- endfor -%}
+                              </ul>
+                            {%- endif -%}
+                          </li>
+                        {%- endfor -%}
+
+                        {%- if block.settings.show_social_icons -%}
+                          <div class="mt-2">
+                            {% render 'toolbar',
+                              enable_footer: true,
+                              show_social_icons: block.settings.show_social_icons
+                            %}
+                          </div>
+                        {%- endif -%}
+                      </ul>
+
+                      <!-- Mobile Menu -->
                       <ul
-                        class="mt-6"
+                        class="md:hidden"
                         {% if block.settings.heading_menu != blank %}
-                          :class="open ? 'block' : 'hidden md:block'"
+                          x-show="open" x-collapse x-cloak
                         {% endif %}
                       >
                         {%- for link in block.settings.menu.links -%}
-                          <li class="mb-1 first:pt-0 pt-2">
-                            <a href="{{ link.url }}" class="hover-text-link nav-link relative block lg:inline-block">
-                              {{ link.title }}
-                            </a>
+                          <li class="mb-4 {% if forloop.index == 1 %}mt-6{% endif %} first:pt-0 pt-2">
+                            <div class="flex items-center justify-between">
+                              <a
+                                href="{{ link.url }}"
+                                class="hover-text-link nav-link relative block lg:inline-block flex-1"
+                              >
+                                {{ link.title }}
+                              </a>
+
+                              {%- if block.settings.show_submenus and link.links.size > 0 -%}
+                                <button
+                                  @click="subMenus['mobile-{{ forloop.index }}'] = !subMenus['mobile-{{ forloop.index }}']"
+                                  class="ml-2 p-1 focus:outline-none"
+                                  :aria-expanded="subMenus['mobile-{{ forloop.index }}'] || false"
+                                  aria-label="Toggle submenu for {{ link.title | escape }}"
+                                >
+                                  <span
+                                    class="w-2.5 h-2.5 inline-block transition-transform duration-200"
+                                    :class="subMenus['mobile-{{ forloop.index }}'] ? 'rotate-180' : ''"
+                                  >
+                                    {%- render 'icon-alls', icon: 'icon-caret' -%}
+                                  </span>
+                                </button>
+                              {%- endif -%}
+                            </div>
+
+                            {%- if block.settings.show_submenus and link.links.size > 0 -%}
+                              <ul
+                                class="ml-4 mt-2 space-y-1 overflow-hidden"
+                                x-show="subMenus['mobile-{{ forloop.index }}']"
+                                x-collapse
+                                x-cloak
+                              >
+                                {%- for child_link in link.links -%}
+                                  <li>
+                                    <a
+                                      href="{{ child_link.url }}"
+                                      class="text-sm opacity-80 hover:opacity-100 hover-text-link nav-link relative block transition-opacity duration-200"
+                                    >
+                                      {{ child_link.title }}
+                                    </a>
+                                  </li>
+                                {%- endfor -%}
+                              </ul>
+                            {%- endif -%}
                           </li>
                         {%- endfor -%}
+
                         {%- if block.settings.show_social_icons -%}
                           <div class="mt-2">
                             {% render 'toolbar',
@@ -162,9 +717,17 @@
                       </ul>
                     {%- endif -%}
                   </div>
+
                 {%- when 'image' -%}
                   <div class="py-4 text-{{ block.settings.alignment }} flex flex-col justify-start{% if number == 1 %} md:pr-0{% endif %}{% if block.settings.alignment == 'center' %} items-center{% elsif block.settings.alignment == 'right' %} items-end{% endif %}">
                     {%- if block.settings.image != blank -%}
+                      {% liquid
+                        if settings.enable_lazy_loading_image
+                          assign loading = 'lazy'
+                        else
+                          assign loading = 'eager'
+                        endif
+                      %}
                       {%- capture sizes -%}
                         {{ block.settings.image_width | times: 1.1 | ceil }}px
                       {%- endcapture -%}
@@ -191,7 +754,7 @@
                               class: 'image-hover',
                               width: block.settings.image_width,
                               sizes: sizes,
-                              loading: 'lazy',
+                              loading: loading,
                               alt: block.settings.image.alt
                             | escape
                           }}
@@ -207,7 +770,7 @@
                               class: 'image-hover',
                               width: block.settings.image_width,
                               sizes: sizes,
-                              loading: 'lazy',
+                              loading: loading,
                               alt: block.settings.image.alt
                             | escape
                           }}
@@ -244,13 +807,13 @@
                     >
                       <p class="h6 text-[115%]">{{ block.settings.heading_email | escape }}</p>
                       <span
-                        class="md:hidden absolute w-2.5	h-2.5 top-1/2 -translate-y-1/2 flex{% if is_rtl %} left-3.5{% else %} right-3.5{% endif %}"
+                        class="md:hidden absolute w-2.5 h-2.5 top-1/2 -translate-y-1/2 duration-500 flex{% if is_rtl %} left-3.5{% else %} right-3.5{% endif %}"
                         :class="open ? 'rotate-180' : ''"
                       >
                         {%- render 'icon-alls', icon: 'icon-caret' -%}
                       </span>
                     </div>
-                    <div :class="open ? 'block' : 'hidden md:block'">
+                    <div class="hidden md:block">
                       {%- form 'customer', id: 'ContactFooter', class: 'footer__newsletter newsletter-form mb-5' -%}
                         <input type="hidden" name="contact[tags]" value="newsletter">
                         <div class="mt-4 flex">
@@ -298,7 +861,93 @@
                               class="flex items-center text-left px-4 py-3 mt-4 bg-[rgba(var(--color-error),0.1)] selection:bg-[rgba(var(--color-error),0.2)]{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"
                               id="Newsletter-error--{{ section.id }}"
                             >
-                              <span class="inline-block w-6 mr-2 text-[rgba(var(--color-error))]">
+                              <span class="inline-block w-6 mr-2 text-[rgba(var(--color-error)))]">
+                                {%- render 'icon-alls', icon: 'icon-error' %}
+                              </span>
+                              <p class="flex-1">
+                                {{ form.errors.translated_fields.email | capitalize }}
+                                {{ form.errors.messages.email }}
+                              </p>
+                            </div>
+                          {%- endif -%}
+                        </div>
+                        {%- if form.posted_successfully? -%}
+                          <div
+                            class="flex items-center text-left px-3 py-3 mt-4 bg-[rgba(var(--color-success),0.1)] selection:bg-[rgba(var(--color-success),0.2)] focus:shadown-none focus-visible:outline-none focus:outline-none focus-visible:shadow-none"
+                            id="Newsletter-success--{{ section.id }}"
+                            tabindex="-1"
+                            autofocus
+                          >
+                            <span class="inline-block w-6 mr-2 text-[rgba(var(--color-success))]">
+                              {%- render 'icon-alls', icon: 'icon-success' -%}
+                            </span>
+                            <p class="flex-1">{{ 'newsletter.success' | t }}</p>
+                          </div>
+                        {%- endif -%}
+                      {%- endform -%}
+                      {% if block.settings.subtext_email != blank %}
+                        <div class="rte">
+                          {{ block.settings.subtext_email }}
+                        </div>
+                      {% endif %}
+                      {%- if block.settings.show_social_icons -%}
+                        <div class="mt-4">
+                          {% render 'toolbar',
+                            enable_footer: true,
+                            show_social_icons: block.settings.show_social_icons
+                          %}
+                        </div>
+                      {%- endif -%}
+                    </div>
+                    <div class="md:hidden" x-show="open" x-collapse x-cloak>
+                      {%- form 'customer', id: 'ContactFooter', class: 'footer__newsletter newsletter-form mb-5' -%}
+                        <input type="hidden" name="contact[tags]" value="newsletter">
+                        <div class="mt-4 flex">
+                          <div class="relative w-full">
+                            <input
+                              id="NewsletterForm--{{ section.id }}"
+                              type="email"
+                              name="contact[email]"
+                              class="w-full h-full pl-2.5 pr-4 pt-5 input border-b-2 border-current rounded-none border-b-solid focus:outline-none focus:border-current bg-transparent placeholder:opacity-0"
+                              aria-required="true"
+                              autocorrect="off"
+                              autocapitalize="off"
+                              autocomplete="email"
+                              {% if form.errors %}
+                                autofocus
+                                aria-invalid="true"
+                                aria-describedby="ContactFooter-error"
+                              {% elsif form.posted_successfully? %}
+                                aria-describedby="ContactFooter-success"
+                              {% endif %}
+                              placeholder="{{ 'newsletter.label' | t }}"
+                              required
+                            >
+                            <label
+                              class="absolute top-1/2{% if is_rtl %} right-2.5{% else %} left-2.5{% endif %} -translate-y-1/2 input_focus:text-xs input_focus:top-2.5 input_not_empty:top-2.5 input_not_empty:text-xs"
+                              for="NewsletterForm--{{ section.id }}"
+                            >
+                              {{ 'newsletter.label' | t }}
+                            </label>
+                          </div>
+                          <div>
+                            <button
+                              type="submit"
+                              class="rounded-none border-solid border-current ml-1 w-12 h-full flex justify-center items-center bg-transparent border-b-2 border-b-solid border-x-0 border-t-0"
+                              name="commit"
+                              aria-label="{{ 'newsletter.button_label' | t }}"
+                            >
+                              <span class="{% if is_rtl %} rotate-180{% endif %}">
+                                {% render 'icon-alls', icon: 'icon-arrow', enable_email_footer: true %}
+                              </span>
+                            </button>
+                          </div>
+                          {%- if form.errors -%}
+                            <div
+                              class="flex items-center text-left px-4 py-3 mt-4 bg-[rgba(var(--color-error),0.1)] selection:bg-[rgba(var(--color-error),0.2)]{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"
+                              id="Newsletter-error--{{ section.id }}"
+                            >
+                              <span class="inline-block w-6 mr-2 text-[rgba(var(--color-error)))]">
                                 {%- render 'icon-alls', icon: 'icon-error' %}
                               </span>
                               <p class="flex-1">
@@ -346,14 +995,148 @@
                       >
                         <p class="h6 text-[115%]">{{- block.settings.heading_menu | escape -}}</p>
                         <span
-                          class="md:hidden absolute w-2.5	h-2.5 top-1/2 -translate-y-1/2 flex{% if is_rtl %} left-3.5{% else %} right-3.5{% endif %}"
+                          class="md:hidden absolute w-2.5 h-2.5 top-1/2 -translate-y-1/2 duration-500 flex{% if is_rtl %} left-3.5{% else %} right-3.5{% endif %}"
                           :class="open ? 'rotate-180' : ''"
                         >
                           {%- render 'icon-alls', icon: 'icon-caret' -%}
                         </span>
                       </div>
                     {%- endif -%}
-                    <div class="mt-6" :class="open ? 'block' : 'hidden md:block'">
+                    <div class="mt-6 hidden md:block">
+                      {% if block.settings.icon_1 != 'none' or block.settings.title_1 or block.settings.text_1 %}
+                        <div class="mb-4 flex items-center gap-x-4">
+                          {% if block.settings.icon_1 != 'none' %}
+                            {% unless block.settings.custom_icon == blank
+                              and block.settings.another_icon_1 == blank
+                              and block.settings.icon_1 == 'another_icon'
+                            %}
+                              <span class="inline-block h-6 w-6 lg:h-9 lg:w-9 min-w-[24px] lg:min-w-[36px]">
+                                {% if block.settings.custom_icon == blank %}
+                                  {% if block.settings.another_icon_1 != blank
+                                    and block.settings.icon_1 == 'another_icon'
+                                  %}
+                                    {% render 'icon-new-alls', icon: block.settings.another_icon_1 %}
+                                  {% else %}
+                                    {% render 'icon-labels-bags', icon: block.settings.icon_1 %}
+                                  {% endif %}
+                                {% else %}
+                                  {{ block.settings.custom_icon }}
+                                {% endif %}
+                              </span>
+                            {% endunless %}
+                          {% endif %}
+                          {% if block.settings.title_1 or block.settings.text_1 %}
+                            <div>
+                              <p class="empty:hidden p-break-words">{{ block.settings.title_1 | escape }}</p>
+                              {% if block.settings.text_link_1 != blank %}
+                                <a
+                                  href="{{ block.settings.text_link_1 }}"
+                                  {% if block.settings.open_new_window_1 %}
+                                    target="_blank"
+                                  {% endif %}
+                                  class="font-semibold p-break-words empty:hidden{% if block.settings.enable_text_link_1 %} text-[rgb(var(--colors-text-link))]{% endif %} hover-text-link nav-link relative"
+                                >
+                                  {{ block.settings.text_1 | escape }}
+                                </a>
+                              {% else %}
+                                <p class="font-semibold p-break-words empty:hidden{% if block.settings.enable_text_link_1 %} text-[rgb(var(--colors-text-link))]{% endif %}">
+                                  {{ block.settings.text_1 | escape }}
+                                </p>
+                              {% endif %}
+                            </div>
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                      {% if block.settings.icon_2 != 'none' or block.settings.title_2 or block.settings.text_2 %}
+                        <div class="mb-4 flex items-center gap-x-4">
+                          {% if block.settings.icon_2 != 'none' %}
+                            {% unless block.settings.custom_icon_2 == blank
+                              and block.settings.another_icon_2 == blank
+                              and block.settings.icon_2 == 'another_icon'
+                            %}
+                              <span class="inline-block min-w-[24px] lg:min-w-[36px] h-6 w-6 lg:h-9 lg:w-9">
+                                {% if block.settings.custom_icon_2 == blank %}
+                                  {% if block.settings.another_icon_2 != blank
+                                    and block.settings.icon_2 == 'another_icon'
+                                  %}
+                                    {% render 'icon-new-alls', icon: block.settings.another_icon_2 %}
+                                  {% else %}
+                                    {% render 'icon-labels-bags', icon: block.settings.icon_2 %}
+                                  {% endif %}
+                                {% else %}
+                                  {{ block.settings.custom_icon_2 }}
+                                {% endif %}
+                              </span>
+                            {% endunless %}
+                          {% endif %}
+                          {% if block.settings.title_2 or block.settings.text_2 %}
+                            <div>
+                              <p class="empty:hidden">{{ block.settings.title_2 | escape }}</p>
+                              {% if block.settings.text_link_2 != blank %}
+                                <a
+                                  href="{{ block.settings.text_link_2 }}"
+                                  {% if block.settings.open_new_window_2 %}
+                                    target="_blank"
+                                  {% endif %}
+                                  class="font-semibold p-break-words empty:hidden{% if block.settings.enable_text_link_2 %} text-[rgb(var(--colors-text-link))]{% endif %} hover-text-link nav-link relative"
+                                >
+                                  {{ block.settings.text_2 | escape }}
+                                </a>
+                              {% else %}
+                                <p class="font-semibold p-break-words empty:hidden{% if block.settings.enable_text_link_2 %} text-[rgb(var(--colors-text-link))]{% endif %}">
+                                  {{ block.settings.text_2 | escape }}
+                                </p>
+                              {% endif %}
+                            </div>
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                      {% if block.settings.icon_3 != 'none' or block.settings.title_3 or block.settings.text_3 %}
+                        <div class="mb-4 flex items-center gap-x-4">
+                          {% if block.settings.icon_3 != 'none' %}
+                            {% unless block.settings.custom_icon_3 == blank
+                              and block.settings.another_icon_3 == blank
+                              and block.settings.icon_3 == 'another_icon'
+                            %}
+                              <span class="inline-block h-6 w-6 lg:h-9 lg:w-9 min-w-[24px] lg:min-w-[36px]">
+                                {% if block.settings.custom_icon_3 == blank %}
+                                  {% if block.settings.another_icon_3 != blank
+                                    and block.settings.icon_3 == 'another_icon'
+                                  %}
+                                    {% render 'icon-new-alls', icon: block.settings.another_icon_3 %}
+                                  {% else %}
+                                    {% render 'icon-labels-bags', icon: block.settings.icon_3 %}
+                                  {% endif %}
+                                {% else %}
+                                  {{ block.settings.custom_icon_3 }}
+                                {% endif %}
+                              </span>
+                            {% endunless %}
+                          {% endif %}
+                          {% if block.settings.title_3 or block.settings.text_3 %}
+                            <div>
+                              <p class="empty:hidden">{{ block.settings.title_3 | escape }}</p>
+                              {% if block.settings.text_link_3 != blank %}
+                                <a
+                                  href="{{ block.settings.text_link_3 }}"
+                                  {% if block.settings.open_new_window_3 %}
+                                    target="_blank"
+                                  {% endif %}
+                                  class="font-semibold p-break-words empty:hidden{% if block.settings.enable_text_link_3 %} text-[rgb(var(--colors-text-link))]{% endif %} hover-text-link nav-link relative"
+                                >
+                                  {{ block.settings.text_3 | escape }}
+                                </a>
+                              {% else %}
+                                <p class="font-semibold p-break-words empty:hidden{% if block.settings.enable_text_link_3 %} text-[rgb(var(--colors-text-link))]{% endif %}">
+                                  {{ block.settings.text_3 | escape }}
+                                </p>
+                              {% endif %}
+                            </div>
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                    </div>
+                    <div class="mt-6 md:hidden" x-show="open" x-collapse x-cloak>
                       {% if block.settings.icon_1 != 'none' or block.settings.title_1 or block.settings.text_1 %}
                         <div class="mb-4 flex items-center gap-x-4">
                           {% if block.settings.icon_1 != 'none' %}
@@ -503,9 +1286,9 @@
   {%- if shop.features.follow_on_shop? and section.settings.enable_follow_on_shop -%}
     <div class="x-pgw page-width text-center{% if section.settings.additional_layout == 'horizontal' %} lg:text-{{ section.settings.horizontal_position }}{% else %} lg:text-center{% endif %} pt-5 md:pt-3.5 md:pb-3 pb-2 change-position-popup">
       {% comment %} TODO: enable theme-check once `login_button` is accepted as valid filter {% endcomment %}
-      {% comment %}theme-check-disable{% endcomment %}
+      {% # theme-check-disable %}
       {{ shop | login_button: action: 'follow' }}
-      {% comment %}theme-check-enable{% endcomment %}
+      {% # theme-check-enable %}
     </div>
   {%- endif -%}
   <div class="additional-footer {{ class_rtl }}{% if section.settings.additional_layout == 'horizontal' %} x-pgw page-width mx-auto lg:flex lg:flex-row lg:justify-between items-center{% else %} mx-5{% endif -%}">
@@ -536,13 +1319,18 @@
               </div>
             {%- endif -%}
           {%- endif -%}
+          {% if section.settings.show_powered %}
+            <p class="mt-3{% if section.settings.show_copyright %} md:mt-0{% else %} md:mt-4{% endif %} md:ml-1 block md:inline-block">
+              {{ powered_by_link }}
+            </p>
+          {% endif %}
         </div>
       </div>
       {%- if section.settings.payment_enable -%}
         {% if section.settings.custom_payment != blank %}
           {% assign enabled_payment_types = section.settings.custom_payment | remove: ' ' | split: ',' %}
           <ul
-            class="flex justify-center gap-y-2 flex-wrap{% unless section.settings.show_language_selector or section.settings.show_currency_selector %} mt-5 md:mt-0{% endunless %}"
+            class="icon-payment flex justify-center gap-y-2 flex-wrap{% unless section.settings.show_language_selector or section.settings.show_currency_selector %} mt-5 md:mt-0{% endunless %}"
             role="list"
           >
             {%- for type in enabled_payment_types -%}
@@ -553,7 +1341,7 @@
           </ul>
         {% else %}
           <ul
-            class="flex justify-center gap-y-2 flex-wrap{% unless section.settings.show_language_selector or section.settings.show_currency_selector %} mt-5 md:mt-0{% endunless %}"
+            class="icon-payment flex justify-center gap-y-2 flex-wrap{% unless section.settings.show_language_selector or section.settings.show_currency_selector %} mt-5 md:mt-0{% endunless %}"
             role="list"
           >
             {%- for type in shop.enabled_payment_types -%}
@@ -597,10 +1385,122 @@
         },
         {
           "type": "checkbox",
+          "id": "show_submenus",
+          "default": true,
+          "label": "Show sub-menu items",
+          "info": "Display child menu items below parent links"
+        },
+        {
+          "type": "checkbox",
           "id": "show_social_icons",
           "default": false,
           "label": "t:sections.footer.settings.show_social_icons.label",
           "info": "t:sections.footer.settings.show_social_icons.info"
+        }
+      ]
+    },
+    {
+      "type": "social_qr",
+      "name": "Social Media & QR Code",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "open_by_default",
+          "default": true,
+          "label": "t:sections.footer.blocks.open_by_default"
+        },
+        {
+          "type": "header",
+          "content": "Social Media Section"
+        },
+        {
+          "type": "text",
+          "id": "social_heading",
+          "default": "FOLLOW US",
+          "label": "Social Media Heading"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_social_icons",
+          "default": true,
+          "label": "t:sections.footer.settings.show_social_icons.label"
+        },
+        {
+          "type": "select",
+          "id": "icon_layout",
+          "label": "Icon layout",
+          "options": [
+            {
+              "label": "t:sections.featured-collection.settings.slider_style.options__1",
+              "value": "horizontal"
+            },
+            {
+              "label": "t:sections.featured-collection.settings.slider_style.options__2",
+              "value": "vertical"
+            }
+          ],
+          "default": "horizontal",
+          "visible_if": "{{ block.settings.show_social_icons }}"
+        },
+        {
+          "type": "header",
+          "content": "Viber Community Section"
+        },
+        {
+          "type": "text",
+          "id": "viber_heading",
+          "default": "JOIN OUR VIBER COMMUNITY",
+          "label": "Viber Community Heading"
+        },
+        {
+          "type": "image_picker",
+          "id": "qr_code",
+          "label": "QR Code Image"
+        },
+        {
+          "type": "range",
+          "id": "qr_width",
+          "min": 100,
+          "max": 300,
+          "step": 10,
+          "unit": "px",
+          "label": "QR Code Width",
+          "default": 200
+        },
+        {
+          "type": "url",
+          "id": "qr_link",
+          "label": "QR Code Link"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_new_window",
+          "default": true,
+          "label": "t:sections.all.open_new_window.label"
+        },
+        {
+          "type": "header",
+          "content": "Newsletter Section"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_newsletter",
+          "default": true,
+          "label": "Enable Newsletter"
+        },
+        {
+          "type": "text",
+          "id": "newsletter_heading",
+          "default": "BE THE FIRST TO KNOW!",
+          "label": "Newsletter Heading",
+          "visible_if": "{{ block.settings.enable_newsletter }}"
+        },
+        {
+          "type": "richtext",
+          "id": "newsletter_description",
+          "default": "<p>Subscribe to get our latest news, updates and exclusive offers.</p>",
+          "label": "Newsletter Description",
+          "visible_if": "{{ block.settings.enable_newsletter }}"
         }
       ]
     },
@@ -647,7 +1547,8 @@
               "value": "vertical"
             }
           ],
-          "default": "horizontal"
+          "default": "horizontal",
+          "visible_if": "{{ block.settings.show_social_icons }}"
         },
         {
           "type": "image_picker",
@@ -674,6 +1575,50 @@
           "id": "open_new_window",
           "default": false,
           "label": "t:sections.all.open_new_window.label"
+        },
+        {
+          "type": "header",
+          "content": "Side Padding Settings"
+        },
+        {
+          "type": "range",
+          "id": "side_padding_left",
+          "min": 0,
+          "max": 100,
+          "step": 4,
+          "unit": "px",
+          "label": "Left padding (Desktop)",
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "side_padding_right",
+          "min": 0,
+          "max": 100,
+          "step": 4,
+          "unit": "px",
+          "label": "Right padding (Desktop)",
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "side_padding_left_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 4,
+          "unit": "px",
+          "label": "Left padding (Mobile)",
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "side_padding_right_mobile",
+          "min": 0,
+          "max": 100,
+          "step": 4,
+          "unit": "px",
+          "label": "Right padding (Mobile)",
+          "default": 0
         }
       ]
     },
@@ -1140,13 +2085,15 @@
           "type": "text",
           "id": "another_icon_1",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon_1 == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon_1 != 'none' }}"
         },
         {
           "type": "text",
@@ -1517,13 +2464,15 @@
           "type": "text",
           "id": "another_icon_2",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon_2 == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon_2",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon_2 != 'none' }}"
         },
         {
           "type": "text",
@@ -1894,13 +2843,15 @@
           "type": "text",
           "id": "another_icon_3",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon_3 == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon_3",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon_3 != 'none' }}"
         },
         {
           "type": "text",
@@ -1935,6 +2886,10 @@
     }
   ],
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.footer.footer"
+    },
     {
       "type": "range",
       "id": "columns_desktop",
@@ -1980,7 +2935,8 @@
       "type": "text",
       "id": "custom_payment",
       "info": "t:sections.footer.settings.custom_payment.info",
-      "label": "t:sections.footer.settings.custom_payment.label"
+      "label": "t:sections.footer.settings.custom_payment.label",
+      "visible_if": "{{ section.settings.payment_enable }}"
     },
     {
       "type": "checkbox",
@@ -1991,7 +2947,8 @@
     {
       "type": "richtext",
       "id": "add_copyright_text",
-      "label": "t:sections.footer.settings.add_copyright_text.label"
+      "label": "t:sections.footer.settings.add_copyright_text.label",
+      "visible_if": "{{ section.settings.show_copyright }}"
     },
     {
       "type": "select",
@@ -2044,7 +3001,8 @@
           "label": "t:sections.all.content_alignment.options__3.label"
         }
       ],
-      "default": "right"
+      "default": "right",
+      "visible_if": "{{ section.settings.enable_follow_on_shop and section.settings.additional_layout == 'horizontal' }}"
     },
     {
       "type": "header",

@@ -97,9 +97,7 @@
     {% if image_ratio == "auto" and card_collection.featured_image %} style="{% if collage == blank %}{% unless block_collection %}height:0;{% endunless %}{% endif %} {% unless mediaGallery %}padding-bottom: {{ 100 | divided_by: card_collection.featured_image.aspect_ratio }}%;{% endunless %}"{% endif %}
   >
     {%- if card_collection != blank -%}
-      <div       
-        class="block{% if image_ratio == "round" %} rounded-full{% endif %}{% if corner_image and image_ratio != "round" %} md:rounded-[10px]{% unless card_full_width %} rounded-[10px]{% endunless %}{% endif %}"
-      >
+      <div class="block{% if image_ratio == "round" %} rounded-full{% endif %}{% if corner_image and image_ratio != "round" %} md:rounded-[10px]{% unless card_full_width %} rounded-[10px]{% endunless %}{% endif %}">
         {% capture sizes %}
           {% if collage or mediaGallery %}
             {% if full_width %}
@@ -114,9 +112,8 @@
           {% endif %}
         {% endcapture %}
         {%- if image != blank -%}
-          <div 
-            class="w-full h-full top-0 left-0 absolute overflow-hidden animate_transition_card__image -z-10"
-          >
+          <div class="w-full h-full top-0 left-0 absolute overflow-hidden animate_transition_card__image -z-10">
+            {% # theme-check-disable ImgLazyLoading %}
             <img
               srcset="{{ image | image_url: width: 225 }} 225w,
               {{ image | image_url: width: 375 }} 375w,
@@ -134,15 +131,14 @@
               alt="{{ image.alt | escape }}"
               height="{{ image.height }}"
               width="{{ image.width }}"
-              loading="lazy"  
+              {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %} 
               class="animate_transition_image aspect-{{ image_ratio }} w-full h-full object-cover z-10 object-center image-hover animate-Xpulse skeleton-image
-                {%- if image_ratio == "round" %} rounded-full{% endif -%}
-              "
+                {%- if image_ratio == "round" %} rounded-full{% endif -%}"
               onload="this?.classList.add('active'); 
                 this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');
-                setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);
-              "
+                setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);"
             >
+            {% # theme-check-enable ImgLazyLoading %}
           </div>
         {%- elsif card_collection.featured_image or collection_metafield != blank and card_collection.metafields.custom[collection_metafield] != nil -%}
           {% liquid
@@ -152,9 +148,8 @@
               assign collection_featured_image = card_collection.featured_image
             endif
           %}
-          <div 
-            class="w-full h-full top-0 left-0 absolute overflow-hidden animate_transition_card__image -z-10"
-          >
+          <div class="w-full h-full top-0 left-0 absolute overflow-hidden animate_transition_card__image -z-10">
+            {% # theme-check-disable ImgLazyLoading %}
             <img
               srcset="{{ collection_featured_image | image_url: width: 225 }} 225w,
               {{ collection_featured_image | image_url: width: 375 }} 375w,
@@ -172,15 +167,14 @@
               alt="{{ collection_featured_image.alt | escape }}"
               height="{{ collection_featured_image.height }}"
               width="{{ collection_featured_image.width }}"
-              loading="lazy"  
+              {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %} 
               class="animate_transition_image aspect-{{ image_ratio }} w-full h-full object-cover z-10 object-center image-hover animate-Xpulse skeleton-image
-                {%- if image_ratio == "round" %} rounded-full{% endif -%}
-              "
+                {%- if image_ratio == "round" %} rounded-full{% endif -%}"
               onload="this?.classList.add('active'); 
                 this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');
-                setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);
-              "
+                setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);"
             >
+            {% # theme-check-enable ImgLazyLoading %}
           </div>
         {%- else -%}
           <div class="flex{% unless image_ratio == "auto" %} absolute{% endunless %} top-0 left-0 w-full h-full items-center bg-[#c9c9c9]">
@@ -212,8 +206,7 @@
       {%- if image_ratio == "round" %} mt-1{% endif -%}"
     >
       {%- if card_collection != blank -%}
-        <p
-          class="text-[rgba(var(--colors-heading))] p-break-words transition duration-200">
+        <p class="text-[rgba(var(--colors-heading))] p-break-words transition duration-200">
           {%- if card_collection.title != blank -%}
             {{- card_collection.title | escape -}}
           {%- else -%}

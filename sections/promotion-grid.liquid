@@ -14,6 +14,11 @@
   if section.settings.keep_ratio_on_different_width and row_height_mobile > section.settings.height_desktop
     assign row_height_mobile = section.settings.height_desktop
   endif
+  if settings.enable_lazy_loading_image
+    assign loading = 'lazy'
+  else
+    assign loading = 'eager'
+  endif
 -%}
 {%- style -%}
   .cell-{{ section.id }}-1 {
@@ -37,6 +42,17 @@
     .gap-grid--{{ section.id }} {
       gap: {{ section.settings.spacing_mobile }}px
     }
+    {% if request.visual_preview_mode %}
+      .gap-preview {
+        gap: 16px;  
+      }
+      .cell-1 {
+        min-height: 250px;  
+      }
+      .cell-2 {
+        min-height: 500px;
+      }
+    {% endif %}
     {% if section.settings.keep_ratio_on_different_width %}
       .cell-{{ section.id }}-2 {
         min-height: {{ row_height_mobile }}px;
@@ -70,6 +86,17 @@
         height: calc((({{ section.settings.height_desktop | times: 3 }} / ({{ settings.page_width }} + 40)) * 100vw) + {{ section.settings.spacing | times: 2 }});
       }
     {% else %}
+      {% if request.visual_preview_mode %}
+        .cell-1 {
+          min-height: 300px;  
+        }
+        .cell-2 {
+          min-height: 600px;
+        }
+        .gap-preview {
+          gap: 28px;  
+        }
+      {% endif %}
       .cell-{{ section.id }}-1 {
         min-height: {{ section.settings.height_desktop }}px;
       }
@@ -109,20 +136,21 @@
         .heading-{{ section.id }}{ font-size: {{ heading_size }}rem; }
       }
     {%- endstyle -%}
-    <div class="{% unless section.settings.full_width %} x-pgw page-width{% endunless %}">
+    <div class="pt-2 pb-2 pr-5 pl-5 mb-6{% unless section.settings.full_width %} x-pgw page-width{% endunless %}">
       {% render 'heading-highlight',
         headingId: section.id,
         heading: section.settings.heading,
         highlight_type: section.settings.highlight_type,
-        class: 'h2 block py-2 leading-tight mb-6 pr-5 pl-5',
+        class: 'h2 block leading-tight',
         heading_tag: section.settings.heading_tag,
-        heading_alignment: section.settings.heading_alignment
+        heading_alignment: section.settings.heading_alignment,
+        animation_heading: true
       %}
     </div>
   {%- endif -%}
   <div 
     id="x-slide-mobile-{{ section.id }}"
-    class="{% if swiper_on_mobile %}x-splide splide visible relative{% else %} grid grid-cols-{{ min_columns_mobile }} md:grid-cols-{{ max_columns }} gap-grid--{{ section.id }}{% endif %}{% unless section.settings.full_width %} x-pgw page-width mx-auto{% else %}{% if section.settings.padding_full_width %} md:pl-5 md:pr-5{% else %} md:pl-0 md:pr-0{% endif %}{% endunless %}{% if section.settings.full_width_mobile %} full-width-mobile{% else %} pl-5 pr-5{% endif %}"
+    class="{% if swiper_on_mobile %}x-splide splide visible relative{% else %} grid grid-cols-{{ min_columns_mobile }} md:grid-cols-{{ max_columns }} gap-grid--{{ section.id }}{% endif %}{% unless section.settings.full_width %} x-pgw page-width mx-auto{% else %}{% if section.settings.padding_full_width %} md:pl-5 md:pr-5{% else %} md:pl-0 md:pr-0{% endif %}{% endunless %}{% if section.settings.full_width_mobile %} full-width-mobile{% else %} pl-5 pr-5{% endif %}{% if request.visual_preview_mode %} gap-preview{% endif %}"
     {% if swiper_on_mobile %}
       x-intersect.once.margin.200px='$store.xSplide.load($el, {
         "autoWidth": true,
@@ -220,7 +248,7 @@
           {% endstyle %}
           <div 
             x-intersect.once.margin.-20px.0px.-20px.0px="$el.querySelector('.animate_transition_card__image')?.classList.add('active')"
-            class="media-{{ block.id }} flex{% if block.settings.media_position == 'top' %} flex-col{% else %} flex-col-reverse{% endif %} group overflow-hidden relative md:col-span-{{ columns_desktop }} cell-{{ section.id }}-{{ block.settings.number_of_row }} row-span-{{ block.settings.number_of_row }}{% if swiper_on_mobile %} splide__slide x-splide-slide preload-slide-{{ section.id }} w-full{% else %} col-span-{{ columns_mobile }}{% endif %}"
+            class="media-{{ block.id }} flex{% if block.settings.media_position == 'top' %} flex-col{% else %} flex-col-reverse{% endif %} group overflow-hidden relative md:col-span-{{ columns_desktop }} cell-{{ section.id }}-{{ block.settings.number_of_row }} row-span-{{ block.settings.number_of_row }}{% if swiper_on_mobile %} splide__slide x-splide-slide preload-slide-{{ section.id }} w-full{% else %} col-span-{{ columns_mobile }}{% endif %}{% if request.visual_preview_mode %} cell-{{ block.settings.number_of_row }}{% endif %}"
             {{ block.shopify_attributes }}
           >
             <div class="flex grow relative h-full w-full overflow-hidden{% if settings.edges_type == 'rounded_corners' %}{% if rounded_corner %} md:rounded-[10px]{% else %} md:rounded-none{% endif %}{% unless section.settings.full_width_mobile %} rounded-[10px]{% endunless %}{% endif %}">
@@ -251,7 +279,7 @@
                   {% assign img_mobile = true %}
                   {% if block.settings.image_mobile == blank %}
                     {{ block.settings.image | image_url: width: 3840 | image_tag: 
-                      loading: "lazy", 
+                      loading: loading, 
                       sizes: sizes, 
                       widths: '375, 450, 750, 900, 1100, 1500, 1780, 2000, 3000, 3840', 
                       class: 'w-full object-cover z-0 h-full image-hover absolute top-0 left-0 block animate_transition_image animate-Xpulse skeleton-image', 
@@ -259,7 +287,7 @@
                     }}
                   {% else %}
                     {{ block.settings.image | image_url: width: 3840 | image_tag: 
-                      loading: "lazy", 
+                      loading: loading, 
                       sizes: sizes, 
                       widths: '375, 450, 750, 900, 1100, 1500, 1780, 2000, 3000, 3840', 
                       class: 'w-full object-cover z-0 h-full image-hover hidden md:block absolute top-0 left-0 block animate_transition_image animate-Xpulse skeleton-image', 
@@ -301,7 +329,7 @@
                 {%- endif -%}
                 {% if block.settings.image_mobile != blank %}
                   {{ block.settings.image_mobile | image_url: width: 3840 | image_tag: 
-                loading: "lazy",
+                loading: loading,
                 onload: onload,
                 widths: '375, 450, 750, 900, 1100, 1500, 1780, 2000, 3000, 3840',
                 class: 'w-full md:hidden object-cover z-0 h-full image-hover absolute top-0 left-0 block animate_transition_image animate-Xpulse skeleton-image',
@@ -335,7 +363,12 @@
                       --color: {{ block.settings.sale_label_color.red }}, {{ block.settings.sale_label_color.green }}, {{ block.settings.sale_label_color.blue }};
                     {% endif %}
                   }
-                  
+                  {% if request.visual_preview_mode %}
+                    .sale-label {
+                      background-color: #CE021E;
+                      color: #FFFFFF;
+                    }
+                  {% endif %}
                   .line_1_size-{{ block.id }} { 
                     font-size: {{ line_1_size | times: 0.6 }}rem; 
                   }
@@ -366,7 +399,7 @@
                     assign class_bottom = "label-flag label-top-flag"
                   endif  
                 -%}
-                <div class="sale-label-{{ block.id }} absolute pointer-events-auto text-center z-20 flex flex-col{% if block.settings.sale_label_style == "angle" %} label-angle-{{ block.settings.sale_label_position }}{% else %} {{ class_bottom }} label-{{ block.settings.sale_label_position }}{% endif %}">
+                <div class="sale-label-{{ block.id }} absolute pointer-events-auto text-center z-20 flex flex-col{% if block.settings.sale_label_style == "angle" %} label-angle-{{ block.settings.sale_label_position }}{% else %} {{ class_bottom }} label-{{ block.settings.sale_label_position }}{% endif %}{% if request.visual_preview_mode %} sale-label{% endif %}">
                   <p class="line_1_size-{{ block.id }}">{{ block.settings.line_1 }}</p>
                   <p class="line_2_size-{{ block.id }}">{{ block.settings.line_2 }}</p>
                   <p class="line_3_size-{{ block.id }}">{{ block.settings.line_3 }}</p>
@@ -477,6 +510,7 @@
                 card_full_width: section.settings.full_width_mobile,
                 full_width: section.settings.full_width,
                 show_vendor: block.settings.show_vendor,
+                show_highlighted_features: block.settings.show_highlighted_features,
                 show_highlighted_attributes: block.settings.show_highlighted_attributes,
                 show_rating: block.settings.show_rating,
                 columns_desktop: columns_desktop,
@@ -487,6 +521,7 @@
                 product_card_id: forloop.index,
                 index_param: index_param,
                 animation_loading: true,
+                loading: loading,
                 show_price_range: true,
                 product_metafield: block.settings.product_metafield
               -%}
@@ -496,21 +531,11 @@
                 <div class="h-0 grow{% if settings.edges_type == 'rounded_corners' %} overflow-hidden md:rounded-[10px]{% unless section.settings.full_width_mobile %} rounded-[10px]{% endunless %}{% endif %}"> 
                   {% render 'icon-placeholder', icon: 'icon-product' | class: 'bg-[#c9c9c9] w-full h-full' %}
                 </div>
-                {% style %}
-                  .placeholder-product-title-{{ block.id }} {
-                    font-size: {{ settings.text_base_size | times: block.settings.text_size | times: 0.01 | times: 0.007875 }}rem;
-                  }
-                  @media (min-width: 768px) {
-                    .placeholder-product-title-{{ block.id }} {
-                      font-size: {{ settings.text_base_size | times: block.settings.text_size | times: 0.01 | times: 0.00875 }}rem;
-                    }
-                  }
-                {% endstyle %}
                 <div class="pt-4 pb-4 text-{{ block.settings.info_alignment }}{% if section.settings.full_width_mobile %} pl-5 pr-5 md:pl-0 md:pr-0{% endif %}">
-                  <p class="leading-tight text-[rgba(var(--colors-heading))] placeholder-product-title-{{ block.id }}">
+                  <p class="x-card-title h5 leading-tight text-[rgba(var(--colors-heading))] placeholder-product-title-{{ block.id }}">
                     {{ 'sections.featured_collection.product_title' | t }}
                   </p>
-                  <p class="price mt-2 placeholder-product-title-{{ block.id }}">
+                  <p class="x-card-price price mt-2 placeholder-product-title-{{ block.id }}">
                     {% if settings.currency_code_enable %}
                       {{ 3000 | money_with_currency }}
                     {% else %}
@@ -624,6 +649,10 @@
   "tag": "section",
   "class": "section-promotion-grid x-section",
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.promotion_grid"
+    },
     {
       "type": "text",
       "id": "heading",
@@ -770,7 +799,8 @@
       "id": "padding_full_width",
       "default": false,
       "label": "t:sections.all.padding.padding_full_width.label",
-      "info": "t:sections.all.padding.padding_full_width.info"
+      "info": "t:sections.all.padding.padding_full_width.info",
+      "visible_if": "{{ section.settings.full_width }}"
     },
     {
       "type": "range",
@@ -806,7 +836,8 @@
       "type": "checkbox",
       "id": "enable_arrow_mobile",
       "default": false,
-      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile"
+      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile",
+      "visible_if": "{{ section.settings.swiper_on_mobile }}"
     },
     {
       "type": "radio",
@@ -822,7 +853,8 @@
         }
       ],
       "label": "t:sections.all.grid.number_of_columns",
-      "info": "t:sections.promotion-grid.blocks.promotion.settings.number_of_columns.info"
+      "info": "t:sections.promotion-grid.blocks.promotion.settings.number_of_columns.info",
+      "visible_if": "{{ section.settings.swiper_on_mobile == false }}"
     },
     {
       "type": "range",
@@ -975,7 +1007,8 @@
             }
           ],
           "label": "t:sections.promotion-grid.blocks.promotion.settings.overlay_content_position.label",
-          "default": "center"
+          "default": "center",
+          "visible_if": "{{ block.settings.enable_content_overlay }}"
         },
         {
           "type": "range",
@@ -985,7 +1018,8 @@
           "step": 10,
           "unit": "%",
           "label": "t:sections.all.overlay_opacity.label",
-          "default": 0
+          "default": 0,
+          "visible_if": "{{ block.settings.enable_content_overlay }}"
         },
         {
           "type": "header",
@@ -1347,13 +1381,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "range",
@@ -1363,7 +1399,8 @@
           "step": 1,
           "unit": "px",
           "label": "t:sections.multicolumn.settings.icon_size.label",
-          "default": 45
+          "default": 45,
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "text",
@@ -1733,6 +1770,12 @@
         },
         {
           "type": "checkbox",
+          "id": "show_highlighted_features",
+          "default": true,
+          "label": "t:sections.product-recommendations.settings.show_highlighted_features.label"
+        },
+        {
+          "type": "checkbox",
           "id": "show_highlighted_attributes",
           "default": true,
           "label": "t:sections.product-recommendations.settings.show_highlighted_attributes.label"
@@ -1942,6 +1985,7 @@
   "presets": [
     {
       "name": "t:sections.promotion-grid.name",
+      "category": "t:categories.promotions",
       "blocks": [
         {
           "type": "promotion",

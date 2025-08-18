@@ -12,20 +12,31 @@
   {% render 'facets', results: collection, enable_filtering: true, enable_sorting: true %}
 {% endcomment %}
 {% liquid 
-    assign total_active_values = total_active_values | plus: filter.active_values.size
-    case filter.presentation
-      when 'swatch'
-        assign has_visual_display = true
-      when 'image'
-        assign has_visual_display = true
-      else
-        assign has_visual_display = false
-    endcase
-    if settings.lang_direction contains request.locale.iso_code
-      assign is_rtl = true
+  assign total_active_values = total_active_values | plus: filter.active_values.size
+  case filter.presentation
+    when 'swatch'
+      assign has_visual_display = true
+    when 'image'
+      assign has_visual_display = true
     else
-      assign is_rtl = false
+      assign has_visual_display = false
+  endcase
+  if settings.lang_direction contains request.locale.iso_code
+    assign is_rtl = true
+  else
+    assign is_rtl = false
+  endif
+    
+  assign rounded_filter = 'square'
+  if section.settings.filter_edge_style == 'rounded'
+    assign rounded_filter = 'rounded'
+  elsif section.settings.filter_edge_style == 'adapt'
+    if settings.buttons_type == 'mixed' or settings.buttons_type == 'rounded_corners'
+      assign rounded_filter = 'rounded_corners'
+    elsif settings.buttons_type == 'rounded'
+      assign rounded_filter = 'rounded'
     endif
+  endif
 %}
 {% case filter.type %}
   {% when 'boolean' or 'list' %}
@@ -35,7 +46,7 @@
         {% if filter_type == 'above' %}:class="open && 'md:shadow-[rgba(0,0,0,0.16)_0px_0px_0px,rgb(var(--colors-heading))_0px_0px_0px_1px] md:border-[rgb(var(--colors-heading))]'"{% endif %} 
         class="facets__summary w-full relative cursor-pointer flex pt-3 pb-3 border-solid items-center border-b justify-between
           {%- if filter_type == 'above' %} md:border md:py-3 md:px-4
-            {%- if section.settings.filter_edge_style == 'rounded' %} rounded-full{% elsif settings.edges_type == 'rounded_corners' %} rounded{% endif -%}
+            {%- if rounded_filter == 'rounded' %} rounded-full{% elsif rounded_filter == 'rounded_corners' %} rounded{% endif -%}
           {%- endif -%}
         "
         aria-label="{{ filter.label }} ({{ 'products.facets.filters_selected.one' | t: count: filter.active_values.size }})"
@@ -75,7 +86,7 @@
                       class="input-color-filter checkbox checkbox-checked opacity-0 checked:border-[rgba(var(--colors-text-link))] checked:bg-[rgba(var(--colors-text-link))] absolute cursor-pointer
                         {%- if is_rtl %} ml-3{% else %} mr-3{% endif -%}
                         {%- if settings.visual_value_style == "compact" %} min-w-[24px] h-6 w-6{% else %} h-[70px] min-w-[70px]{% endif -%}
-                        {%- if filter.operator == 'AND' %} filter-and{% endif %}{% if settings.edges_type == 'rounded_corners' or section.settings.filter_edge_style == 'rounded' %} rounded{% else %} rounded-none{% endif -%}
+                        {%- if filter.operator == 'AND' %} filter-and{% endif %}{% if rounded_filter != 'square' %} rounded{% else %} rounded-none{% endif -%}
                       "
                       name="{{ value.param_name }}"
                       value="{{ value.value }}"
@@ -146,7 +157,7 @@
                       class="input-color-filter checkbox checkbox-checked opacity-0 h-6 w-6 min-w-[24px] checked:border-[rgba(var(--colors-text-link))] checked:bg-[rgba(var(--colors-text-link))] relative cursor-pointer
                         {%- if is_rtl %} ml-3{% else %} mr-3{% endif -%}
                         {%- if filter.operator == 'AND' %} filter-and{% endif -%}
-                        {%- if settings.edges_type == 'rounded_corners' or section.settings.filter_edge_style == 'rounded' %} rounded{% else %} rounded-none{% endif -%}
+                        {%- if rounded_filter != 'square' %} rounded{% else %} rounded-none{% endif -%}
                       "
                       name="{{ value.param_name }}"
                       value="{{ value.value }}"
@@ -176,7 +187,7 @@
                       class="checkbox checkbox-checked h-6 w-6 min-w-[24px] border checked:border-[rgba(var(--colors-text-link))] checked:bg-[rgba(var(--colors-text-link))] relative cursor-pointer
                         {%- if is_rtl %} ml-2{% else %} mr-2{% endif -%}
                         {%- if filter.operator == 'AND' %} filter-and{% endif -%}
-                        {%- if settings.edges_type == 'rounded_corners' or section.settings.filter_edge_style == 'rounded' %} rounded{% else %} rounded-none{% endif -%}
+                        {%- if rounded_filter != 'square' %} rounded{% else %} rounded-none{% endif -%}
                       "
                       name="{{ value.param_name }}"
                       value="{{ value.value }}"
@@ -207,7 +218,7 @@
         {% if filter_type == 'above' %}:class="open && 'md:shadow-[rgba(0,0,0,0.16)_0px_0px_0px,rgb(var(--colors-heading))_0px_0px_0px_1px] md:border-[rgb(var(--colors-heading))]'"{% endif %} 
         class="facets__summary w-full relative cursor-pointer flex pt-3 pb-3 border-solid items-center border-b justify-between
           {%- if filter_type == 'above' %} md:border md:py-3 md:px-4
-            {%- if section.settings.filter_edge_style == 'rounded' %} rounded-full{% elsif settings.edges_type == 'rounded_corners' %} rounded{% endif -%}
+            {%- if rounded_filter == 'rounded' %} rounded-full{% elsif rounded_filter == 'rounded_corners' %} rounded{% endif -%}
           {%- endif -%}
         "
       >
@@ -230,7 +241,7 @@
                 <input 
                   @change="onSubmit()"
                   class="absolute -translate-x-1 rtl:translate-x-1 range-min w-full bg-none h-1.5 -top-1.5 pointer-events-none appearance-none
-                    {%- if section.settings.filter_edge_style == 'rounded' %} rounded-range{% else %} square-range{% endif -%}
+                    {%- if rounded_filter != 'square' %} rounded-range{% else %} square-range{% endif -%}
                     {%- if filter.operator == 'AND' %} filter-and{% endif -%}
                   "
                   name="{{ filter.min_value.param_name }}"
@@ -251,7 +262,7 @@
                 <input 
                   @change="onSubmit()"
                   class="absolute translate-x-1 rtl:-translate-x-1 range-max w-full bg-none h-1.5 -top-1.5 pointer-events-none appearance-none
-                    {%- if section.settings.filter_edge_style == 'rounded' %} rounded-range{% else %} square-range{% endif -%}
+                    {%- if rounded_filter != 'square' %} rounded-range{% else %} square-range{% endif -%}
                     {%- if filter.operator == 'AND' %} filter-and{% endif -%}
                   "
                   type="range"

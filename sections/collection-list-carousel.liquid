@@ -110,9 +110,9 @@
           {%- if section.settings.promotion_position_mobile == 'top' %} mt-7 md:mt-0{% else %} mb-7 md:mb-0{% endif -%}"
         >
           <div class="collection-list-header mb-5 lg:mb-8 xl:mb-14 text-{{ section.settings.heading_alignment }}
-            {%- if section.settings.heading_alignment == "left" and section.settings.promotion_position == 'right' %} md:pl-0{% else %} md:pl-5{% endif %}
-            {%- if section.settings.heading_alignment == "right" and section.settings.promotion_position == 'left' %} md:pr-0{% else %} md:pr-5{% endif %}
-            {%- if section.settings.promotion_position == 'left' -%} md:ml-24 lg:ml-32 {% else %} md:mr-24 lg:mr-32 {% endif -%}"
+            {%- if section.settings.heading_alignment == 'left' and section.settings.promotion_position == 'right' %} md:pl-0{% else %} md:pl-5{% endif -%}
+            {%- if section.settings.heading_alignment == 'right' and section.settings.promotion_position == 'left' %} md:pr-0{% else %} md:pr-5{% endif -%}
+            {%- if section.settings.promotion_position == 'left' %} md:ml-24 lg:ml-32{% else %} md:mr-24 lg:mr-32{% endif -%}"
           >
             {%- if section.settings.heading != blank -%}
               {% render 'heading-highlight',
@@ -120,7 +120,8 @@
                 heading: section.settings.heading,
                 highlight_type: section.settings.highlight_type,
                 class: 'h2 block leading-tight flex-auto p-break-words',
-                heading_tag: section.settings.heading_tag
+                heading_tag: section.settings.heading_tag,
+                animation_heading: true
               %}
             {%- endif -%}
             {%- if section.settings.text != blank -%}
@@ -291,6 +292,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.collection_list_carousel"
+    },
     {
       "type": "text",
       "id": "heading",
@@ -787,6 +792,7 @@
   "presets": [
     {
       "name": "t:sections.collection-list-carousel.name",
+      "category": "t:categories.collections",
       "blocks": [
         {
           "type": "featured_collection"

@@ -14,6 +14,16 @@
   if section.blocks.size >= 4 
     assign overflow_store = true
   endif 
+  
+  assign rounded_corners = section.settings.rounded_corner_location
+
+  if section.settings.adapt_corners
+    if settings.edges_type == 'rounded_corners'
+      assign rounded_corners = true
+    else
+      assign rounded_corners = false
+    endif 
+  endif
 %} 
 {%- style -%}
   .btn-location-{{ section.id }}.button.button-solid:not(.not-icon) {
@@ -156,7 +166,7 @@
     class="{% if section.settings.full_width %}{% if section.settings.padding_full_width %} md:pl-5 md:pr-5{% else %} md:pl-0 md:pr-0{% endif %}{% else %} x-pgw page-width md:pl-5 md:pr-5{% endif %} pl-5 pr-5"
   >
     <div class="md:flex md:flex-row gap-x-6 flex flex-col">
-      <div class="{% unless section.settings.desktop_height == 'natural' %} section-height--{{ section.id }}{% endunless %} background--{{ section.id }} p-5 md:pr-6 md:pl-6 md:pt-8 md:pb-8{% if section.settings.rounded_corner_location %} rounded-[10px]{% endif %} w-full h-full md:max-w-[40%] lg:max-w-[540px] flex justify-center"
+      <div class="{% unless section.settings.desktop_height == 'natural' %} section-height--{{ section.id }}{% endunless %} background--{{ section.id }} p-5 md:pr-6 md:pl-6 md:pt-8 md:pb-8{% if rounded_corners %} rounded-[10px]{% endif %} w-full h-full md:max-w-[40%] lg:max-w-[540px] flex justify-center"
         {% if section.settings.desktop_height == 'natural' %} x-ref="natural_height"{% endif %}
       >
         <div class="col-location-text relative w-full md:flex md:flex-col md:overflow-hidden">
@@ -170,7 +180,8 @@
                 color_heading_highlight_light: section.settings.color_heading_highlight_light,
                 class: 'h2 block',
                 heading_tag: 'h2',
-                heading_alignment: section.settings.heading_alignment
+                heading_alignment: section.settings.heading_alignment,
+                animation_heading: true
               %}
             {% endif %}
             <div :class="canScroll ? '{% if section.settings.store_list_style == 'scroll' %}block{% else %}hidden{% endif %}' : 'hidden'" class="splide__arrows md:hidden{% if section.settings.heading_alignment == 'center' or section.settings.heading == blank %} text-center mt-2.5{% endif %}">
@@ -190,7 +201,7 @@
                     {% # theme-check-disable UnclosedHTMLElement %}
                     {% if forloop.index == 4 and overflow_store %}<div x-data="{ isDesktop: window.innerWidth > 768 }"  x-init="window.addEventListener('resize', () => isDesktop = window.innerWidth > 768); {% if section.settings.store_list_style == 'scroll' %}showStore = true;{% endif %}" x-cloak x-collapse x-show="showStore || isDesktop">{% endif %}
                       <li :class="{ 'container-active': active == '{{ forloop.index }}' }" {% if forloop.first %}x-ref="first_store"{% endif %} class="{% unless forloop.last %}mb-1 store-block-container{% endunless %}">
-                        <div id="{{ block.id }}" class="duration-200 p-break-words items-center pt-5 pb-5 pl-4 pr-4 md:p-7 border-0{% if section.settings.rounded_corner_location %} rounded-[0.625rem]{% endif %} cursor-pointer hover:transition-all hover:ease-linear"
+                        <div id="{{ block.id }}" class="duration-200 p-break-words items-center pt-5 pb-5 pl-4 pr-4 md:p-7 border-0{% if rounded_corners %} rounded-[0.625rem]{% endif %} cursor-pointer hover:transition-all hover:ease-linear"
                           :class="{ 'active': active == '{{ forloop.index }}' }"
                           @click="active = {{ forloop.index }}"
                           tabindex="0"
@@ -209,6 +220,7 @@
                                 100vw
                               {%- endcapture -%}
                               <div class="hidden img_location pb-4">
+                                {% # theme-check-disable ImgLazyLoading %}
                                 <img
                                   srcset="{{ block.settings.item_image | image_url: width: 225 }} 225w,
                                   {{ block.settings.item_image | image_url: width: 375 }} 375w,
@@ -225,16 +237,16 @@
                                   sizes="{{ sizes }}"
                                   alt="{{ block.settings.item_image.alt | escape }}"
                                   class="w-full h-full object-cover object-center rounded-[1.25rem]"
-                                  loading="lazy"
+                                  {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                                   height="{{ block.settings.item_image.height }}"
                                   width="{{ block.settings.item_image.width }}"
                                   x-intersect.once="$el.classList.add('active')"
                                 >
                               </div>
-                              {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
+                              {% # theme-check-enable ImgLazyLoading %}
                             {%- else -%}
                               <div class="hidden img_location pb-5">
-                                <div class="bg-[#c9c9c9] w-full h-[12.5rem] flex items-center justify-center{% if section.settings.rounded_corner_location %} rounded-[1.25rem]{% endif %}">
+                                <div class="bg-[#c9c9c9] w-full h-[12.5rem] flex items-center justify-center{% if rounded_corners %} rounded-[1.25rem]{% endif %}">
                                   {% render 'icon-placeholder', icon: 'icon-location-map', class: 'w-5 h-5 md:h-10 md:w-10' %}
                                 </div>
                               </div>
@@ -296,7 +308,7 @@
         </div>
       </div>
       <div class="grow h-full md:flex items-start mt-2.5 md:mt-0">
-        <div x-intersect.once="$el.classList.remove('bg-[#c9c9c9]')" class="h_img_location w-full relative overflow-hidden bg-[#c9c9c9]{% if section.settings.rounded_corner_location %} rounded-[10px]{% endif %}{% if section.blocks.size > 0 %} section-height--{{ section.id }} section-height-mobile--{{ section.id }}{% endif %} h-img-location--{{ section.id }}" x-ref="h_img_location">
+        <div x-intersect.once="$el.classList.remove('bg-[#c9c9c9]')" class="h_img_location w-full relative overflow-hidden bg-[#c9c9c9]{% if rounded_corners %} rounded-[10px]{% endif %}{% if section.blocks.size > 0 %} section-height--{{ section.id }} section-height-mobile--{{ section.id }}{% endif %} h-img-location--{{ section.id }}" x-ref="h_img_location">
           {% for block in section.blocks %}
             <div class="w-full h-full absolute top-0 left-0" x-show="active == '{{ forloop.index }}'" :class="{ 'active': active == '{{ forloop.index }}' }" {% unless forloop.first %} x-cloak{% endunless %}>
               {%- if block.settings.item_image != blank -%}
@@ -305,6 +317,7 @@
                   (min-width: 768px) 70vw, 
                   100vw
                 {%- endcapture -%}
+                {% # theme-check-disable ImgLazyLoading %}
                 <img
                   srcset="{{ block.settings.item_image | image_url: width: 225 }} 225w,
                     {{ block.settings.item_image | image_url: width: 375 }} 375w,
@@ -321,15 +334,15 @@
                   src="{{ block.settings.item_image | image_url: width: 1080 }}"
                   sizes="{{ sizes }}"
                   alt="{{ block.settings.item_image.alt | escape }}"
-                  class="animate_transition_slide__image w-full h-full object-cover image-hover{% if section.settings.rounded_corner_location %} rounded-[10px]{% endif %}"
-                  loading="lazy"
+                  class="animate_transition_slide__image w-full h-full object-cover image-hover{% if rounded_corners %} rounded-[10px]{% endif %}"
+                  {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                   height="{{ block.settings.item_image.height }}"
                   width="{{ block.settings.item_image.width }}"
                   x-intersect.once="$el.classList.add('active')"
                 >
-                {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
+                {% # theme-check-enable ImgLazyLoading %}
               {%- else -%}
-                <div class="bg-[#c9c9c9] w-full h-full {% if section.settings.rounded_corner_location %} rounded-[10px]{% endif %} flex items-center justify-center">
+                <div class="bg-[#c9c9c9] w-full h-full {% if rounded_corners %} rounded-[10px]{% endif %} flex items-center justify-center">
                   {% render 'icon-placeholder', icon: 'icon-location-map', class: 'w-20 h-20 md:h-auto md:w-auto' %}
                 </div>
               {%- endif -%}
@@ -355,6 +368,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.multiple_store"
+    },
 	  {
       "type": "text",
       "id": "heading",
@@ -393,9 +410,16 @@
     },
     {
       "type": "checkbox",
+      "id": "adapt_corners",
+      "label": "t:sections.slideshow.settings.enable_adapt",
+      "default": true
+    },
+    {
+      "type": "checkbox",
       "id": "rounded_corner_location",
       "default": false,
-      "label": "t:settings_schema.layout.enable_rounded_corners.label"
+      "label": "t:sections.featured-product.blocks.rounded_corner.label",
+      "visible_if": "{{ section.settings.adapt_corners == false }}"
     },
     {
       "type": "header",
@@ -639,6 +663,7 @@
   "presets": [
     {
       "name": "t:sections.multiple_stores.name",
+      "category": "t:categories.brand_trust",
       "blocks": [
         {
           "type": "item"

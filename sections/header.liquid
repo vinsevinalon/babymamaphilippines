@@ -4,6 +4,13 @@
   else 
     assign header_top = false
   endif
+  assign show_theme_mode_on_header = false
+  if settings.theme_mode_enabled
+    assign show_theme_mode_on_header = true
+    if settings.mobile_theme_mode_position == 'navigation'
+      assign show_theme_mode_on_header = false
+    endif
+  endif
   assign search_on_header = false
   if settings.search_enabled and section.settings.search_on_header
     assign search_on_header = true
@@ -195,6 +202,9 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+  .h-hamburger {
+    height: var(--hamburger-menu-height);
+  }
 {%- endstyle -%} 
 <div x-show="$store.xHeaderMenu.overlay" 
   x-transition:enter="ease-in-out duration-300"
@@ -221,7 +231,11 @@
     {%- if section.settings.enable_hamburger_menu %} if($store.xHeaderMenu.scrollDir == 'down') {
       setTimeout(() => {
         requestAnimationFrame(() => {
-          $store.xHeaderMenu.openHamburgerMenu = false; 
+          const submenuEls = $el.getElementsByClassName('toggle-menu');
+          const visible = Array.from(submenuEls).filter(el => !el.classList.contains('toggle-menu-hidden'));
+          if (visible.length == 0) {
+            $store.xHeaderMenu.openHamburgerMenu = false; 
+          }
         });
       }, 400);
       $store.xHeaderMenu.overlay = false;
@@ -243,7 +257,7 @@
         }
         "
         @mouseover="$el.classList.add('sticky-header-active'); $store.xHeaderMenu.showLogoTransparent = false;"
-        @mouseleave="(!$store.xHeaderMenu.isSticky{% if section.settings.enable_hamburger_menu %} && !$store.xHeaderMenu.openHamburgerMenu{% endif %}) && $el.classList.remove('sticky-header-active'); $store.xHeaderMenu.showLogoTransparent = true;"
+        @mouseleave="(!$store.xHeaderMenu.isSticky{% if section.settings.enable_hamburger_menu %} && !$store.xHeaderMenu.openHamburgerMenu{% endif %}) && !$store.xHeaderMenu.isMenuOpen && $el.classList.remove('sticky-header-active'); !$store.xHeaderMenu.isMenuOpen && ($store.xHeaderMenu.showLogoTransparent = true);"
         {% if section.settings.sticky_header_type == 'none' %}
           @scroll.window =
           '
@@ -266,7 +280,7 @@
           {% if section.settings.mobile_header_layout == 'left-right' %}
             <div class="flex justify-end lg:order-4 [grid-area:icons] -mr-2{% unless logo_above %} pb-header{% endunless %}">
               {%- if settings.search_enabled -%}
-                <div class="flex items-center justify-center mobile-{{ section.settings.mobile_header_layout }}" 
+                <div class="{% if settings.mobile_search_position == 'header' %}flex{% else %}hidden md:flex{% endif %} items-center justify-center mobile-{{ section.settings.mobile_header_layout }}" 
                   @init-run.window="$store.xHeaderMenu.renderAjax($el, 'header-search-block', '#ajax-loading-header-search');"
                 >
                   <a 
@@ -275,7 +289,7 @@
                     aria-label="search"
                     class="flex items-center cursor-pointer justify-center link focus-inset bg-none" 
                     @click.prevent="setTimeout(() => { $store.xModal.setActiveElement('SearchOpen'); }, 0)">
-                    <span class="w-11 h-10 px-3 pt-2.5 pb-2">{% render 'icon-alls', icon: 'icon-search' %}</span>
+                    <span class="w-11 h-10 px-3 pt-2.5 pb-2">{% render 'icon-alls', icon: 'icon-search', animation_class: 'icon-animation' %}</span>
                   </a>
                 </div>
                 {% if settings.show_speech_search %}
@@ -287,7 +301,7 @@
                   aria-label="{{ 'customer.log_in' | t }}"
                   class="header-icon-account hidden lg:flex relative items-center justify-center">
                   <span class="w-11 h-10 pl-3 pr-2.5 pt-2.5 pb-2">
-                    {% render 'icon-alls', icon: 'icon-account' %}
+                    {% render 'icon-alls', icon: 'icon-account', animation_class: 'icon-animation' %}
                   </span>
                 </a>
               {%- endif -%}
@@ -306,7 +320,7 @@
                     aria-label="icon-cart"
                   >
                     <span class="w-11 h-10 pl-3 inline-block pr-2.5 pt-2.5 pb-2">
-                      {% render 'icon-cart-all', icon: settings.cart_icon %}
+                      {% render 'icon-cart-all', icon: settings.cart_icon, animation_class: 'icon-animation' %}
                     </span>
                     <div id="mobile-cart-icon-bubble" class="count_item absolute -top-0.5{% if section.settings.mobile_header_layout == 'center-right' %} left-0 lg:left-auto lg:right-0 rtl:lg:right-auto rtl:lg:left-0{% else %} right-0{% endif %}" data-value="{{ cart.item_count }}">
                       <div class="bg-[rgba(var(--colors-cart))] text-[rgba(var(--colors-cart-text))] font-medium h-5 w-5 rounded-full text-[10px]{% if cart == empty %} hidden{% endif %}">
@@ -322,7 +336,7 @@
               {%- endunless -%}
               {%- if settings.theme_mode_enabled -%}
                 {%- if settings.theme_mode_mode == 'switch' -%}
-                  <theme-mode x-data class="{% if settings.icon_options == 'classic' %}w-10{% else %}{% unless settings.hide_cart %}ml-1{% else %}ml-2 {% endunless %} {% unless settings.hide_cart and settings.search_enabled == false %}border-l border-solid h-fit self-center{% endunless %}{% endif %} md:w-10 flex items-center lg:justify-center cursor-pointer{% if section.settings.mobile_header_layout == 'center-right' %} justify-start{% else %} justify-end{% endif %}">
+                  <theme-mode x-data class="{% unless show_theme_mode_on_header %}hidden md:flex {% else %}flex {% endunless %}{% if settings.icon_options == 'classic' %}w-10{% else %}{% unless settings.hide_cart %}ml-1{% else %}ml-2 {% endunless %} {% unless settings.hide_cart and settings.search_enabled == false %}border-l border-solid h-fit self-center{% endunless %}{% endif %} md:w-10 items-center lg:justify-center cursor-pointer{% if section.settings.mobile_header_layout == 'center-right' %} justify-start{% else %} justify-end{% endif %}">
                     <button
                       @click.prevent="$store.xDarkMode.toggleThemeMode(); $store.xHeaderMenu.handleChangeThemeMode();"
                       class="lg:pt-2.5 lg:pb-2.5 md:pr-2.5 pl-2.5 {% if settings.icon_options == 'classic' %}button button-action pt-2.5 pb-2.5 pl-2.5 pr-2.5 rounded-full{% endif %} text-sm {% if settings.icon_options == "modern" %}{% if section.settings.mobile_header_layout == 'left-right' %}md:mr-0{% endif %}{% endif %}"                      
@@ -438,14 +452,14 @@
                 }
               {% endif %}
             {% endstyle %}
-            <div class="x-header-icon-search {% if section.settings.search_on_header and section.settings.enable_hamburger_menu %}lg:hidden{% endif %} flex items-center justify-center mobile-{{ section.settings.mobile_header_layout }}" @init-run.window="$store.xHeaderMenu.renderAjax($el, 'header-search-block', '#ajax-loading-header-search');">
+            <div class="x-header-icon-search {% if settings.mobile_search_position == 'header' %}flex{% else %}hidden md:flex{% endif %} {% if section.settings.search_on_header and section.settings.enable_hamburger_menu %}lg:hidden{% endif %} items-center justify-center mobile-{{ section.settings.mobile_header_layout }}" @init-run.window="$store.xHeaderMenu.renderAjax($el, 'header-search-block', '#ajax-loading-header-search');">
               <a 
                 id="SearchOpen"
                 href="{{ routes.search_url }}" 
                 aria-label="search"
                 class="flex items-center cursor-pointer justify-center link focus-inset bg-none" 
                 @click.prevent="setTimeout(() => { $store.xModal.setActiveElement('SearchOpen'); }, 0)">
-                <span class="w-11 h-10 px-3 pt-2.5 pb-2">{% render 'icon-alls', icon: 'icon-search' %}</span>
+                <span class="w-11 h-10 px-3 pt-2.5 pb-2">{% render 'icon-alls', icon: 'icon-search', animation_class: 'icon-animation' %}</span>
               </a>
             </div>
             {% if settings.show_speech_search %}
@@ -457,7 +471,7 @@
               aria-label="{{ 'customer.log_in' | t }}"
               class="header-icon-account hidden lg:flex relative items-center justify-center">
               <span class="w-11 h-10 pl-3 pr-2.5 pt-2.5 pb-2">
-                {% render 'icon-alls', icon: 'icon-account' %}
+                {% render 'icon-alls', icon: 'icon-account', animation_class: 'icon-animation' %}
               </span>
             </a>
           {%- endif -%}
@@ -475,11 +489,11 @@
                 aria-expanded="false"
                 aria-label="icon-cart"
               >
-                <span class="w-11 h-10 md:pl-3 inline-block {% unless settings.theme_mode_enabled  %}{% if section.settings.mobile_header_layout == 'center-right' %}pl-0 pr-2.5{% elsif section.settings.mobile_header_layout == 'center-left' %}pl-3 pr-0{% endif %}{% endunless %} md:pr-2.5 pt-2.5 pb-2">
-                  {% render 'icon-cart-all', icon: settings.cart_icon %}
+                <span class="w-11 h-10 md:pl-3 inline-block {% unless settings.theme_mode_enabled %}{% if section.settings.mobile_header_layout == 'center-right' %}pl-0 pr-2.5{% elsif section.settings.mobile_header_layout == 'center-left' %}pl-3 pr-0{% endif %}{% endunless %} md:pr-2.5 pt-2.5 pb-2">
+                  {% render 'icon-cart-all', icon: settings.cart_icon, animation_class: 'icon-animation' %}
                 </span>
                 <div id="cart-icon-bubble" class="count_item absolute -top-0.5
-                {% if settings.theme_mode_enabled  %}{% if section.settings.mobile_header_layout == 'center-right' %}left-0{% else %}right-0{% endif %}{% else %}{% if section.settings.mobile_header_layout == 'center-left' %}-right-1.5{% endif %}{% endif %}
+                {% if settings.theme_mode_enabled %}{% if section.settings.mobile_header_layout == 'center-right' %}left-0{% else %}right-0{% endif %}{% else %}{% if section.settings.mobile_header_layout == 'center-left' %}-right-1.5{% endif %}{% endif %}
                    md:right-0 {% if section.settings.mobile_header_layout == 'center-right' %}lg:left-auto lg:right-0 rtl:lg:right-auto rtl:lg:left-0{% endif %}" data-value="{{ cart.item_count }}">
                   <div class="bg-[rgba(var(--colors-cart))] text-[rgba(var(--colors-cart-text))] font-medium h-5 w-5 rounded-full text-[10px]{% if cart == empty %} hidden{% endif %}">
                     {%- if cart.item_count < 100 -%}
@@ -494,8 +508,7 @@
           {%- endunless -%}
           {%- if settings.theme_mode_enabled -%}
             {%- if settings.theme_mode_mode == 'switch' -%}
-              <theme-mode x-data class="
-                {%- if settings.icon_options == 'classic' %}w-10 lg:ml-2 rtl:lg:ml-0 rtl:lg:mr-2{% else %}{% if section.settings.mobile_header_layout == 'center-right' %}mr-1 {% elsif section.settings.mobile_header_layout == 'center-left' %}ml-1 {% endif %} md:w-fit lg:ml-5.5 rtl:lg:mr-5.5 {%- unless settings.hide_cart -%}{% if section.settings.mobile_header_layout == 'center-right' %} border-r {% else %} border-l {% endif %}{% endunless %} lg:border-r-0 lg:border-l rtl:border-l-0 rtl:border-r h-fit self-center border-solid {% endif %} flex items-center lg:justify-center cursor-pointer {% if section.settings.mobile_header_layout == 'center-right' %} justify-start{% else %} justify-end{% endif %}">
+              <theme-mode x-data class="{% unless show_theme_mode_on_header %}hidden md:flex {% else %}flex {% endunless %}{%- if settings.icon_options == 'classic' %}w-10 lg:ml-2 rtl:lg:ml-0 rtl:lg:mr-2{% else %}{% if section.settings.mobile_header_layout == 'center-right' %}mr-1 {% elsif section.settings.mobile_header_layout == 'center-left' %}ml-1 {% endif %} md:w-fit lg:ml-5.5 rtl:lg:mr-5.5 {%- unless settings.hide_cart -%}{% if section.settings.mobile_header_layout == 'center-right' %} border-r {% else %} border-l {% endif %}{% endunless %} lg:border-r-0 lg:border-l rtl:border-l-0 rtl:border-r h-fit self-center border-solid {% endif %} flex items-center lg:justify-center cursor-pointer {% if section.settings.mobile_header_layout == 'center-right' %} justify-start{% else %} justify-end{% endif %}">
                 <button
                   @click.prevent="$store.xDarkMode.toggleThemeMode(); $store.xHeaderMenu.handleChangeThemeMode();"
                   class="{% if settings.icon_options == 'classic' %}md:pt-2.5 md:pb-2.5 md:pl-2.5 md:pr-2.5 button button-action pt-2.5 pb-2.5 pl-2.5 pr-2.5 rounded-full {% else %} md:pt-0 pb-0 lg:pl-7 rtl:lg:pl-0 rtl:lg:pr-7 {% endif %} text-sm {% if settings.icon_options == "modern" %}{% if section.settings.mobile_header_layout == 'left-right' %}mr-4 md:mr-0{% elsif section.settings.mobile_header_layout == 'center-right' %}pr-3{% else %}pl-3{% endif %}{% endif %}"
@@ -508,7 +521,7 @@
                   <span class="hidden dark:block{% if settings.icon_options == 'classic' %} w-4 lg:w-5{% else %} w-6{% endif %}" x-show="$store.xDOM.rePainting !== $store.xDarkMode.alias">
                     {% if settings.icon_options == 'classic' %}
                       <svg
-                        class="svg-icon"
+                        class="svg-icon icon-animation"
                         style="vertical-align: middle;fill: currentColor;overflow: hidden;"
                         viewBox="0 0 1024 1024"
                         version="1.1"
@@ -517,7 +530,7 @@
                         <path d="M557.250088 959.028243c-247.490697 0-448.826192-199.306278-448.826192-446.783673 0-244.284679 198.73118-446.636317 443.002556-446.636317 0.119727 0 0.226151 0 0.346901 0 10.354835 0 19.840884 3.807722 24.477484 13.094226 4.688789 9.379625 3.593851 19.61371-2.805906 27.92398-53.604872 69.477374-81.928964 152.101163-81.928964 239.895719 0 217.308281 176.792519 393.82553 394.1008 393.82553l5.051039-0.239454c9.927093-0.134053 20.175505 5.638417 24.864294 15.043624 4.704139 9.379625 3.621481 20.603247-2.804882 28.91454C826.947554 895.269104 697.373453 959.028243 557.250088 959.028243zM497.340627 120.789017c-188.636265 29.113061-334.191338 193.506179-334.191338 389.410987 0 217.294978 176.792519 394.1008 394.1008 394.1008 104.550171 0 202.412013-40.456411 275.696086-112.540146-222.772736-26.1598-396.157645-216.07929-396.157645-445.747063C436.787506 265.754666 457.578018 188.916651 497.340627 120.789017z"  /><path d="M577.719282 865.501126c-179.75806 0-332.640006-128.359436-363.490641-305.211307-1.296529-7.441483 3.687996-14.536065 11.129478-15.833617 7.54893-1.2689 14.537088 3.687996 15.832594 11.130502 28.55229 163.705456 170.09191 282.536888 336.52857 282.536888 7.563256 0 13.682627 6.119371 13.682627 13.681604C591.40191 859.381755 585.281515 865.501126 577.719282 865.501126z"  /><path d="M222.886835 530.788925c-7.255241 0-13.307074-6.734378-13.654998-14.055111-0.306992-6.333242-0.467651-13.267165-0.467651-19.694551 0-7.562233 6.118348-13.935384 13.681604-13.935384s13.681604 5.998621 13.681604 13.560854c0 5.998621 0.160659 12.920264 0.441045 18.839067 0.361227 7.54893-5.464455 15.285125-13.013385 15.285125C223.326856 530.788925 223.112985 530.788925 222.886835 530.788925z"  /><path d="M642.680806 310.140573c4.300956 12.746302-2.566452 26.587542-15.311731 30.890544-12.747325 4.288676-26.588565-2.565429-30.891568-15.325034-4.275373-12.746302 2.565429-26.575262 15.311731-30.877241C624.56317 290.525839 638.377804 297.394271 642.680806 310.140573z"  /><path d="M801.146934 193.09788c4.275373 12.746302-2.565429 26.588565-15.337313 30.890544-12.747325 4.275373-26.561959-2.565429-30.864962-15.325034-4.300956-12.746302 2.566452-26.574239 15.311731-30.877241C783.003715 173.48417 796.844955 180.351578 801.146934 193.09788z"  /><path d="M748.131487 411.503145c4.301979 12.759605-2.565429 26.588565-15.311731 30.890544-12.746302 4.288676-26.587542-2.565429-30.891568-15.311731-4.300956-12.746302 2.566452-26.587542 15.311731-30.890544C729.987245 391.889435 743.829508 398.756843 748.131487 411.503145z"  />
                       </svg>
                     {% else %}
-                      <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+                      <svg class="icon-animation" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
                         <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5229 6.47715 22 12 22C17.5229 22 22 17.5229 22 12C22 6.47715 17.5229 2 12 2ZM12 20.75C7.1675 20.75 3.25 16.8325 3.25 12C3.25 7.1675 7.1675 3.25 12 3.25C16.8325 3.25 20.75 7.1675 20.75 12C20.75 16.8325 16.8325 20.75 12 20.75Z" fill="currentColor"/>
                         <path d="M12 5.125C11.6548 5.125 11.375 5.4048 11.375 5.75V18.25C11.375 18.5952 11.6548 18.875 12 18.875C15.797 18.875 18.875 15.797 18.875 12C18.875 8.20305 15.797 5.125 12 5.125Z" fill="currentColor"/>
                       </svg>
@@ -525,11 +538,11 @@
                   </span>
                   <span class="block dark:hidden{% if settings.icon_options == 'classic' %} w-4 lg:w-5{% else %} w-6{% endif %}" x-show="$store.xDOM.rePainting !== $store.xDarkMode.alias">
                     {% if settings.icon_options == 'classic' %}
-                      <svg class="svg-icon" style="fill: currentColor;overflow: hidden;"  viewBox="0 0 1024 1024"  version="1.1" xmlns="http://www.w3.org/2000/svg">
+                      <svg class="svg-icon icon-animation" style="fill: currentColor;overflow: hidden;"  viewBox="0 0 1024 1024"  version="1.1" xmlns="http://www.w3.org/2000/svg">
                         <path d="M512 704a192 192 0 1 0 0-384 192 192 0 0 0 0 384z m0 64a256 256 0 1 1 0-512 256 256 0 0 1 0 512zM32 480h128a32 32 0 1 1 0 64H32a32 32 0 1 1 0-64z m832 0h128a32 32 0 1 1 0 64H864a32 32 0 1 1 0-64zM480 992V864a32 32 0 1 1 64 0v128a32 32 0 1 1-64 0z m0-832V32a32 32 0 1 1 64 0v128a32 32 0 1 1-64 0z m348.8 714.027l-90.539-90.496a32 32 0 1 1 45.27-45.227l90.496 90.453a32 32 0 0 1-45.227 45.27zM240.47 285.739L149.972 195.2a32 32 0 1 1 45.227-45.227l90.539 90.496a32 32 0 1 1-45.27 45.227z m633.6-90.539l-90.54 90.539a32 32 0 1 1-45.226-45.27l90.453-90.496a32 32 0 0 1 45.227 45.227zM285.652 783.53L195.2 874.028a32 32 0 0 1-45.27-45.227l90.497-90.539a32 32 0 1 1 45.226 45.27z"  />
                       </svg>
                     {% else %}
-                      <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+                      <svg class="icon-animation" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
                         <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5229 6.47715 22 12 22C17.5229 22 22 17.5229 22 12C22 6.47715 17.5229 2 12 2ZM12 20.75C7.1675 20.75 3.25 16.8325 3.25 12C3.25 7.1675 7.1675 3.25 12 3.25C16.8325 3.25 20.75 7.1675 20.75 12C20.75 16.8325 16.8325 20.75 12 20.75Z" fill="currentColor"/>
                         <path d="M12.25 5.125C12.5952 5.125 12.875 5.4048 12.875 5.75V18.25C12.875 18.5952 12.5952 18.875 12.25 18.875C8.45305 18.875 5.375 15.797 5.375 12C5.375 8.20305 8.45305 5.125 12.25 5.125Z" fill="currentColor"/>
                       </svg>
@@ -542,182 +555,17 @@
         </div>
 
         {% if search_on_header and section.settings.enable_hamburger_menu %}
-          {% liquid
-            assign search_type =  'query,' | append: settings.search_type 
-            if settings.lang_direction contains request.locale.iso_code
-              assign is_rtl = true
-            else
-              assign is_rtl = false
-            endif
-          %}
-          <div 
-            x-data="xModalSearch('{{ search_type }}','{{ settings.search_desktop_maximun_results }}',{{ settings.search_mobile_maximun_results }}, '{{ 'templates.search.product_type_default' | t }}')" 
-            class="x-container-header-search justify-left max-w-5xl header-search lg:flex lg:mr-0.5 hidden items-center pb-header [grid-area:search]"
-            @click.away="showSuggest = false; openResults = false;"
-          >
-            {%- if settings.predictive_search_enabled -%}
-              <div class="relative max-w-4xl w-full" data-loading-text="{{ 'accessibility.loading' | t }}">
-            {%- endif -%}
-            <div class="max-w-[62rem] mx-auto w-full border border-solid {% if settings.edges_type == 'rounded_corners' %}rounded-full{% endif %} pl-5 rtl:pr-5 rtl:pl-0">
-              <div class="relative field pr-5 lg:pr-0 flex{% unless settings.search_refined %} pl-5 lg:pl-0{% endunless %}">
-                {% if settings.search_refined %}
-                  <div class="md:relative search-categories flex items-center w-1/4">
-                    <div 
-                      class="flex shrink min-w-0 w-full {% if is_rtl %} border-l ml-2 pl-3.5{% else %} border-r mr-2 pr-3.5{% endif %}"
-                      x-data="{ 
-                        open: false
-                      }" 
-                      @keyup.escape="open = false">
-                      <button 
-                        @click.prevent="open = ! open;"
-                        class="relative flex items-center justify-between shrink min-w-0 w-full py-1{% if is_rtl %} text-right{% else %} text-left{% endif %} cursor-pointer hover-text-link duration-200 transition"
-                        aria-expanded="false" 
-                        aria-controls="CategoriesList" 
-                        aria-describedby="CategoriesHeading">
-                        <span class="line-clamp-1 p-break-words" x-text="productTypeSelected"></span>
-                        <span class="opacity-60 relative w-2.5 h-2.5 flex{% if is_rtl %} left-0{% else %} right-0{% endif %}" :class="open && ' -rotate-180'">
-                          {% render 'icon-alls', icon: 'icon-caret' %}
-                        </span>
-                      </button>
-                      <div 
-                        x-show="open" 
-                        @click.away="open = false" 
-                        x-cloak
-                      >
-                        <div class="absolute z-[60] pt-6 pb-7{% if is_rtl %} right-0{% else %} left-0{% endif %} top-[calc(100%+12px)] lg:bottom-auto background-header shadow-[0_0_6px_-4px_rgba(var(--colors-text))]">
-                          <ul 
-                            role="list" 
-                            class="w-full md:w-auto md:min-w-[15rem] pl-7 pr-7{% if is_rtl %} right-0{% else %} left-0{% endif %} max-h-[15rem] overflow-y-auto scrollbar-body scrollbar-visible">
-                            <li 
-                              tabindex="0"
-                              class="cursor-pointer py-1 duration-200 transition text-[rgb(var(--colors-text-header))]" 
-                              @click="setProductType('{{ 'templates.search.product_type_default' | t }}', 'product_type'); open = false">
-                              <p
-                                class="nav-link inline-block hover-text-link relative p-break-words"
-                                :class="productTypeSelected == '{{ 'templates.search.product_type_default' | t }}' && 'border-b link-active'"
-                                href="#"
-                                data-no-instant>
-                                {{ 'templates.search.product_type_default' | t }}
-                              </p>
-                            </li>
-                            {% for product_type in shop.types %}
-                              {% if product_type != blank %}
-                                <li 
-                                  tabindex="0"
-                                  class="product-type-item cursor-pointer py-1 duration-200 transition text-[rgb(var(--colors-text-header))]" 
-                                  @keyup.enter="setProductType(`{{ product_type }}`, 'product_type');"
-                                  @click="setProductType(`{{ product_type }}`, 'product_type'); open = false">
-                                  <p
-                                    class="nav-link inline-block hover-text-link relative p-break-words"
-                                    :class="productTypeSelected == `{{ product_type }}` && 'border-b effect-inline'"
-                                    href="#"
-                                    data-no-instant>
-                                    {{ product_type }}
-                                  </p>
-                                </li>
-                              {% endif %}
-                            {%- endfor -%}
-                          </ul>
-                        </div>
-                      </div>
-                      <input type="hidden" name="product_type" id="product_type" value="product_type:" data-disclosure-input tabindex="-1"/>
-                    </div>
-                  </div>
-                {% endif %}
-                <form id="header-form-search-{{ section.id }}" class="{% if settings.search_refined %}w-3/4{% else %}w-full{% endif %}" action="{{ routes.search_url }}" method="get" role="search">
-                  {% style %}
-                    .input-search::placeholder {
-                      {% if settings.search_prompts_font == "search_prompts_font_text" %}
-                        font-family: var(--font-body-family);
-                      {% else %}
-                        font-family: var(--font-heading-family);
-                      {% endif %}
-                    }
-                  {% endstyle %}
-                  <input 
-                    x-data="xSearchPrompts($el, ['{{ settings.search_prompts_1 }}', '{{ settings.search_prompts_2 }}', '{{ settings.search_prompts_3 }}'], {% if settings.search_prompts_mobile %}true{% else %}false{% endif %})"
-                    id="header-search-in-modal"
-                    class="peer input-search focus-visible:outline-none{% if settings.search_refined %} py-3{% else %} py-4{% endif %}{% if is_rtl %} pl-[4.5rem] pr-4 lg:pr-2 lg:pl-20 text-right{% else %} pr-[4.5rem] pl-4 lg:pl-2 lg:pr-20 text-left{% endif %} w-full appearance-none relative outline-none bg-transparent placeholder:text-current placeholder:opacity-60{% if settings.edges_type == 'rounded_corners' %} rounded-full{% endif %}"
-                    type="search"
-                    name="q"
-                    value=""
-                    x-on:keyup="keyUp()"
-                    @keydown.tab="showSuggest = false; openResults = false;"
-                    @focus="focusForm()"
-                    placeholder="{{ 'general.search.search' | t }}"
-                  >
-                  <input type="hidden" name="options[prefix]" value="last">
-                  <button 
-                    class="btn-search absolute none_border w-7 h-7 p-1 top-1/2 -translate-y-1/2 opacity-60 bg-none text-current{% if is_rtl %} lg:left-2{% if settings.search_refined %} left-2{% else %} left-7{% endif %}{% else %} lg:right-2{% if settings.search_refined %} right-2{% else %} right-7{% endif %}{% endif %}"
-                    aria-label="{{ 'general.search.search' | t }}">
-                    {%- render 'icon-alls', icon: 'icon-search' -%}
-                  </button>
-                  {% if settings.show_speech_search %}
-                    <button class="search__speech absolute cursor-pointer w-7 h-7 p-1{% if is_rtl %}{% if settings.search_refined %} left-10{% else %} left-16{% endif %} lg:left-12{% else %}{% if settings.search_refined %} right-10{% else %} right-16{% endif %} lg:right-12{% endif %} top-1/2 -translate-y-1/2 opacity-60 bg-none text-current" x-data="xSpeechSearch($el)" x-init="initSpeechSearch()" x-show="show">
-                      {% render 'icon-alls', icon: 'icon-voice' %}
-                    </button>
-                    <script src="{{ 'speech-search.js' | asset_url }}" defer></script>
-                  {% endif %}
-                  {%- if settings.predictive_search_enabled -%}
-                    {% style %}
-                      #header-search-result {
-                        width: calc(var(--page-width));
-                        max-width: calc(100vw - 45px);
-                      }
-                    {% endstyle %}
-                    <div 
-                      x-intersect.once="$store.xHelper.centerElement($el)"
-                      :class="openResults ? 'visible' : 'invisible'"
-                      id="header-search-result" class="md:max-h-96 z-50 w-full absolute left-0 {% if is_rtl %} rtl{% endif %}" tabindex="-1" data-predictive-search x-html="result" x-show="loading == false" 
-                      style="top: calc(100% + {{ section.settings.padding_bottom }}px / 2)"
-                    >
-                      <div class="predictive-search__loading-state">
-                        <svg aria-hidden="true" focusable="false" role="presentation" class="spinner" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
-                          <circle class="path" fill="none" stroke-width="6" cx="33" cy="33" r="30"></circle>
-                        </svg>
-                      </div>
-                    </div>
-                    {% if settings.search_recomendation != blank or settings.popular_product_search != blank %}
-                      {% style %}
-                      #header-suggest-search {
-                        width: calc(var(--page-width));
-                        max-width: calc(100vw - 45px);
-                      }
-                    {% endstyle %}
-                      <div 
-                        x-intersect.once="$store.xHelper.centerElement($el)"
-                        id="header-suggest-search" class="md:max-h-96 z-50 w-full absolute left-0 {% if is_rtl %} rtl{% endif %}" 
-                        tabindex="-1" 
-                        data-predictive-search 
-                        x-cloak 
-                        :class="showSuggest ? 'visible' : 'invisible'"
-                        style="top: calc(100% + {{ section.settings.padding_bottom }}px / 2)"
-                      >
-                        {%- 
-                          render 'suggest-search', 
-                          search_recomendation: settings.search_recomendation, 
-                          popular_product_search: settings.popular_product_search 
-                        -%}
-                      </div>
-                    {% endif %}
-                  {%- endif -%}
-                </form>
-              </div>
-            </div>
-            {%- if settings.predictive_search_enabled -%}
-              </div>
-            {%- endif -%}
-          </div>
+          {% render 'header-search-item' %}
         {% endif %}
 
         {% unless section.settings.enable_hamburger_menu %}
           {%- render 'header-megamenu-block', logo_above: logo_above, logo_center: logo_center, select_motion: section.settings.select_motion, transparent: transparent -%}
         {% else %}
-          <div tabindex="-1" class="hidden md:flex pb-header [grid-area:navigation] lg:[grid-area:navigation]">
+          <div tabindex="-1" class="hidden md:flex{% if section.blocks.size == 0 and section.settings.menu == blank %} invisible{% endif %} pb-header [grid-area:navigation] lg:[grid-area:navigation]">
             <div tabindex="0" @keydown.enter="$store.xHeaderMenu.openHamburgerMenu = !$store.xHeaderMenu.openHamburgerMenu" @click="$store.xHeaderMenu.openHamburgerMenu = !$store.xHeaderMenu.openHamburgerMenu" class="x-container-header-nav cursor-pointer hidden lg:flex flex-row items-center w-fit gap-1 header__inline-menu">
-              <div class="w-5 h-5 mt-2.5 mb-2.5 ml-2.5 mr-2.5">
+              <div class="w-5 mt-2.5 mb-2.5 ml-2.5 mr-2.5">
                 <span x-cloak x-show="!$store.xHeaderMenu.openHamburgerMenu">{% render 'icon-alls', icon: 'icon-hamburger' %}</span>
-                <span x-cloak x-show="$store.xHeaderMenu.openHamburgerMenu">{% render 'icon-alls', icon: 'icon-close' %}</span>
+                <span x-cloak x-show="$store.xHeaderMenu.openHamburgerMenu">{% render 'icon-alls', icon: 'icon-close' , icon_modern: true %}</span>
               </div>
               <span x-cloak x-show="!$store.xHeaderMenu.openHamburgerMenu" class="leading-none">{{ 'header.menu' | t }}</span>
               <span x-cloak x-show="$store.xHeaderMenu.openHamburgerMenu" class="leading-none">Hide menu</span>
@@ -733,8 +581,8 @@
             }
           {% endstyle %}
         {% endif %}
-        <div x-cloak x-collapse.duration.250ms.min.0px x-show="$store.xHeaderMenu.openHamburgerMenu" {% if section.settings.select_motion == "hover" %}@mouseleave="$store.xHeaderMenu.hideMenu($el);"{% endif %} :class="!$store.xHeaderMenu.openHamburgerMenu && 'bg-hamburger'" class="absolute background-header flex w-full justify-center {% if section.settings.logo_position == 'center-left' %}pl-5 pr-5{% endif %}">
-          <div class="w-full{% if section.settings.full_width %} full-width{% else %} x-pgw page-width{% endif %}">
+        <div x-cloak x-intersect.once="$el.style.setProperty('--hamburger-menu-height', $el.querySelector('.x-container-header-nav').offsetHeight + 'px');" :class="$store.xHeaderMenu.openHamburgerMenu ? 'h-hamburger' : 'h-0'" {% if section.settings.select_motion == "hover" %}@mouseleave="$store.xHeaderMenu.hideMenu($el);"{% endif %} :class="!$store.xHeaderMenu.openHamburgerMenu && 'bg-hamburger'" class="transition-all duration-300 ease-in-out absolute background-header flex w-full justify-center {% if section.settings.logo_position == 'center-left' %}pl-5 pr-5{% endif %}">
+          <div :class="$store.xHeaderMenu.openHamburgerMenu ? 'overflow-visible' : 'overflow-hidden'" class="w-full {% if section.settings.full_width %} full-width{% else %} x-pgw page-width{% endif %}">
             {%- render 'header-megamenu-block', logo_above: logo_above, logo_center: logo_center, select_motion: section.settings.select_motion, transparent: transparent, enable_hamburger: section.settings.enable_hamburger_menu -%}
           </div>
         </div>
@@ -796,6 +644,10 @@
   "class": "section-header",
   "settings": [
     {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.header.header_general"
+    },
+    {
       "type": "link_list",
       "id": "menu",
       "default": "main-menu",
@@ -813,7 +665,8 @@
       "id": "search_on_header",
       "label": "t:sections.header.settings.search_on_header.label",
       "default": false,
-      "info": "t:sections.header.settings.search_on_header.info"
+      "info": "t:sections.header.settings.search_on_header.info",
+      "visible_if": "{{ section.settings.enable_hamburger_menu }}"
     },
     {
       "type": "select",
@@ -1038,7 +891,8 @@
       "type": "textarea",
       "id": "menus",
       "label": "t:sections.header.settings.highlight.menus.label",
-      "info": "t:sections.header.settings.highlight.menus.info"
+      "info": "t:sections.header.settings.highlight.menus.info",
+      "visible_if": "{{ section.settings.enable_highlight }}"
     },
     {
       "type": "select",
@@ -1058,19 +912,22 @@
           "label": "t:sections.header.settings.highlight.style.option__3"
         }
       ],
-      "default": "marker"
+      "default": "marker",
+      "visible_if": "{{ section.settings.enable_highlight }}"
     },
     {
       "type": "color",
       "id": "highlight_color_light",
       "default": "rgba(0,0,0,0)",
-      "label": "t:sections.header.settings.highlight.highlight_color_light.label"
+      "label": "t:sections.header.settings.highlight.highlight_color_light.label",
+      "visible_if": "{{ section.settings.enable_highlight }}"
     },
     {
       "type": "color",
       "id": "highlight_color_dark",
       "default": "rgba(0,0,0,0)",
-      "label": "t:sections.header.settings.highlight.highlight_color_dark.label"
+      "label": "t:sections.header.settings.highlight.highlight_color_dark.label",
+      "visible_if": "{{ section.settings.enable_highlight }}"
     },
     {
       "type": "header",
@@ -1154,6 +1011,10 @@
       "type": "tabbed_menu",
       "name": "t:sections.header.blocks.tabbed_menu.name",
       "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.user_guide_link.header.mega_menu.tabbed_menu"
+        },
         {
           "type": "text",
           "id": "heading",
@@ -1243,7 +1104,8 @@
           "type": "checkbox",
           "id": "show_first_image_product",
           "default": false,
-          "label": "t:sections.header.blocks.tabbed_menu.settings.show_first_image_product.label"
+          "label": "t:sections.header.blocks.tabbed_menu.settings.show_first_image_product.label",
+          "visible_if": "{{ block.settings.show_image_collection }}"
         },
         {
           "type": "checkbox",
@@ -1265,7 +1127,8 @@
           "type": "checkbox",
           "id": "show_sub_first_image_product",
           "default": false,
-          "label": "t:sections.header.blocks.tabbed_menu.settings.show_first_image_product.label"
+          "label": "t:sections.header.blocks.tabbed_menu.settings.show_first_image_product.label",
+          "visible_if": "{{ block.settings.show_sub_image_collection }}"
         },
         {
           "type": "checkbox",
@@ -1277,7 +1140,8 @@
           "type": "text",
           "id": "collection_metafield",
           "label": "t:sections.header.blocks.tabbed_menu.settings.collection_metafield.label",
-          "info": "t:sections.header.blocks.tabbed_menu.settings.collection_metafield.info"
+          "info": "t:sections.header.blocks.tabbed_menu.settings.collection_metafield.info",
+          "visible_if": "{{ block.settings.show_sub_image_collection }}"
         },
         {
           "type": "select",
@@ -1692,13 +1556,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "header",
@@ -3481,6 +3347,10 @@
       "name": "t:sections.header.blocks.tree_menu.name",
       "settings": [
         {
+          "type": "paragraph",
+          "content": "t:sections.user_guide_link.header.mega_menu.tree_menu"
+        },
+        {
           "type": "text",
           "id": "heading",
           "label": "t:sections.mobile-navigation.blocks.menu.settings.menu_item.label"
@@ -3512,7 +3382,8 @@
           "type": "checkbox",
           "id": "show_first_image_product",
           "default": false,
-          "label": "t:sections.header.blocks.tabbed_menu.settings.show_first_image_product.label"
+          "label": "t:sections.header.blocks.tabbed_menu.settings.show_first_image_product.label",
+          "visible_if": "{{ block.settings.show_image_collection }}"
         },
         {
           "type": "checkbox",
@@ -3524,7 +3395,8 @@
           "type": "text",
           "id": "collection_metafield",
           "label": "t:sections.header.blocks.tabbed_menu.settings.collection_metafield.label",
-          "info": "t:sections.header.blocks.tabbed_menu.settings.collection_metafield.info"
+          "info": "t:sections.header.blocks.tabbed_menu.settings.collection_metafield.info",
+          "visible_if": "{{ block.settings.show_image_collection }}"
         },
         {
           "type": "header",
@@ -3911,13 +3783,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         }
       ]
     },
@@ -3925,6 +3799,10 @@
       "type": "banner_menu",
       "name": "t:sections.header.blocks.banner_menu.name",
       "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.user_guide_link.header.mega_menu.banner_menu"
+        },
         {
           "type": "text",
           "id": "heading",
@@ -4326,13 +4204,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "select",
@@ -5084,6 +4964,10 @@
       "name": "t:sections.header.blocks.product_menu.name",
       "settings": [
         {
+          "type": "paragraph",
+          "content": "t:sections.user_guide_link.header.mega_menu.product_menu"
+        },
+        {
           "type": "text",
           "id": "heading",
           "label": "t:sections.mobile-navigation.blocks.menu.settings.menu_item.label"
@@ -5174,6 +5058,12 @@
           "default": false,
           "label": "t:sections.featured-collection.blocks.collection.settings.show_rating.label",
           "info": "t:sections.featured-collection.blocks.collection.settings.show_rating.info"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_highlighted_features",
+          "default": true,
+          "label": "t:sections.product-recommendations.settings.show_highlighted_features.label"
         },
         {
           "type": "checkbox",
@@ -5566,13 +5456,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "header",
@@ -5979,7 +5871,8 @@
           "type": "html",
           "id": "quick_access_custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.quick_access_icon != 'none' }}"
         },
         {
           "type": "text",
@@ -6280,7 +6173,8 @@
           "type": "html",
           "id": "quick_access_custom_icon_2",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.quick_access_icon_2 != 'none' }}"
         },
         {
           "type": "text",
@@ -6580,7 +6474,8 @@
           "type": "html",
           "id": "quick_access_custom_icon_3",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.quick_access_icon_3 != 'none' }}"
         },
         {
           "type": "text",
@@ -6880,7 +6775,8 @@
           "type": "html",
           "id": "quick_access_custom_icon_4",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.quick_access_icon_4 != 'none' }}"
         },
         {
           "type": "text",
@@ -6898,6 +6794,10 @@
       "type": "blog_menu",
       "name": "t:sections.header.blocks.blog_menu.name",
       "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.user_guide_link.header.mega_menu.blog_menu"
+        },
         {
           "type": "text",
           "id": "heading",
@@ -7042,13 +6942,15 @@
           "type": "link_list",
           "id": "menu",
           "label": "t:sections.mobile-navigation.settings.menu.label",
-          "info": "t:sections.mobile-navigation.blocks.menu.settings.menu.info"
+          "info": "t:sections.mobile-navigation.blocks.menu.settings.menu.info",
+          "visible_if": "{{ block.settings.show_other_blog }}"
         },
         {
           "type": "text",
           "id": "heading_menu",
           "default": "Other blogs",
-          "label": "t:sections.all.text.heading"
+          "label": "t:sections.all.text.heading",
+          "visible_if": "{{ block.settings.show_other_blog }}"
         },
         {
           "type": "select",
@@ -7064,7 +6966,8 @@
               "value": "right",
               "label": "t:sections.all.content_alignment.options__3.label"
             }
-          ]
+          ],
+          "visible_if": "{{ block.settings.show_other_blog }}"
         },
         {
           "type": "header",
@@ -7451,13 +7354,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         }
       ]
     },
@@ -7466,6 +7371,10 @@
       "limit": 1,
       "name": "t:sections.header.blocks.contact_menu.name",
       "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.user_guide_link.header.mega_menu.contact_menu"
+        },
         {
           "type": "text",
           "id": "heading",
@@ -7552,35 +7461,41 @@
           "type": "text",
           "id": "heading_information",
           "default": "Contact information",
-          "label": "t:sections.all.text.heading"
+          "label": "t:sections.all.text.heading",
+          "visible_if": "{{ block.settings.show_contact_information }}"
         },
         {
           "type": "text",
           "id": "subheading",
-          "label": "t:sections.all.text.subheading"
+          "label": "t:sections.all.text.subheading",
+          "visible_if": "{{ block.settings.show_contact_information }}"
         },
         {
           "type": "text",
           "id": "phone_nummber",
           "default": "+1234567890",
-          "label": "t:sections.contact-form.settings.phone_nummber.label"
+          "label": "t:sections.contact-form.settings.phone_nummber.label",
+          "visible_if": "{{ block.settings.show_contact_information }}"
         },
         {
           "type": "text",
           "id": "email_address",
           "default": "info@yourstore.com",
-          "label": "t:sections.contact-form.settings.email_address.label"
+          "label": "t:sections.contact-form.settings.email_address.label",
+          "visible_if": "{{ block.settings.show_contact_information }}"
         },
         {
           "type": "richtext",
           "id": "contact_text",
-          "label": "t:sections.all.text.text"
+          "label": "t:sections.all.text.text",
+          "visible_if": "{{ block.settings.show_contact_information }}"
         },
         {
           "type": "checkbox",
           "id": "enable_social_icon",
           "default": false,
-          "label": "t:sections.header.blocks.contact_menu.settings.enable_social_icon.label"
+          "label": "t:sections.header.blocks.contact_menu.settings.enable_social_icon.label",
+          "visible_if": "{{ block.settings.show_contact_information }}"
         },
         {
           "type": "header",
@@ -7967,13 +7882,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         }
       ]
     },
@@ -7981,6 +7898,10 @@
       "type": "simple_menu",
       "name": "t:sections.header.blocks.simple_menu.name",
       "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.user_guide_link.header.mega_menu.simple_menu"
+        },
         {
           "type": "text",
           "id": "heading",
@@ -8054,7 +7975,8 @@
           "type": "checkbox",
           "id": "show_first_image_product",
           "default": false,
-          "label": "t:sections.header.blocks.tabbed_menu.settings.show_first_image_product.label"
+          "label": "t:sections.header.blocks.tabbed_menu.settings.show_first_image_product.label",
+          "visible_if": "{{ block.settings.show_image_collection }}"
         },
         {
           "type": "checkbox",
@@ -8104,7 +8026,8 @@
           "type": "checkbox",
           "id": "show_sub_first_image_product",
           "default": false,
-          "label": "t:sections.header.blocks.tabbed_menu.settings.show_first_image_product.label"
+          "label": "t:sections.header.blocks.tabbed_menu.settings.show_first_image_product.label",
+          "visible_if": "{{ block.settings.show_sub_image_collection }}"
         },
         {
           "type": "checkbox",
@@ -8116,7 +8039,8 @@
           "type": "text",
           "id": "collection_metafield",
           "label": "t:sections.header.blocks.tabbed_menu.settings.collection_metafield.label",
-          "info": "t:sections.header.blocks.tabbed_menu.settings.collection_metafield.info"
+          "info": "t:sections.header.blocks.tabbed_menu.settings.collection_metafield.info",
+          "visible_if": "{{ block.settings.show_sub_image_collection }}"
         },
         {
           "type": "header",
@@ -8503,13 +8427,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "header",
@@ -9372,7 +9298,8 @@
           "type": "html",
           "id": "quick_access_custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.quick_access_icon != 'none' }}"
         },
         {
           "type": "text",
@@ -9673,7 +9600,8 @@
           "type": "html",
           "id": "quick_access_custom_icon_2",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.quick_access_icon_2 != 'none' }}"
         },
         {
           "type": "text",
@@ -9973,7 +9901,8 @@
           "type": "html",
           "id": "quick_access_custom_icon_3",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.quick_access_icon_3 != 'none' }}"
         },
         {
           "type": "text",
@@ -10273,7 +10202,8 @@
           "type": "html",
           "id": "quick_access_custom_icon_4",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.quick_access_icon_4 != 'none' }}"
         },
         {
           "type": "text",
@@ -10291,6 +10221,10 @@
       "type": "button",
       "name": "t:settings_schema.colors.colors_button",
       "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.user_guide_link.header.mega_menu.cta_button"
+        },
         {
           "type": "text",
           "id": "button_label",

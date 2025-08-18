@@ -109,14 +109,17 @@
   <div class="pb-[{{ section.settings.padding_bottom_mobile }}px] pt-[{{ section.settings.padding_top_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px] md:pt-[{{ section.settings.padding_top }}px]">
     {% if section.settings.heading != blank %}
       <div class="{% unless section.settings.full_width %} x-pgw page-width{% endunless %}">
-        {% render 'heading-highlight',
-          headingId: section.id,
-          heading: section.settings.heading,
-          highlight_type: section.settings.highlight_type,
-          class: 'h2 block pr-5 pl-5 mb-5 md:mb-9 pb-2 leading-tight p-break-words',
-          heading_tag: section.settings.heading_tag,
-          heading_alignment: section.settings.heading_alignment
-        %}
+        <div class="pr-5 pl-5 mb-5 md:mb-9 pb-2">
+          {% render 'heading-highlight',
+            headingId: section.id,
+            heading: section.settings.heading,
+            highlight_type: section.settings.highlight_type,
+            class: 'h2 block leading-tight p-break-words',
+            heading_tag: section.settings.heading_tag,
+            heading_alignment: section.settings.heading_alignment,
+            animation_heading: true
+          %}
+        </div>
       </div>
     {% endif %}
     <div class="mx-auto{% if swiper_on_mobile %} pl-5 pr-5 carousel-mobile x-pgw-mobile page-width-mobile{% endif %}{% if enable_tablet_slider %} carousel-tablet{% endif %}{% if section.settings.full_width %} full-width{% else %} x-pgw page-width{% endif %}">
@@ -262,6 +265,7 @@
                         {%- if section.settings.columns_mobile != 'auto' %} absolute{% endif -%}
                         {%- if section.settings.columns_desktop != 0 %} md:absolute{% else %} md:relative{% endif -%}"
                       >
+                        {% # theme-check-disable ImgLazyLoading %}
                         <img
                           srcset="{{ block.settings.image_logo | image_url: width: 250 }} 250w,
                             {{ block.settings.image_logo | image_url: width: 450 }} 450w,
@@ -272,7 +276,7 @@
                           src="{{ block.settings.image_logo | image_url: width: block.settings.image_logo.width }},
                           {{ block.settings.image_logo | image_url: width: block.settings.image_logo.width }}"
                           alt="{{ block.settings.image_logo.alt | escape }}"
-                          loading="lazy"
+                          {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                           sizes="{{ sizes }}"
                           width="{{ block.settings.image_logo.width }}"
                           height="{{ block.settings.image_logo.height }}"
@@ -283,6 +287,7 @@
                             setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);
                           "
                         />
+                        {% # theme-check-enable ImgLazyLoading %}
                       </div>
                     {% else %}
                       {% liquid
@@ -355,6 +360,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.logo_list"
+    },
     {
       "type": "text",
       "id": "heading",
@@ -487,7 +496,8 @@
       ],
       "default": "auto",
       "label": "t:sections.all.image_ratio.label",
-      "info": "t:sections.logo-list.settings.image_ratio.info"
+      "info": "t:sections.logo-list.settings.image_ratio.info",
+      "visible_if": "{{ section.settings.columns_desktop != 0 or section.settings.columns_mobile != 'auto' }}"
     },
     {
       "type": "color",
@@ -515,7 +525,8 @@
       "type": "checkbox",
       "id": "enable_arrow_mobile",
       "default": false,
-      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile"
+      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile",
+      "visible_if": "{{ section.settings.layout_mobile == 'carousel' }}"
     },
     {
       "type": "checkbox",
@@ -531,14 +542,16 @@
       "step": 1,
       "unit": "s",
       "label": "t:sections.announcement-bar.settings.change_bar_every.label",
-      "default": 5
+      "default": 5,
+      "visible_if": "{{ section.settings.auto_switch_bar }}"
     },
     {
       "type": "checkbox",
       "id": "show_navigation",
       "label": "t:sections.announcement-bar.settings.show_navigation.label",
       "info": "t:settings_schema.cart.settings.cart_page_layout.info",
-      "default": true
+      "default": true,
+      "visible_if": "{{ section.settings.enable_carousel_on_desktop }}"
     },
     {
       "type": "header",
@@ -701,6 +714,7 @@
   "presets": [
     {
       "name": "t:sections.logo-list.name",
+      "category": "t:categories.brand_trust",
       "blocks": [
         {
           "type": "logo"

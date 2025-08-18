@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('cart-countdown-timer.js')) {
-  window.Eurus.loadedScript.push('cart-countdown-timer.js');
+if (!window.Eurus.loadedScript.has('cart-countdown-timer.js')) {
+  window.Eurus.loadedScript.add('cart-countdown-timer.js');
 
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {
@@ -14,8 +14,9 @@ if (!window.Eurus.loadedScript.includes('cart-countdown-timer.js')) {
         loadingClearCart: false,
         errorMessage: false,
         clearSuccess: false,
-
-        initCountdown() {
+        minutesText: '',
+        initCountdown(minutesText) {
+          this.minutesText = minutesText;
           const savedState = this.loadState();
           if (this.timeLeft === null || savedState.timeLeft === 0) {
             this.sync(this.countdownTime);
@@ -81,7 +82,7 @@ if (!window.Eurus.loadedScript.includes('cart-countdown-timer.js')) {
         handleCountdown() {
           const minutes = Math.floor(this.timeLeft / 60);
           const seconds = this.timeLeft % 60;
-          const formattedTime = `<span class=\"font-bold\">${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} minutes!</span>`;
+          const formattedTime = `<span class=\"font-bold\">${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${this.minutesText}!</span>`;
           this.formattedMessage = this.message.replace('{timer}', formattedTime);
         },
 

@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('product-media.js')) {
-  window.Eurus.loadedScript.push('product-media.js');
+if (!window.Eurus.loadedScript.has('product-media.js')) {
+  window.Eurus.loadedScript.add('product-media.js');
 
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {

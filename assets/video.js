@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('video.js')) {
-  window.Eurus.loadedScript.push('video.js');
+if (!window.Eurus.loadedScript.has('video.js')) {
+  window.Eurus.loadedScript.add('video.js');
 
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {
@@ -101,7 +101,9 @@ if (!window.Eurus.loadedScript.includes('video.js')) {
           }
           requestAnimationFrame(() => {
             const videoContainer = el.closest('.external-video');
-            videoContainer.innerHTML = `<iframe data-video-loop="${loop}" class="iframe-video absolute w-full h-full video top-1/2 -translate-y-1/2 ${ pointerEvent }"
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes('Macintosh') && navigator.maxTouchPoints > 1);
+            const borderRadiusClass = (isIOS && videoContainer.classList.contains('rounded-[10px]')) ? 'rounded-[10px]' : '';
+            videoContainer.innerHTML = `<iframe data-video-loop="${loop}" class="iframe-video absolute w-full h-full video top-1/2 -translate-y-1/2 ${borderRadiusClass} ${pointerEvent}"
               frameborder="0" host="${host}" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen playsinline
               src="${src}" title="${title}"></iframe>`;
   
@@ -113,6 +115,13 @@ if (!window.Eurus.loadedScript.includes('video.js')) {
                   this.ytIframeId++;
                   videoContainer.querySelector('.iframe-video').contentWindow.postMessage(JSON.stringify({
                     event: 'listening',
+                    id: this.ytIframeId,
+                    channel: 'widget'
+                  }), '*');
+                  videoContainer.querySelector('.iframe-video').contentWindow.postMessage(JSON.stringify({
+                    event: 'command',
+                    func: 'addEventListener',
+                    args: ['onStateChange'],
                     id: this.ytIframeId,
                     channel: 'widget'
                   }), '*');

@@ -89,7 +89,8 @@
         color_heading_highlight_light: section.settings.color_heading_highlight_light,
         class: 'h2 block leading-tight flex-auto p-break-words',
         heading_tag: section.settings.heading_tag,
-        heading_alignment: section.settings.heading_alignment
+        heading_alignment: section.settings.heading_alignment,
+        animation_heading: true
       %}
     {%- endif -%}
     {%- if section.settings.description != blank -%}
@@ -127,7 +128,7 @@
         </div>
         {% if section.blocks.size > 0 %}
           {% for block in section.blocks %}
-            {% comment %}theme-check-disable{% endcomment %}
+            {% # theme-check-disable %}
             <div class="x-block-table-row-{{ forloop.index }} criterion-row min-h-[60px] md:min-h-[82px] flex w-full">
               <div class="criterion-detail-heading flex min-w-[130px] pt-2 pb-2 pr-2 pl-2 p-break-words border-solid border-b grow items-center justify-center text-center basis-32 lg:basis-52 xl:min-w-[20rem] xl:basis-[0] mt-0.5 {% if first %} md:mt-0.5{% else %} md:mt-[1px]{% endif %}">
                 {% if block.settings.heading != blank %}
@@ -190,7 +191,7 @@
                 {% endfor %}
               {% endif %}
             </div>
-            {% comment %}theme-check-enable{% endcomment %}
+            {% # theme-check-enable %}
           {% endfor %}
         {% endif %}
       </div>
@@ -206,6 +207,10 @@
     "groups": ["header", "footer", "aside"]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.comparison_table"
+    },
     {
       "type": "text",
       "id": "heading",
@@ -505,6 +510,7 @@
   "presets": [
     {
       "name": "t:sections.comparision-table.name",
+      "category": "t:categories.products",
       "blocks": [
         {
           "type": "criterion"

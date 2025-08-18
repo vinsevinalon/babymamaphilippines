@@ -111,9 +111,11 @@
         .heading-{{ section.id }}{ font-size: {{ size_heading }}rem; }
       }
     {%- endstyle -%}
-    <div class="text-{{ section.settings.heading_alignment }} {% if section.settings.full_width %} full-width{% else %} x-pgw page-width{% endif %} pl-5 pr-5">
+    <div class="text-{{ section.settings.heading_alignment }}{% if section.settings.full_width %} full-width{% else %} x-pgw page-width{% endif %} pl-5 pr-5">
       {%- if section.settings.subheading != blank -%}
-        <p class="rte mb-1.5">{{ section.settings.subheading }}</p>
+        <div class="mb-1.5{% unless settings.disable_heading_animation %} overflow-hidden{% endunless %}"{% unless settings.disable_heading_animation %} x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')"{% endunless %}>
+          <p class="rte{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ section.settings.subheading }}</p>
+        </div>
       {% endif %}
       {%- if section.settings.heading != blank -%}
         {% render 'heading-highlight',
@@ -121,7 +123,8 @@
           heading: section.settings.heading,
           highlight_type: section.settings.highlight_type,
           class: 'h2 block leading-tight',
-          heading_tag: section.settings.heading_tag
+          heading_tag: section.settings.heading_tag,
+          animation_heading: true
         %}
       {%- endif -%}
       {%- if section.settings.text != blank -%}
@@ -225,6 +228,7 @@
                 <td class="pb-7 pt-7 lg:pb-6 {% if show_picture %}lg:pt-6{% else %}{% if sold_out %}align-middle lg:pt-6{% else %}align-top lg:pt-[34px]{% endif %}{% endif %} lg:pr-[30px] lg:pl-4 w-3/6">
                   <div class="flex items-start gap-4">
                     {% if section.settings.show_images %}
+                      {% # theme-check-disable ImgLazyLoading %}
                       {% if product.has_only_default_variant %}
                         {% if product.featured_media %}
                           <picture class="w-[80px] h-[80px] aspect-1/1">
@@ -241,7 +245,7 @@
                               sizes="{% unless section.settings.full_width %}(min-width: {{ settings.page_width }}px) {{ settings.page_width | times: 0.4 }}px, {% endunless %}(min-width: 767px) 40vw, calc(50vw - 50px))"
                               alt="{{ product.featured_media.alt | escape }}"
                               class="w-full h-full object-cover {% if rounded_corner %}rounded-lg{% endif %}"
-                              loading="lazy"
+                              {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                               width="{{ product.featured_media.width }}"
                               height="{{ product.featured_media.height }}"
                             >
@@ -263,13 +267,14 @@
                               sizes="{% unless section.settings.full_width %}(min-width: {{ settings.page_width }}px) {{ settings.page_width | times: 0.4 }}px, {% endunless %}(min-width: 767px) 40vw, calc(50vw - 50px))"
                               alt="{{ variant.featured_media.alt | escape }}"
                               class="w-full h-full object-cover {% if rounded_corner %}rounded-lg{% endif %}"
-                              loading="lazy"
+                              {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                               width="{{ variant.featured_media.width }}"
                               height="{{ variant.featured_media.height }}"
                             >
                           </picture>
                         {% endif %}
                       {% endif %}
+                      {% # theme-check-enable ImgLazyLoading %}
                     {% endif %}
                     <div class="flex flex-col">
                       <div>{% if product.has_only_default_variant %}{{ product.title }}{% else %}{{ variant.title }}{% endif %}</div>
@@ -489,6 +494,10 @@
   "limit": 1,
   "settings": [
     {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.product_page.quick_order_list"
+    },
+    {
       "type": "select",
       "id": "desktop_layout",
       "default": "sidebar",
@@ -524,7 +533,7 @@
       "options": [
         {
           "value": "adapt",
-          "label": "Adapt to edge setting"
+          "label": "t:settings_schema.buttons.adapt_edge_setting"
         },
         {
           "value": "square",
@@ -802,7 +811,8 @@
   ],
   "presets": [
     {
-      "name": "t:sections.quick-order-list.name"
+      "name": "t:sections.quick-order-list.name",
+      "category": "t:categories.products"
     }
   ]
 }

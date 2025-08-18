@@ -1,14 +1,9 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "general": {
+    "theme-mode": {
+      "light": "Lumière",
+      "dark": "Sombre"
+    },
     "global": {
       "cancel": "Annuler",
       "copy_code": "copier le code",
@@ -78,8 +73,11 @@
       "view": "Afficher mon panier ({{ count }})",
       "item_added": "Article ajouté à votre panier",
       "terms_confirm": "Veuillez accepter les termes et conditions.",
-      "enable_amount_freeship_html": "Ajouter <span class=\"text-medium font-medium\">{{ amount_to_freeshipping }}</span> autres pour bénéficier d'une livraison <span class=\"font-medium\">GRATUITE</span>",
+      "enable_amount_freeship_html": "Ajouter <span class=\"text-medium font-medium\">{{ amount_to_freeshipping }}</span> autres pour bénéficier d'une livraison <span class=\"font-medium\">GRATUITE<\/span>",
+      "enable_amount_freegift_html": "Ajoutez <span class=\"text-medium font-medium\">{{ amount_to_freegift }}<\/span> plus pour obtenir {{ other_offer }}",
       "freeshipping": "Félicitations ! Vous pouvez bénéficier de la livraison gratuite !",
+      "freegift": "Félicitations ! Vous êtes admissible à {{ other_offer }}",
+      "free_all_offer": "Félicitations ! Vous avez droit à la livraison gratuite et à {{ other_offer }} !",
       "freeshipping_value": "Livraison gratuite",
       "apply": "Appliquer",
       "copy_link": "Copier le lien",
@@ -426,7 +424,8 @@
       "choose_option": "Choisissez d'abord une variante",
       "add_to_bundle": "Ajouter au forfait",
       "bundle_empty": "Votre forfait est vide.",
-      "discount_label": "DÉSACTIVÉ"
+      "discount_label": "DÉSACTIVÉ",
+      "save": "Économisez"
     },
     "promo-code-list": {
       "expired": "Expiré",
@@ -452,6 +451,9 @@
       "hours": "HRS",
       "mins": "MINS",
       "secs": "SECS"
+    },
+    "social-feeds": {
+      "view_on_social": "View on social"
     }
   },
   "localization": {

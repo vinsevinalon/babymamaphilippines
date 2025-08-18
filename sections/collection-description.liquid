@@ -58,18 +58,21 @@
 {% render 'section-divider' %}
 
 <div class="collection-description bg--{{ section.id }} mx-auto pt-[{{ section.settings.padding_top_mobile }}px] md:pt-[{{ section.settings.padding_top }}px] pb-[{{ section.settings.padding_bottom_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px]">
-  <div class="{% if section.settings.full_width %} full-width{% else %} x-pgw page-width{% endif %}">
+  <div class="{% if section.settings.full_width %}full-width{% else %}x-pgw page-width{% endif %}">
     {% if section.settings.heading != blank %}
-      {% render 'heading-highlight',
-        headingId: section.id,
-        heading: section.settings.heading,
-        highlight_type: section.settings.highlight_type,
-        color_heading_highlight_dark: section.settings.color_heading_highlight_dark,
-        color_heading_highlight_light: section.settings.color_heading_highlight_light,
-        class: 'h2 mb-6 md:mb-8 block',
-        heading_tag: section.settings.heading_tag,
-        heading_alignment: section.settings.heading_alignment
-      %}
+      <div class="mb-6 md:mb-8">
+        {% render 'heading-highlight',
+          headingId: section.id,
+          heading: section.settings.heading,
+          highlight_type: section.settings.highlight_type,
+          color_heading_highlight_dark: section.settings.color_heading_highlight_dark,
+          color_heading_highlight_light: section.settings.color_heading_highlight_light,
+          class: 'h2 block',
+          heading_tag: section.settings.heading_tag,
+          heading_alignment: section.settings.heading_alignment,
+          animation_heading: true
+        %}
+      </div>
     {% endif %}
     <div class="content--{{ section.id }} anm-fade-paragraph mx-auto text-[rgb(var(--colors-text))] p-break-words">
       <div class="rte anm-fade-element {{ section.settings.mobile_content_alignment }} md:{{ section.settings.desktop_content_alignment }}" x-intersect.once="$el.classList.add('is-visible')">
@@ -282,13 +285,15 @@
       "type": "text",
       "id": "read_more_label",
       "default": "Read more",
-      "label": "t:sections.all.read_more_label.label"
+      "label": "t:sections.all.read_more_label.label",
+      "visible_if": "{{ section.settings.number_of_lines_shown != 'none' }}"
     },
     {
       "type": "text",
       "id": "see_less_label",
       "default": "See less",
-      "label": "t:sections.all.see_less_label.label"
+      "label": "t:sections.all.see_less_label.label",
+      "visible_if": "{{ section.settings.number_of_lines_shown != 'none' }}"
     },
     {
       "type": "select",
@@ -415,7 +420,8 @@
   ],
   "presets": [
     {
-      "name": "t:sections.collection-description.name"
+      "name": "t:sections.collection-description.name",
+      "category": "t:categories.collections"
     }
   ]
 }

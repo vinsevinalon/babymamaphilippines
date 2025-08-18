@@ -11,9 +11,9 @@
   {% render 'choose-option' %}
 {% endcomment %}
 {% liquid
-  assign choose_option_id = product.id | append: block.id | append: index
-  assign section_id = section.id | append: choose_option_id
-
+  assign choose_option_id = product.id | append: index
+  assign section_id = 'choose-option' | append: choose_option_id
+  
   assign unavailable_text = 'products.product.unavailable' | t 
   assign product_form_id = 'product-form-' | append: section_id
 
@@ -260,30 +260,63 @@
                 </div>
               </div>
             {% else %}
-              <div
-                x-data="xVariantSelect($el,'{{ section_id }}', false, '{{ unavailable_text }}', '{{ product.url }}', '{{ product.id }}', false, false, true, '{{ section.id }}', '', '{{ index }}', '{{ product.featured_media | image_url | default: "" }}')"
-                data-url="{{ product.url }}"
-                x-init="initVariant()"
-              >
-                <script type="application/json">
-                  {{ product.variants | json }}
-                </script>
-                <div
-                  id="variant-update-{{ section_id }}"
-                  class="variant-update-{{ section_id }} md:list-layout:flex md:list-layout:flex-wrap md:list-layout:gap-x-12 options-container"
-                  {% if settings.replace_color_with_variant_images %}
-                    data-show-swatch-with-variant-image="{{ settings.replace_color_with_variant_images }}"
-                  {% endif %}
+              {% if video_looping %}
+              <div id="{{ section_id }}"  class="data-id-section-card h-full"> 
+              {% endif %}
+                <div                
+                  x-data="xVariantSelect($el, '{{ section_id }}', false, '{{ unavailable_text }}', '{{ product.url }}', '{{ product.id }}', false, true, false, '', '', '{{ index }}', '{{ product.featured_media | image_url | default: "" }}', '', true, {{ video_looping }})"
+                  data-url="{{ product.url }}"
+                  x-init="initVariant($el)"
                 >
+                  <script type="application/json">
+                    {{ product.variants | json }}
+                  </script>
+                  <div
+                    id="variant-update-{{ section_id }}"
+                    class="variant-update-{{ section_id }} md:list-layout:flex md:list-layout:flex-wrap md:list-layout:gap-x-12 options-container"
+                    {% if settings.replace_color_with_variant_images %}
+                      data-show-swatch-with-variant-image="{{ settings.replace_color_with_variant_images }}"
+                    {% endif %}
+                  >
+                    {% if is_product_in_slide %}
+                      {% style %}
+                        .input-radio.init-checked+.init-radio {
+                          border-color: rgb(var(--colors-text), 1);
+                          background-color: rgb(var(--colors-text), 1);
+                          color: rgb(var(--background-color), 1);
+                          transition-duration: .1s;
+                        }
+                        .input-radio.init-checked+.init-radio-swatch {
+                          position: relative;
+                          border-color: rgb(var(--background-color), 1);
+                          background-color: transparent;
+                          --tw-shadow: 0 0 0 2px rgba(var(--colors-heading));
+                          --tw-shadow-colored: 0 0 0 2px var(--tw-shadow-color);
+                          box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+                          transition-duration: .1s;
+                        }
+                      {% endstyle %}
+                    {% endif %}   
                     {%- for option in product.options_with_values -%}
                       {%- assign option_index = forloop.index | minus: 1 -%}
                       {%- if settings.quick_add_picker_type == 'button' -%}
                         <fieldset
                           id="Option{% if is_product_in_popup %}-product-in-popup{% endif %}-{{ section_id }}-{{ forloop.index0 }}"
                           class="product-form__input flex flex-wrap pb-4 eurus{% if settings.products_color_swatches_enable_on_collection_page and settings.color_option_name contains option.name and settings.swatches_type == 'color' or settings.swatches_type == 'both_text_and_color' %} gap-x-2.5{% else %} gap-x-1.5{% endif %}"
-                          x-init="options[{{ forloop.index | minus: 1 }}] = document.querySelector('#Option{% if is_product_in_popup %}-product-in-popup{% endif %}-{{ section_id }}-{{ forloop.index0 }} input[checked]').value"
+                          x-init="options[{{ forloop.index | minus: 1 }}] = document.querySelector(`#${$el.id} input[checked]`).value"
                           data-option-name="{{ option.name | handle }}"
                           data-option-index="{{ forloop.index | minus: 1 }}"
+                          {% if is_product_in_slide %}
+                            x-data="{
+                              reset() {
+                                const allLabels = $el.querySelectorAll('label');
+                                allLabels.forEach((label)=>{
+                                  label.classList.remove('init-radio');
+                                  label.classList.remove('init-radio-swatch');
+                                })                         
+                              }
+                            }"
+                          {% endif %}
                           {% if settings.products_color_swatches_enable_on_collection_page and settings.swatches_type == 'color' or settings.swatches_type == 'both_text_and_color' and settings.color_option_name contains option.name %}
                             data-swatch="true"
                           {% endif %}
@@ -402,7 +435,10 @@
                                 {%- endstyle %}
                               {% endif %}
                               <input 
-                                id="{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}-{{ product.id }}"
+                                {% if is_product_in_slide %}
+                                  tabindex="-1"
+                                {% endif %}
+                                id="{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}{% if is_product_in_popup %}-product-in-popup{% endif %}-{{ product.id }}"
                                 section-id="{{ section_id }}"
                                 option-pos="{{ option.position }}"
                                 forloop="{{ forloop.index0 }}"
@@ -410,11 +446,11 @@
                                 name="{{ option.name }}{% if is_product_in_popup %}-product-in-popup{% endif %}"
                                 value="{{ value | escape | replace: '&lt;', '\u003c' | replace: '&gt;', '\u003e' }}"
                                 form="{{ product_form_id }}"
-                                class="absolute opacity-0 h-0 w-0 input-radio{% if option_disabled %} disabled{% endif %}"
+                                class="absolute opacity-0 h-0 w-0 input-radio{% if option_disabled %} disabled{% endif %} {% if option.selected_value == value and is_product_in_slide %}init-checked{% endif %}"
                                 {% if settings.swatches_type == 'color' or settings.swatches_type == 'both_text_and_color' and product.options_with_values.size > 1 %}
-                                  x-on:change="$store.xPreviewColorSwatch.onChangeVariant($el,'{{ product.url | within: collection | split: "?" | first }}', '{{ product.featured_media | image_url | default: "" }}', {{ variant_value.id | default: "" }}, '{{ section_id }}', {% if settings.products_color_swatches_enable_on_collection_page and settings.color_option_name contains option.name and settings.swatches_type == 'color' or settings.swatches_type == 'both_text_and_color' %}true{% endif %})"
+                                  x-on:change="$store.xPreviewColorSwatch.onChangeVariant($el,'{{ product.url | within: collection | split: "?" | first }}', '{{ product.featured_media | image_url | default: "" }}', {{ variant_value.id | default: "" }}, '{{ section_id }}', {% if settings.products_color_swatches_enable_on_collection_page and settings.color_option_name contains option.name and settings.swatches_type == 'color' or settings.swatches_type == 'both_text_and_color' %}true{% endif %}){% if is_product_in_slide %}; reset(){% endif %}"
                                 {% else %}
-                                  x-on:change="$store.xPreviewColorSwatch.updateImage($el,'{{ product.url | within: collection | split: "?" | first }}', '{{ preview_image | image_url | default: "" }}', {{ variant_value.id }})"
+                                  x-on:change="$store.xPreviewColorSwatch.updateImage($el,'{{ product.url | within: collection | split: "?" | first }}', '{{ preview_image | image_url | default: "" }}', {{ variant_value.id }}){% if is_product_in_slide %}; reset(){% endif %}"
                                 {% endif %}      
                                 {% if option_index > 0 %}:class="{'disabled': !currentAvailableOptions[{{ option_index }}] || !currentAvailableOptions[{{ option_index }}].includes(`{{ value | escape }}`)}"{% endif %}
                                 x-model="options[{{ option_index }}]"
@@ -431,9 +467,12 @@
                           
                               {% if settings.products_color_swatches_enable_on_collection_page and settings.color_option_name contains option.name and settings.swatches_type == 'color' or settings.swatches_type == 'both_text_and_color' %}
                                 <label 
-                                  id="color-swatch-{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}-{{ product.id }}"
-                                  class="{% if forloop.first %}ml-1 rtl:mr-1 rtl:ml-0{% endif %} color-watches variant-{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}-{{ product.id }} cursor-pointer mt-2.5 block{% if swatch_natural and settings.replace_color_with_variant_images and ratio_image %} color-swatch-natural{% endif %} h-9 w-9 relative {{ rounded }}" 
-                                  for="{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}-{{ product.id }}"
+                                  {% if is_product_in_slide %}
+                                    tabindex="-1"
+                                  {% endif %}
+                                  id="color-swatch-{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}{% if is_product_in_popup %}-product-in-popup{% endif %}-{{ product.id }}"
+                                  class="{% if is_product_in_slide %}init-radio-swatch {% endif %} {% if forloop.first %}ml-1 rtl:mr-1 rtl:ml-0{% endif %} color-watches variant-{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}-{{ product.id }} cursor-pointer mt-2.5 block{% if swatch_natural and settings.replace_color_with_variant_images and ratio_image %} color-swatch-natural{% endif %} h-9 w-9 relative {{ rounded }}" 
+                                  for="{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}{% if is_product_in_popup %}-product-in-popup{% endif %}-{{ product.id }}"
                                   data-swatch="{{ color_custom }}"
                                   data-optionindex="{{ option_index }}"
                                   data-optionvalue="{{ value | escape | replace: '&lt;', '\u003c' | replace: '&gt;', '\u003e' }}"
@@ -460,8 +499,8 @@
                                   <span class="h-full w-full color-watches-disable"></span>
                                 </label>
                               {% else %}
-                                <label class="flex items-center outline-none font-medium cursor-pointer mt-2.5 pl-5 pr-5 pt-2 pb-2 border bg-[rgba(var(--background-color),1)]
-                                  {% if rounded_corner_image %} rounded-md{% endif %}" for="{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}-{{ product.id }}"
+                                <label {% if is_product_in_slide %}tabindex="-1"{% endif %} class="flex {% if is_product_in_slide %}init-radio{% endif %} items-center outline-none font-medium cursor-pointer mt-2.5 pl-5 pr-5 pt-2 pb-2 border bg-[rgba(var(--background-color),1)]
+                                  {% if rounded_corner_image %} rounded-md{% endif %}" for="{{ section_id }}-{{ option.position }}-{{ forloop.index0 }}{% if is_product_in_popup %}-product-in-popup{% endif %}-{{ product.id }}"
                                 >
                                   <span class="p-break-words">{{ value | escape }}</span>
                                 </label>
@@ -520,8 +559,11 @@
                         </div>
                       {%- endif %}
                     {%- endfor -%}
+                  </div>
                 </div>
+              {% if video_looping %}
               </div>
+              {% endif %}
             {% endif %}
           {%- else -%}
             <div x-init="document.addEventListener('eurus:cart:items-changed', () => {
@@ -573,6 +615,9 @@
                       </div>
                     {% endif %}
                     <button
+                      {% if is_product_in_slide %}
+                        tabindex="-1"
+                      {% endif %}
                       id="x-atc-button-{{ section_id }}"
                       role="button"
                       name="add"
@@ -632,7 +677,7 @@
                   </div>
                 </div>
               </div>
-              <a href="{{ product.url }}" class="view_product_detail hover-text-link nav-link relative inline-block">
+              <a {% if is_product_in_slide %}tabindex="-1"{% endif %} href="{{ product.url }}" class="view_product_detail hover-text-link nav-link relative inline-block">
                 {{ 'products.product.view_full_details' | t }}
               </a>
             </div>

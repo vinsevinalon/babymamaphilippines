@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('tab-attention.js')) {
-  window.Eurus.loadedScript.push('tab-attention.js');
+if (!window.Eurus.loadedScript.has('tab-attention.js')) {
+  window.Eurus.loadedScript.add('tab-attention.js');
 
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {

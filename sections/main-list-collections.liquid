@@ -46,7 +46,11 @@
 {%- endstyle -%} 
 <div class="collection-list-page x-pgw page-width pt-[{{ section.settings.padding_top_mobile }}px] md:pt-[{{ section.settings.padding_top }}px] pb-[{{ section.settings.padding_bottom_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px]">
   {% if section.settings.title != blank %}
-    <{{ section.settings.heading_tag }} class="h2 mb-8 leading-tight {% if settings.lang_direction contains request.locale.iso_code %} text-right{% endif %}">{{ section.settings.title | escape }}</{{ section.settings.heading_tag }}>
+    <div class="mb-8">
+      {% unless settings.disable_heading_animation %}<div class="overflow-hidden" x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')">{% endunless %}
+        <{{ section.settings.heading_tag }} class="h2 leading-tight{% if settings.lang_direction contains request.locale.iso_code %} text-right{% endif %}{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ section.settings.title | escape }}</{{ section.settings.heading_tag }}>
+      {% unless settings.disable_heading_animation %}</div>{% endunless %}
+    </div>
   {% endif %}
   {% if section.settings.show_collection == 'selected' %}
     {% if section.blocks.size > 0 %}
@@ -137,6 +141,10 @@
   "class": "section x-section-collection-list-page",
   "settings": [
     {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.pages_and_templates.collection_list_page"
+    },
+    {
       "type": "text",
       "id": "title",
       "label": "t:sections.all.text.heading"
@@ -224,7 +232,8 @@
       ],
       "default": "alphabetical",
       "info": "t:sections.main-list-collections.settings.sort.info",
-      "label": "t:sections.main-list-collections.settings.sort.label"
+      "label": "t:sections.main-list-collections.settings.sort.label",
+      "visible_if": "{{ section.settings.show_collection == 'all' }}"
     },
     {
       "type": "header",
@@ -319,7 +328,8 @@
         }
       ],
       "label": "t:sections.all.content_position.label",
-      "default": "bottom"
+      "default": "bottom",
+      "visible_if": "{{ section.settings.show_text_overlay }}"
     },
     {
       "type": "range",
@@ -329,7 +339,8 @@
       "step": 5,
       "default": 5,
       "unit": "%",
-      "label": "t:sections.all.overlay_opacity.label"
+      "label": "t:sections.all.overlay_opacity.label",
+      "visible_if": "{{ section.settings.show_text_overlay }}"
     },
     {
       "type": "color",

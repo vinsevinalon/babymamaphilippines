@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('customize-picker.js')) {
-  window.Eurus.loadedScript.push('customize-picker.js');
+if (!window.Eurus.loadedScript.has('customize-picker.js')) {
+  window.Eurus.loadedScript.add('customize-picker.js');
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {
       Alpine.data('xCustomizePicker', () => ({
@@ -16,11 +16,26 @@ if (!window.Eurus.loadedScript.includes('customize-picker.js')) {
           this.validateErrorBtn(el);
         },
         validateErrorBtn(el) {
+          let hasRequiredInput = false;
+          let allInputsHaveValue = true;
           var productInfo = el.closest('.product-info');
           var paymentBtn = productInfo.querySelector(".payment-button--clone");
-          var propertiesInput = productInfo.querySelectorAll(".customization-picker.required-picker");
-          if (propertiesInput.length) {
-            paymentBtn?.classList.remove('hidden');
+          var propertiesInput = productInfo.querySelectorAll(".customization-picker");
+          for (const input of propertiesInput) {
+            if (input.required) {
+              hasRequiredInput = true;
+              if (input.value == ''){
+                allInputsHaveValue = false
+                break
+              }
+            }
+          }
+          if (hasRequiredInput) {
+            if (allInputsHaveValue){
+              paymentBtn?.classList.add('hidden');
+            } else {
+              paymentBtn?.classList.remove('hidden');
+            }           
           }
           else {
             paymentBtn?.classList.add('hidden');

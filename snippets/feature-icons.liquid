@@ -5,15 +5,17 @@
         <div class="flex justify-{{ block.settings.content_alignment }}">
           <span class="inline-block relative size-icon-{{ blockID }} color-icon--{{ block.id }}">
             {% if custom_image != blank %}
+              {% # theme-check-disable ImgLazyLoading %}
               <img 
                 src="{{ custom_image | image_url: width: icon_size }}"
                 alt="{{ custom_image.alt | escape }}"
-                loading="lazy"  
+                {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %} 
                 width="{{ custom_image.width }}"
                 height="{{ custom_image.height }}"
                 style="object-position: {{ custom_image.presentation.focal_point }}"
                 class="object-cover absolute top-0 left-0 w-full h-full"
               >
+              {% # theme-check-enable ImgLazyLoading %}
             {% else %}
               {% if custom_icon == blank %}
                 {% if another_icon != blank and icon == 'another_icon' %}

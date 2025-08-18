@@ -65,7 +65,13 @@
     }
   {%- endif -%}
   .border-radius-{{ section.id }} {
+    {% unless section.settings.adapt_radius %}
       border-radius: {{ border_image }}px;
+    {% else %}
+      {% if settings.edges_type == 'rounded_corners' %}
+        border-radius: 10px;
+      {% endif %}
+    {% endunless %}
   }
   @media screen and (min-width: 768px) {
     {%- if section.settings.image != blank -%} 
@@ -184,8 +190,15 @@
           {% else %}
             {% if section.settings.image != blank %}
               {% if section.settings.show_hero %}
+                {% liquid
+                  if settings.enable_lazy_loading_image
+                    assign loading = 'lazy'
+                  else
+                    assign loading = 'eager'
+                  endif
+                %}
                 <div class="hidden">
-                  {{ section.settings.image | image_url: width: 1500 | image_tag: widths: '375, 450, 750, 900, 1100, 1500', preload: true, loading: 'lazy' }}
+                  {{ section.settings.image | image_url: width: 1500 | image_tag: widths: '375, 450, 750, 900, 1100, 1500', preload: true, loading: loading }}
                 </div>
               {% endif %}
               <div class="border-radius-{{ section.id }} w-full overflow-hidden{% if section.settings.image_layout == "stacked" and section.settings.image_second != blank %} h-[calc(100%-2rem)] md:h-[calc(100%-5rem)]{% else %} h-full{% endif %}">
@@ -206,7 +219,11 @@
                         fetchpriority="high"
                         decoding="sync"
                       {% else %}
-                        loading="lazy"
+                        {% if settings.enable_lazy_loading_image %}
+                          loading="lazy"
+                        {% else %}
+                          loading="eager"
+                        {% endif %}
                       {% endif %} 
                       onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image'); this.closest('.animate_transition_slide__image')?.classList.add('active');"
                       sizes="(min-width: 1024px){% if section.settings.full_width %} 50vw{% else %} {{ settings.page_width | divided_by: 2 }}px{% endif %}, (min-width: 768px) 50vw, 100vw"
@@ -242,7 +259,11 @@
                         fetchpriority="high"
                         decoding="sync"
                       {% else %}
-                        loading="lazy"
+                        {% if settings.enable_lazy_loading_image %}
+                          loading="lazy"
+                        {% else %}
+                          loading="eager"
+                        {% endif %}
                       {% endif %}
                       onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image'); this.closest('.animate_transition_slide__image')?.classList.add('active');"
                       sizes="(min-width: 1024px){% if section.settings.full_width %} 50vw{% else %} {{ settings.page_width | divided_by: 2 }}px{% endif %}, (min-width: 768px) 50vw, 100vw"
@@ -309,19 +330,24 @@
               
               <div class="x-block-text color-text-{{ block.id }} text-[rgb(var(--colors-text))] w-full mt-4 text-{{ section.settings.text_alignment }}"{{ block.shopify_attributes }}>
                 {% if block.settings.subheading != blank %}
-                  <p class="font-medium">{{ block.settings.subheading | escape }}</p>
+                  {% unless settings.disable_heading_animation %}<div class="overflow-hidden" x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')">{% endunless %}
+                    <p class="font-medium{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ block.settings.subheading | escape }}</p>
+                  {% unless settings.disable_heading_animation %}</div>{% endunless %}
                 {% endif %}
                 {% if block.settings.heading != blank %}
-                  {% render 'heading-highlight',
-                    headingId: block.id,
-                    heading: block.settings.heading,
-                    highlight_type: block.settings.highlight_type,
-                    color_heading_highlight_dark: block.settings.color_heading_highlight_dark,
-                    color_heading_highlight_light: block.settings.color_heading_highlight_light,
-                    heading_size: true,
-                    class: 'h2 block mt-2 mb-1.5 md:mt-2.5 md:mb-3',
-                    heading_tag: block.settings.heading_tag,
-                  %}
+                  <div class="mt-2 mb-1.5 md:mt-2.5 md:mb-3">
+                    {% render 'heading-highlight',
+                      headingId: block.id,
+                      heading: block.settings.heading,
+                      highlight_type: block.settings.highlight_type,
+                      color_heading_highlight_dark: block.settings.color_heading_highlight_dark,
+                      color_heading_highlight_light: block.settings.color_heading_highlight_light,
+                      heading_size: true,
+                      class: 'h2 block',
+                      heading_tag: block.settings.heading_tag,
+                      animation_heading: true
+                    %}
+                  </div>
                 {% endif %}
                 {% if block.settings.text != blank %}
                   {%- render 'truncate-text', 
@@ -509,16 +535,18 @@
                 {% unless block.settings.custom_image == blank and block.settings.custom_icon == blank and block.settings.another_icon == blank and block.settings.icon == 'another_icon' %}
                   <span class="inline-block icon--{{ section.id }}{% if section.settings.icon_position == 'col' %} self-{% if section.settings.alignment == 'left' %}start{% elsif section.settings.alignment == 'right' %}end{% else %}center{% endif %} mb-2.5{% else %} self-center{% endif %}">
                     {% if block.settings.custom_image != blank %}
+                      {% # theme-check-disable ImgLazyLoading %}
                       <img 
-                        src="{{ block.settings.custom_image | image_url: width: 45 }}"
+                        src="{{ block.settings.custom_image | image_url: width: icon_size }}"
                         alt="{{ block.settings.custom_image.alt | escape }}"
-                        loading="lazy"
+                        {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                         onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                         width="{{ block.settings.custom_image.width }}"
                         height="{{ block.settings.custom_image.height }}"
                         style="object-position: {{ block.settings.custom_image.presentation.focal_point }}"
                         class="object-cover w-full h-full animate-Xpulse skeleton-image"
-                      >       
+                      >
+                      {% # theme-check-enable ImgLazyLoading %}
                     {% else %}
                       {% if block.settings.custom_icon == blank %}
                         {% if block.settings.another_icon != blank and block.settings.icon == 'another_icon' %}
@@ -585,6 +613,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.media_with_text"
+    },
     {
       "type": "checkbox",
       "id": "show_hero",
@@ -701,6 +733,12 @@
       "label": "t:sections.all.image_ratio.label_2"
     },
     {
+      "type": "checkbox",
+      "id": "adapt_radius",
+      "label": "t:sections.slideshow.settings.enable_adapt",
+      "default": true
+    },
+    {
       "type": "range",
       "id": "image_corner_radius",
       "min": 0,
@@ -708,7 +746,8 @@
       "step": 1,
       "unit": "px",
       "label": "t:sections.image-with-text.settings.corner_radius.label",
-      "default": 0
+      "default": 0,
+      "visible_if": "{{ section.settings.adapt_radius == false }}"
     },
     {
       "type": "header",
@@ -1014,7 +1053,8 @@
       "id": "padding_full_width",
       "default": false,
       "label": "t:sections.all.padding.padding_full_width.label",
-      "info": "t:sections.all.padding.padding_full_width.info"
+      "info": "t:sections.all.padding.padding_full_width.info",
+      "visible_if": "{{ section.settings.full_width }}"
     },
     {
       "type": "range",
@@ -1199,13 +1239,15 @@
           "type": "text",
           "id": "read_more_label",
           "default": "Read more",
-          "label": "t:sections.all.read_more_label.label"
+          "label": "t:sections.all.read_more_label.label",
+          "visible_if": "{{ block.settings.number_of_lines_shown != 'none' }}"
         },
         {
           "type": "text",
           "id": "see_less_label",
           "default": "See less",
-          "label": "t:sections.all.see_less_label.label"
+          "label": "t:sections.all.see_less_label.label",
+          "visible_if": "{{ block.settings.number_of_lines_shown != 'none' }}"
         },
         {
           "type": "color",
@@ -1716,18 +1758,21 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "image_picker",
           "id": "custom_image",
-          "label": "t:sections.multicolumn.blocks.column.settings.custom_image"
+          "label": "t:sections.multicolumn.blocks.column.settings.custom_image",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon", 
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "header",
@@ -1805,6 +1850,7 @@
   "presets": [
     {
       "name": "t:sections.image-with-text.name",
+      "category": "t:categories.storytelling",
       "blocks": [
         {
           "type": "heading"

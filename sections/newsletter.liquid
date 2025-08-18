@@ -111,7 +111,7 @@
         <div class="relative {% if section.settings.image_mobile != blank and request.design_mode %} hidden md:block{% else %} block{% endif %} block h-full w-full">
           <parallax-image class="block h-full w-full">
             <parallax-movement x-data="xParallax" x-intersect.once.margin.200px="load({{ settings.disable_parallax_effect }})">
-              {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+              {% # theme-check-disable ImgLazyLoading %}
               <picture>
                 <source
                   srcset="{{ image_url_mobile | image_url: width: 375 }} 375w,
@@ -133,7 +133,7 @@
                     {{ section.settings.image | image_url: width: 2000 }} 2000w,
                     {{ section.settings.image | image_url: width: 3000 }} 3000w,
                     {{ section.settings.image | image_url: width: 3840 }} 3840w"
-                  loading="lazy"
+                  {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                   onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                   sizes="100vw"
                   src="{{ section.settings.image | image_url: width: 3840 }}"
@@ -147,13 +147,13 @@
                   height="{{ section.settings.image.height }}"
                 >
               </picture>
-              {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
+              {% # theme-check-enable ImgLazyLoading %}
             </parallax-movement>
           </parallax-image>
         </div>
       {%- endif %}
       {%- if section.settings.image_mobile != blank and request.design_mode or section.settings.image == blank -%}
-        {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+        {% # theme-check-disable ImgLazyLoading %}
         <parallax-image class="block h-full w-full{% if section.settings.image_mobile != blank %} md:hidden{% endif %}">
           <parallax-movement x-data="xParallax" x-intersect.once.margin.200px="load({{ settings.disable_parallax_effect }})">
             <img
@@ -167,7 +167,7 @@
               src="{{ section.settings.image_mobile | image_url: width: 750 }}"
               alt="{{ section.settings.image_mobile.alt | escape }}"
               class="object-cover h-full w-full animate-Xpulse skeleton-image"
-              loading="lazy"
+              {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
               onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
               width="{{ section.settings.image_mobile.width }}"
               height="{{ section.settings.image_mobile.height }}"
@@ -175,7 +175,7 @@
             >
           </parallax-movement>
         </parallax-image>
-        {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
+        {% # theme-check-enable ImgLazyLoading %}
       {%- endif %}
     </div>
     <div class="w-full z-10 flex items-center h-full overflow-hidden{% if image_url_mobile != blank %} absolute left-0 top-1/2 -translate-y-1/2{% endif %}{% if section.settings.image != blank %} md:absolute md:left-0 md:top-1/2 md:-translate-y-1/2{% else %} md:relative md:top-auto md:translate-y-0{% endif %}">
@@ -208,9 +208,10 @@
                         highlight_type: block.settings.highlight_type,
                         color_heading_highlight_dark: section.settings.color_heading_highlight_dark,
                         color_heading_highlight_light: section.settings.color_heading_highlight_light,
-                        class: 'x-block-header anm-fade-element p-break-words h2 block leading-tight',
+                        class: 'x-block-header p-break-words h2 block leading-tight',
                         heading_tag: block.settings.heading_tag,
-                        is_intersect: true
+                        is_intersect: true,
+                        animation_heading: false
                       %}
                     </div>
                   {%- endif -%}
@@ -373,6 +374,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.email_signup"
+    },
     {
       "type": "image_picker",
       "id": "image",
@@ -807,6 +812,7 @@
   "presets": [
     {
       "name": "t:sections.newsletter.name",
+      "category": "t:categories.forms",
       "blocks": [
         {
           "type": "heading"

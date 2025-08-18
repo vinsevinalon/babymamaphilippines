@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('event-calendar.js')) {
-  window.Eurus.loadedScript.push('event-calendar.js');
+if (!window.Eurus.loadedScript.has('event-calendar.js')) {
+  window.Eurus.loadedScript.add('event-calendar.js');
 
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {

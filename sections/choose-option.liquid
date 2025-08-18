@@ -80,15 +80,15 @@
       {%- endif -%}
     >
       <div class="w-full scrollbar-body max-h-full overflow-y-auto pr-4 lg:pr-7 pl-4 lg:pl-7{% if is_rtl %} rtl{% endif %}">
-        <button @click="showOptions =! showOptions" class="top-1 right-2 lg:top-3 lg:right-5 rtl:right-auto rtl:lg:right-auto rtl:left-2 rtl:lg:left-5 z-20 absolute pl-2 pr-2 pb-2 pt-2">
-          <span class="inline-block h-4 w-4">
-            {% render 'icon-alls', icon: 'icon-close' %}
+        <button @click="showOptions =! showOptions" class="top-1 group-close-btn right-2 lg:top-3 lg:right-3 rtl:right-auto rtl:lg:right-auto rtl:left-2 rtl:lg:left-3 z-20 absolute pl-2 pr-2 pb-2 pt-2">
+          <span class="bg-[rgb(var(--colors-line-and-border))] block p-3 w-fit rounded-full">
+            {% render 'icon-alls', icon: 'icon-close', animation_class: 'icon-close-animation w-4 h-4' %}
           </span>
         </button>
-        <div id="ProductInfo-{{ section_id }}" class="w-full pb-1 lg:pl-0 md:pr-0 text-center{% unless is_rtl %} md:list-layout:text-left{% else %} md:list-layout:text-right{% endunless %}"> 
-          <p href="{{ product.url }}" class="product-title mt-3 text-[110%] font-medium leading-tight p-break-words">{{ product.title | escape }}</p>
+        <div id="ProductInfo-{{ section_id }}" class="w-full pb-1 lg:pl-0 md:pr-0 text-left{% unless is_rtl %} md:list-layout:text-left{% else %} md:list-layout:text-right{% endunless %}"> 
+          <p href="{{ product.url }}" class="product-title mt-3 x-card-title h5 leading-tight p-break-words">{{ product.title | escape }}</p>
           {% comment %} price {% endcomment %}
-          <div class="mt-4 mb-7 font-medium">
+          <div class="mt-4 mb-7 x-card-price">
             <div id="price-{{ section_id }}" role="status">
               {%- render 'price',
                 product: product,
@@ -275,7 +275,7 @@
               <div
                 x-data="xVariantSelect($el,'{{ section_id }}', false, '{{ unavailable_text }}', '{{ product.url }}', '{{ product.id }}', false, true, false, '', '', '{{ paginate.current_page }}', '{{ product.featured_media | image_url | default: "" }}')"
                 data-url="{{ product.url }}"
-                x-init="initVariant()"
+                x-init="initVariant($el)"
               >
                 <script type="application/json">
                   {{ product.variants | json }}
@@ -300,8 +300,8 @@
                             data-swatch="true"
                           {% endif %}
                         >
-                          <legend class="font-semibold p-break-words text-left rtl:text-right">{{ option.name }}{% if settings.products_color_swatches_enable_on_collection_page and settings.swatches_type == 'color' or settings.swatches_type == 'both_text_and_color' and settings.color_option_name contains option.name %}:
-                            <span x-text=" options[{{ option_index }}]"></span>
+                          <legend class="font-medium p-break-words text-left rtl:text-right">{{ option.name }}{% if settings.products_color_swatches_enable_on_collection_page and settings.swatches_type == 'color' or settings.swatches_type == 'both_text_and_color' and settings.color_option_name contains option.name %}:
+                            <span class="font-normal" x-text=" options[{{ option_index }}]"></span>
                           {% endif %}
                           </legend>
                           {%- liquid
@@ -549,7 +549,7 @@
           {% else %}
             x-data="xProductCart()"
           {% endif %}>
-            <div class="choose-option-footer mt-2.5 md:mt-0 gap-x-2.5 md:gap-0">
+            <div class="choose-option-footer text-center mt-2.5 md:mt-0 gap-x-2.5 md:gap-0">
             {% comment %} buy-button {% endcomment %}
               <div x-ref='product_form_container' class="button-product mb-3"
               >
@@ -595,7 +595,7 @@
                       type="submit"
                       @click.prevent="errorMessage == false && addToCart($event)"
                       :class="errorMessage && 'opacity-60 cursor-not-allowed'"
-                      class="hidden md:block relative choose_option_atc mt-2 not-icon add_to_cart_button button--quickview button button-solid disabled:opacity-60 disabled:cursor-not-allowed duration-200 text-[12px] lg:text-[14px] w-full pr-5 pl-5 md:list-layout:w-auto pt-2.5 pb-2.5 lg:pt-3 lg:pb-3"
+                      class="hidden md:block relative choose_option_atc h-full mt-2 not-icon add_to_cart_button button--quickview button button-solid disabled:opacity-60 disabled:cursor-not-allowed duration-200 text-[12px] lg:text-[14px] w-full pr-5 pl-5 md:list-layout:w-auto pt-2.5 pb-2.5 lg:pt-3 lg:pb-3"
                       {% if settings.enable_shipping_insurance and settings.shipping_insurance_added_by_default and shipping_insurance %}
                         x-init="loadInsurance('{{ shipping_insurance }}')"
                       {% endif %}

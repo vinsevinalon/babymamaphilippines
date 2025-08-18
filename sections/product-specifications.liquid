@@ -124,6 +124,7 @@
             {% endif %}
             {% if section.settings.image != blank %}
               <div class="relative {% if section.settings.image_mobile != blank and request.design_mode %} hidden md:block{% else %} block{% endif %} h-full w-full">
+                {% # theme-check-disable ImgLazyLoading %}
                 <parallax-image class="block h-full w-full">
                   <parallax-movement x-data="xParallax" x-intersect.once.margin.200px="load({{ settings.disable_parallax_effect }})">
                     <picture>
@@ -152,7 +153,7 @@
                         {% else %}
                           alt="{{ section.settings.image.alt | escape }}"
                         {% endif %}
-                        loading="lazy"
+                        {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                         onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                         sizes="(min-width: 1024px) {{ settings.page_width | divided_by: 2 | plus: 100 }}px, 100vw"
                         width="{{ section.settings.image.width }}"
@@ -162,9 +163,11 @@
                     </picture>
                   </parallax-movement>
                 </parallax-image>
+                {% # theme-check-enable ImgLazyLoading %}
               </div>
             {% endif %}
             {%- if section.settings.image_mobile != blank and request.design_mode or section.settings.image == blank -%}
+              {% # theme-check-disable ImgLazyLoading %}
               <parallax-image class="block h-full w-full{% if section.settings.image_mobile != blank %} md:hidden{% endif %}">
                 <parallax-movement x-data="xParallax" x-intersect.once.margin.200px="load({{ settings.disable_parallax_effect }})">
                   <img
@@ -178,7 +181,7 @@
                     src="{{ section.settings.image_mobile | image_url: width: 750 }}"
                     alt="{{ section.settings.image_mobile.alt | escape }}"
                     class="object-cover absolute top-0 left-0 h-full w-full animate-Xpulse skeleton-image"
-                    loading="lazy"
+                    {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                     onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                     width="{{ section.settings.image_mobile.width }}"
                     height="{{ section.settings.image_mobile.height }}"
@@ -186,6 +189,7 @@
                   />  
                 </parallax-movement>
               </parallax-image>
+              {% # theme-check-enable ImgLazyLoading %}
             {%- endif %}
             {% if section.settings.image_link %}
               </a>
@@ -207,8 +211,9 @@
               highlight_type: section.settings.highlight_type,
               color_heading_highlight_dark: section.settings.color_heading_highlight_dark,
               color_heading_highlight_light: section.settings.color_heading_highlight_light,
-              class: 'section-header h2 block leading-tight p-break-words',
+              class: 'h2 block leading-tight p-break-words',
               heading_tag: section.settings.heading_tag,
+              animation_heading: true
             %}
           </div>
         {%- endif -%}
@@ -301,6 +306,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.product_page.product_specification"
+    },
     {
       "type": "text",
       "id": "heading",
@@ -1054,6 +1063,7 @@
   "presets": [
     {
       "name": "t:sections.product-specifications.name",
+      "category": "t:categories.products",
       "blocks": [
         {
           "type": "specs"

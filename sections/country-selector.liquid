@@ -24,7 +24,7 @@
                 data-no-instant
                 @click="submit('{{ country.iso_code }}', 'currency_selector')">
                 <span>
-                  {{ country.market.handle }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
+                  {{ country.market.handle }} &#x200E;({{ country.currency.iso_code }} {{ country.currency.symbol }})&#x200E;
                 </span>
               </a>
             </li>
@@ -38,7 +38,7 @@
                 data-no-instant
                 @click="submit('{{ country.iso_code }}', 'currency_selector')">
                 <span>
-                  {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
+                  {{ country.name }} &#x200E;({{ country.currency.iso_code }} {{ country.currency.symbol }})&#x200E;
                 </span>
               </a>
             </li>
@@ -53,7 +53,7 @@
               data-no-instant
               @click="submit('{{ country.iso_code }}', 'currency_selector')">
               <span>
-                {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
+                {{ country.name }} &#x200E;({{ country.currency.iso_code }} {{ country.currency.symbol }})&#x200E;
               </span>
             </a>
           </li>

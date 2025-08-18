@@ -1,14 +1,9 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "general": {
+    "theme-mode": {
+      "light": "Leggero",
+      "dark": "Buio"
+    },
     "global": {
       "cancel": "Annulla",
       "copy_code": "copia codice",
@@ -78,8 +73,11 @@
       "view": "Visualizza il mio carrello ({{ count }})",
       "item_added": "Prodotto aggiunto al tuo carrello",
       "terms_confirm": "Si prega di accettare i termini e le condizioni.",
-      "enable_amount_freeship_html": "Aggiungi <span class=\"text-medium font-medium\">{{ amount_to_freeshipping }}</span> di più per ottenere la spedizione <span class=\"font-medium\">GRATUITA</span>",
+      "enable_amount_freeship_html": "Aggiungi <span class=\"text-medium font-medium\">{{ amount_to_freeshipping }}</span> di più per ottenere la spedizione <span class=\"font-medium\">GRATUITA<\/span>",
+      "enable_amount_freegift_html": "Aggiungi <span class=\"text-medium font-medium\">{{ amount_to_freegift }}<\/span> in più per ottenere {{ other_offer }}",
       "freeshipping": "Congratulazioni! Hai diritto alla spedizione gratuita!",
+      "freegift": "Congratulazioni! Hai diritto a {{ other_offer }}",
+      "free_all_offer": "Congratulazioni! Hai diritto alla spedizione gratuita e a {{ other_offer }}!",
       "freeshipping_value": "Spedizione gratuita",
       "apply": "Fare domanda a",
       "copy_link": "Copia collegamento",
@@ -426,7 +424,8 @@
       "choose_option": "Scegli prima una variante",
       "add_to_bundle": "Aggiungi al pacchetto",
       "bundle_empty": "Il tuo pacchetto è vuoto.",
-      "discount_label": "FUORI"
+      "discount_label": "FUORI",
+      "save": "Risparmia"
     },
     "promo-code-list": {
       "expired": "Scaduto",
@@ -452,6 +451,9 @@
       "hours": "ORE",
       "mins": "MIN",
       "secs": "SEC"
+    },
+    "social-feeds": {
+      "view_on_social": "View on social"
     }
   },
   "localization": {

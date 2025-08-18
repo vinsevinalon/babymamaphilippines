@@ -32,15 +32,17 @@
   {%- if highlight_icon_1 != blank -%} 
     {% if highlight_icon_1.type == 'file_reference' %}
       <div class="relative flex highlight-icon">
+        {% # theme-check-disable ImgLazyLoading %}
         <img
           src="{{ highlight_icon_1 | image_url: width: 100 }}"
           alt="{{ highlight_icon_1.value.alt | escape }}"
-          loading="lazy"
+          {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
           width="{{ highlight_icon_1.value.width }}"
           height="{{ highlight_icon_1.value.height }}"
           class="h-[30px]"
           style="width: {{ highlight_icon_1.value.aspect_ratio | times: 30 }}px"
         />
+        {% # theme-check-enable ImgLazyLoading %}
         {% if label_icon_1 != blank %}
           <div x-intersect.once="setPosition($el)" class="absolute p-break-words left-[calc(50%+var(--left-tooltip))] opacity-0 -z-10 highlight-icon-tooltip bottom-full pl-2 pr-2 pb-1 pt-1 w-max max-w-[var(--maxwidth-tooltip)] bg-theme-secondary -translate-x-1/2 before:w-2 before:h-2 before:rotate-45 before:absolute before:-bottom-1 before:left-[calc(50%-var(--left-tooltip))] before:-translate-x-1 before:bg-[rgb(var(--colors-background-secondary))]{% if settings.edges_type == 'rounded_corners' %} rounded-full{% endif %}" style="--left-tooltip: 0px; --maxwidth-tooltip: 200px">{{ label_icon_1 }}</div>
         {% endif %}
@@ -61,15 +63,17 @@
   {%- if highlight_icon_2 != blank -%} 
     {% if highlight_icon_2.type == 'file_reference' %}
       <div class="relative flex highlight-icon">
+        {% # theme-check-disable ImgLazyLoading %}
         <img
           src="{{ highlight_icon_2 | image_url: width: 100 }}"
           alt="{{ highlight_icon_2.value.alt | escape }}"
-          loading="lazy"
+          {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
           width="{{ highlight_icon_2.value.width }}"
           height="{{ highlight_icon_2.value.height }}"
           class="h-[30px]"
           style="width: {{ highlight_icon_2.value.aspect_ratio | times: 30 }}px"
         />
+        {% # theme-check-enable ImgLazyLoading %}
         {% if label_icon_2 != blank %}
           <div x-intersect.once="setPosition($el)" class="absolute p-break-words left-[calc(50%+var(--left-tooltip))] opacity-0 -z-10 highlight-icon-tooltip bottom-full pl-2 pr-2 pb-1 pt-1 w-max max-w-[var(--maxwidth-tooltip)] bg-theme-secondary -translate-x-1/2 before:w-2 before:h-2 before:rotate-45 before:absolute before:-bottom-1 before:left-[calc(50%-var(--left-tooltip))] before:-translate-x-1 before:bg-[rgb(var(--colors-background-secondary))]{% if settings.edges_type == 'rounded_corners' %} rounded-full{% endif %}" style="--left-tooltip: 0px; --maxwidth-tooltip: 200px">{{ label_icon_2 }}</div>
         {% endif %}
@@ -90,15 +94,17 @@
   {%- if highlight_icon_3 != blank -%} 
     {% if highlight_icon_3.type == 'file_reference' %}
       <div class="relative flex highlight-icon">
+        {% # theme-check-disable ImgLazyLoading %}
         <img
           src="{{ highlight_icon_3 | image_url: width: 100 }}"
           alt="{{ highlight_icon_3.value.alt | escape }}"
-          loading="lazy"
+          {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
           width="{{ highlight_icon_3.value.width }}"
           height="{{ highlight_icon_3.value.height }}"
           class="h-[30px]"
           style="width: {{ highlight_icon_3.value.aspect_ratio | times: 30 }}px"
         />
+        {% # theme-check-enable ImgLazyLoading %}
         {% if label_icon_3 != blank %}
           <div x-intersect.once="setPosition($el)" class="absolute p-break-words left-[calc(50%+var(--left-tooltip))] opacity-0 -z-10 highlight-icon-tooltip bottom-full pl-2 pr-2 pb-1 pt-1 w-max max-w-[var(--maxwidth-tooltip)] bg-theme-secondary -translate-x-1/2 before:w-2 before:h-2 before:rotate-45 before:absolute before:-bottom-1 before:left-[calc(50%-var(--left-tooltip))] before:-translate-x-1 before:bg-[rgb(var(--colors-background-secondary))]{% if settings.edges_type == 'rounded_corners' %} rounded-full{% endif %}" style="--left-tooltip: 0px; --maxwidth-tooltip: 200px">{{ label_icon_3 }}</div>
         {% endif %}
@@ -119,15 +125,17 @@
   {%- if highlight_icon_4 != blank -%} 
     {% if highlight_icon_4.type == 'file_reference' %}
       <div class="relative flex highlight-icon">
+        {% # theme-check-disable ImgLazyLoading %}
         <img
           src="{{ highlight_icon_4 | image_url: width: 100 }}"
           alt="{{ highlight_icon_4.value.alt | escape }}"
-          loading="lazy"
+          {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
           width="{{ highlight_icon_4.value.width }}"
           height="{{ highlight_icon_4.value.height }}"
           class="h-[30px]"
           style="width: {{ highlight_icon_4.value.aspect_ratio | times: 30 }}px"
         />
+        {% # theme-check-enable ImgLazyLoading %}
         {% if label_icon_4 != blank %}
           <div x-intersect.once="setPosition($el)" class="absolute p-break-words left-[calc(50%+var(--left-tooltip))] opacity-0 -z-10 highlight-icon-tooltip bottom-full pl-2 pr-2 pb-1 pt-1 w-max max-w-[var(--maxwidth-tooltip)] bg-theme-secondary -translate-x-1/2 before:w-2 before:h-2 before:rotate-45 before:absolute before:-bottom-1 before:left-[calc(50%-var(--left-tooltip))] before:-translate-x-1 before:bg-[rgb(var(--colors-background-secondary))]{% if settings.edges_type == 'rounded_corners' %} rounded-full{% endif %}" style="--left-tooltip: 0px; --maxwidth-tooltip: 200px">{{ label_icon_4 }}</div>
         {% endif %}

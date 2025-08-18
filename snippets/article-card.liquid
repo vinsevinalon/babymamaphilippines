@@ -78,7 +78,7 @@
         {% if image_ratio == "auto" %} style="height:0; padding-bottom: {{ 100 | divided_by: article.image.aspect_ratio }}%;"{% endif %}
       >
         <div class="w-full h-full z-0 overflow-hidden absolute top-0 left-0 animate_transition_card__image animate-Xpulse skeleton-image">
-          {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+          {% # theme-check-disable ImgLazyLoading %}
             <img
               srcset="{{ article.image.src | image_url: width: 225 }} 225w,
               {{ article.image.src | image_url: width: 375 }} 375w,
@@ -97,15 +97,14 @@
               (min-width: 768px) calc((100vw - 5rem) / 2),
               calc((100vw) / {{ columns_mobile }})"
               class="w-full h-full object-cover object-center image-hover animate_transition_image"
-              loading="lazy"  
+              {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
               width="{{ article.image.width }}"
               height="{{ article.image.height }}"
               onload="this?.classList.add('active'); 
                 this.closest('.animate_transition_card__image')?.classList.remove('animate-Xpulse', 'skeleton-image');
-                setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);
-              "
+                setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);"
             >
-          {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
+          {% # theme-check-enable ImgLazyLoading %}
           </div>
       </div>
     </{% if show_in_header %}div{% else %}a{% endif %}>

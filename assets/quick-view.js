@@ -82,13 +82,13 @@ requestAnimationFrame(() => {
           if (this.loadedChooseOptions[urlProduct]) {
             if (window.innerWidth > 767) {
               if (!el.closest('.card-product').querySelector('#choose-options-' + optionId)?.querySelector('.choose-options-content')) {
-                destinationElm.innerHTML = this.loadedChooseOptions[urlProduct];
-                destinationElmMobile.innerHTML = '';  
+                destinationElm && (destinationElm.innerHTML = this.loadedChooseOptions[urlProduct]);
+                destinationElmMobile && (destinationElmMobile.innerHTML = '');  
               }
             } else {
               if (!el.closest('.card-product').querySelector('#choose-options-mobile')) {
-                destinationElmMobile.innerHTML = this.loadedChooseOptions[urlProduct];
-                destinationElm.innerHTML = '';
+                destinationElmMobile && (destinationElmMobile.innerHTML = this.loadedChooseOptions[urlProduct]);
+                destinationElm && (destinationElm.innerHTML = '');
               }
             }
             return true;
@@ -107,11 +107,11 @@ requestAnimationFrame(() => {
                 
                 if (parsedContent) {
                   if (window.innerWidth > 767) {
-                    destinationElmMobile.innerHTML = '';
-                    destinationElm.innerHTML = parsedContent;
+                    destinationElmMobile && (destinationElmMobile.innerHTML = '');
+                    destinationElm && (destinationElm.innerHTML = parsedContent);
                   } else {
-                    destinationElmMobile.innerHTML = parsedContent;
-                    destinationElm.innerHTML = '';
+                    destinationElmMobile && (destinationElmMobile.innerHTML = parsedContent);
+                    destinationElm && (destinationElm.innerHTML = '');
                   }
                   this.loadedChooseOptions[urlProduct] = parsedContent;
                 }
@@ -122,18 +122,22 @@ requestAnimationFrame(() => {
                 const index = this.loadingUrls.indexOf(urlProduct);
                 if (index !== -1) this.loadingUrls.splice(index, 1);  
                 if (window.innerWidth > 767) {
-                  if (destinationElm.querySelector(".add_to_cart_button")) {
-                    destinationElm.querySelector(".add_to_cart_button").style.display="block";
-                  }
-                  if (destinationElm.querySelector(".label-btn-quickview")) {
-                    destinationElm.querySelector(".label-btn-quickview").style.display="none";
+                  if (destinationElm) {
+                    if (destinationElm.querySelector(".add_to_cart_button")) {
+                      destinationElm.querySelector(".add_to_cart_button").style.display="block";
+                    }
+                    if (destinationElm.querySelector(".label-btn-quickview")) {
+                      destinationElm.querySelector(".label-btn-quickview").style.display="none";
+                    }
                   }
                 } else {
-                  if (destinationElmMobile.querySelector(".add_to_cart_button")) {
-                    destinationElmMobile.querySelector(".add_to_cart_button").style.display="block";
-                  }
-                  if (destinationElmMobile.querySelector(".label-btn-quickview")) {
-                    destinationElmMobile.querySelector(".label-btn-quickview").style.display="none";
+                  if (destinationElmMobile) {
+                    if (destinationElmMobile.querySelector(".add_to_cart_button")) {
+                      destinationElmMobile.querySelector(".add_to_cart_button").style.display="block";
+                    }
+                    if (destinationElmMobile.querySelector(".label-btn-quickview")) {
+                      destinationElmMobile.querySelector(".label-btn-quickview").style.display="none";
+                    }
                   }
                 }      
               });

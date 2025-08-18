@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('quick-order-list.js')) {
-    window.Eurus.loadedScript.push('quick-order-list.js');
+if (!window.Eurus.loadedScript.has('quick-order-list.js')) {
+    window.Eurus.loadedScript.add('quick-order-list.js');
 
 requestAnimationFrame(()=>{
   document.addEventListener("alpine:init", ()=>{

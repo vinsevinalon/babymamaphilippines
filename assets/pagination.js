@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('pagination.js')) {
-  window.Eurus.loadedScript.push('pagination.js');
+if (!window.Eurus.loadedScript.has('pagination.js')) {
+  window.Eurus.loadedScript.add('pagination.js');
 
   requestAnimationFrame(() => {
     document.addEventListener("alpine:init", () => {

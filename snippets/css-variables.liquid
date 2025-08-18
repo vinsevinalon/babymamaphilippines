@@ -963,10 +963,13 @@
   }
   .x-card-title {
     font-size: {{ settings.title_size_card | times: 0.01 | times: 0.9 }}rem;
+    font-family: var(--font-heading-family);
+    font-weight: var(--font-heading-weight);
   }
   .x-card-price {
     font-size: {{ settings.price_size_card | times: 0.01 | times: 0.9 }}rem;
-    font-family: var(--font-body-family)
+    font-family: var(--font-body-family);
+    font-weight: var(--font-body-weight);
   }
   @media (min-width: 768px) {
     .x-card-title {

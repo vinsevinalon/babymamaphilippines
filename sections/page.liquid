@@ -12,7 +12,11 @@
   <div class="x-section-page">
     <div class="{% if section.settings.full_width %}w-full{% else %}page__container ml-auto mr-auto{% endif %} pr-5 pl-5">
       {%- if section.settings.select_page.title != blank -%}
-        <h2 class="h2 mb-5 pt-2 pb-2 text-left">{{ section.settings.select_page.title | escape }}</h2>
+        <div class="mb-5 pt-2 pb-2">
+          {% unless settings.disable_heading_animation %}<div class="overflow-hidden" x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')">{% endunless %}
+            <h2 class="h2 text-left{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ section.settings.select_page.title | escape }}</h2>
+          {% unless settings.disable_heading_animation %}</div>{% endunless %}
+        </div>
       {%- endif -%}
       <div class="page__body anm-fade-paragraph">
         <div x-intersect.once="$el.classList.add('is-visible')" class="rte anm-fade-element">
@@ -35,6 +39,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.page"
+    },
     {
       "type": "paragraph",
       "content": "t:sections.main-page.settings.description"
@@ -123,7 +131,8 @@
   ],
   "presets": [
     {
-      "name": "t:sections.section-page.name"
+      "name": "t:sections.section-page.name",
+      "category": "t:categories.blog_and_page"
     }
   ]
 }

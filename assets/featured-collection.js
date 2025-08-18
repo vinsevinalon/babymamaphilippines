@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('featured-collection.js')) {
-  window.Eurus.loadedScript.push('featured-collection.js');
+if (!window.Eurus.loadedScript.has('featured-collection.js')) {
+  window.Eurus.loadedScript.add('featured-collection.js');
 
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {
@@ -11,18 +11,6 @@ if (!window.Eurus.loadedScript.includes('featured-collection.js')) {
         loaded: [],
         select(index) {
           this.currentTab = index;
-          if (Shopify.designMode) {
-            this.currentTab = index - 1;
-            const content = document.createElement('div');
-            const template = container.querySelector(`#x-fc-${sectionId}-${index}`);
-            if (template) {
-              content.appendChild(template.content.firstElementChild.cloneNode(true));
-              container.appendChild(content.querySelector('.x-fc-content'));
-              template.remove();
-            }
-            
-            this.loading = false;
-          }
         },
         loadData(index) {
           const selectedPage = index - 1;
@@ -37,9 +25,6 @@ if (!window.Eurus.loadedScript.includes('featured-collection.js')) {
             ).then(responseText => {
               const html = (new DOMParser()).parseFromString(responseText, 'text/html');
               const contentId = `x-fc-${this.sectionId}-${index}`;
-              if (Shopify.designMode && document.getElementById(contentId)) {
-                document.getElementById(contentId).remove();
-              }
               const newContent = html.getElementById(contentId);
               if (newContent && !document.getElementById(contentId)) {
                 container.appendChild(newContent);

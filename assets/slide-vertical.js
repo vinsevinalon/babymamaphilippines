@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('slide-vertical.js')) {
-  window.Eurus.loadedScript.push('slide-vertical.js');
+if (!window.Eurus.loadedScript.has('slide-vertical.js')) {
+  window.Eurus.loadedScript.add('slide-vertical.js');
 
   requestAnimationFrame(() => {
     document.addEventListener("alpine:init", () => {

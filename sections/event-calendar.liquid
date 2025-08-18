@@ -122,7 +122,8 @@
         highlight_type: section.settings.highlight_type,
         class: 'h2 block leading-tight flex-auto p-break-words',
         heading_tag: section.settings.heading_tag,
-        heading_alignment: section.settings.heading_alignment
+        heading_alignment: section.settings.heading_alignment,
+        animation_heading: true
       %}
     {%- endif -%}
     {%- if section.settings.description != blank -%}
@@ -249,6 +250,7 @@
               class="animate_transition_card__image relative block{% if section.settings.image_ratio != "auto" %} h-0 pb-[{{ section.settings.image_ratio }}]{% endif %} animate-Xpulse skeleton-image"
               {% if section.settings.image_ratio == 'auto' and block.settings.image != blank %} style='padding-bottom: {{ 1 | divided_by: block.settings.image.aspect_ratio | times: 100 }}%;'{% endif %}
             >
+              {% # theme-check-disable ImgLazyLoading %}
               <img
                 class="block max-w-full image-hover absolute top-0 left-0 h-full w-full object-cover object-center animate_transition_image"
                 srcset="{{ block.settings.image | image_url: width: 375 }} 375w,
@@ -263,7 +265,7 @@
                   {{ block.settings.image | image_url: width: 3840 }} 3840w"
                 sizes="(min-width: 1000px) 400px, 100vw"
                 src="{{ block.settings.image | image_url: width: 3840 }}"
-                loading="lazy"
+                {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                 alt="{{ block.settings.image.alt | escape }}"
                 width="{{ block.settings.image.width }}"
                 height="{{ block.settings.image.width | divided_by: block.settings.image.aspect_ratio }}"
@@ -273,6 +275,7 @@
                   setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);
                 "
               />
+              {% # theme-check-enable ImgLazyLoading %}
             </div>
           {% endif %}
 
@@ -440,6 +443,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.event_calendar"
+    },
     {
       "type": "text",
       "id": "heading",
@@ -996,12 +1003,14 @@
           "type": "url",
           "id": "ticket_link",
           "label": "t:sections.event-calendar.settings.ticket_link.label",
-          "info": "t:sections.event-calendar.settings.ticket_link.info"
+          "info": "t:sections.event-calendar.settings.ticket_link.info",
+          "visible_if": "{{ block.settings.offer_tickets }}"
         },
         {
           "type": "text",
           "id": "ticket_button_label",
-          "label": "t:sections.event-calendar.settings.ticket_button_label.label"
+          "label": "t:sections.event-calendar.settings.ticket_button_label.label",
+          "visible_if": "{{ block.settings.offer_tickets }}"
         },
         {
           "type": "select",
@@ -1021,7 +1030,8 @@
             }
           ],
           "label": "t:sections.all.button.button_style.label",
-          "default": "primary"
+          "default": "primary",
+          "visible_if": "{{ block.settings.offer_tickets }}"
         },
         {
           "type": "header",
@@ -1363,7 +1373,8 @@
           "type": "number",
           "id": "end_year",
           "default": 2024,
-          "label": "t:sections.product-labels-and-badges.blocks.end_year.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_year.label",
+          "visible_if": "{{ block.settings.show_end_date }}"
         },
         {
           "type": "select",
@@ -1419,7 +1430,8 @@
             }
           ],
           "default": "January",
-          "label": "t:sections.promotion-banner.blocks.countdown.settings.end_month.label"
+          "label": "t:sections.promotion-banner.blocks.countdown.settings.end_month.label",
+          "visible_if": "{{ block.settings.show_end_date }}"
         },
         {
           "type": "select",
@@ -1551,7 +1563,8 @@
             }
           ],
           "default": "01",
-          "label": "t:sections.promotion-banner.blocks.countdown.settings.end_day.label"
+          "label": "t:sections.promotion-banner.blocks.countdown.settings.end_day.label",
+          "visible_if": "{{ block.settings.show_end_date }}"
         },
         {
           "type": "select",
@@ -1655,7 +1668,8 @@
             }
           ],
           "default": "00",
-          "label": "t:sections.product-labels-and-badges.blocks.end_hour.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_hour.label",
+          "visible_if": "{{ block.settings.show_end_date }}"
         },
         {
           "type": "select",
@@ -1679,7 +1693,8 @@
             }
           ],
           "default": "00",
-          "label": "t:sections.product-labels-and-badges.blocks.end_minute.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_minute.label",
+          "visible_if": "{{ block.settings.show_end_date }}"
         }
       ]
     }
@@ -1687,6 +1702,7 @@
   "presets": [
     {
       "name": "t:sections.event-calendar.name",
+      "category": "t:categories.brand_trust",
       "blocks": [
         {
           "type": "event"

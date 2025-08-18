@@ -272,23 +272,6 @@
               "perPage": 1,
               "focus": "center",
               "type": "{% if settings.product_card_effect_reveal_image == 'slide' and settings.show_arrow %}slide{% else %}fade{% endif %}",
-              "events": [
-                {
-                  "event": "ready",
-                  "callback": () => {
-                    window.requestAnimationFrame(() => {
-                      const nodeList = $el.querySelectorAll(".splide__pagination li");
-                      const reversed = Array.from(nodeList).reverse();
-
-                      reversed.forEach((el, index) => {
-                        if (index > {{ count_media }} - 1) {
-                          el.remove();
-                        }
-                      });
-                    })
-                  }
-                }
-              ],
               {% unless settings.show_arrow -%}
                 "cardHover": "image-product-{{ section_id }}-{{ product_card_id }}-{{ index | minus: 1 }}",
                 "maxSlide": "{{ count_media }}",
@@ -362,7 +345,7 @@
               {%- endif -%} 
               {%- if settings.product_image_type != "slide_img" or count_media <= 1 or class_slide == 'recommendations' %} top-0 left-0 absolute{% else %} overflow-hidden splide__slide x-splide-slide max-h-full{% endif -%}"
             >
-              {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+              {% # theme-check-disable ImgLazyLoading %}
               <picture>
                 <img
                   srcset="{{ product_featured_image | image_url: width: 450 }} 450w,
@@ -394,11 +377,12 @@
                     setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);"
                 />
               </picture>
-              {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
+              {% # theme-check-enable ImgLazyLoading %}
             </div>
             {%- if card_product.media[1] != nil -%}
               {%- if settings.product_image_type == "hover_to_reveal_second_image" -%}
                 <div class="w-full h-full top-0 left-0 absolute lg:block">
+                  {% # theme-check-disable ImgLazyLoading %}
                   <picture>
                     <img
                       srcset="{{ card_product.media[1] | image_url: width: 450 }} 450w,
@@ -417,13 +401,14 @@
                         {%- if settings.product_card_effect_reveal_image == 'fade' %} image-second-hover opacity-0 lg:group-hover:opacity-100{% endif -%}
                         {%- if settings.product_card_effect_reveal_image == 'slide' %} image-first-hover-slide-anm absolute top-0 -right-[101%]{% endif -%}
                       "
-                      loading="lazy"
+                      {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                       width="{{ card_product.media[1].width }}"
                       height="{{ card_product.media[1].height }}"
                       onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');
                         setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);"
                     />
                   </picture>
+                  {% # theme-check-enable ImgLazyLoading %}
                 </div>
               {%- elsif settings.product_image_type == "slide_img" and count_media > 1 and class_slide != 'recommendations' -%}
                 {% for media in card_product.media %}
@@ -436,6 +421,7 @@
                         {%- if animation_loading and settings.show_arrow == false %} opacity-0{% endif -%}
                       "
                     >
+                      {% # theme-check-disable ImgLazyLoading %}
                       <picture>
                         <img
                           srcset="{{ media | image_url: width: 450 }} 450w,
@@ -448,13 +434,14 @@
                           sizes="{{ sizes }}"
                           alt="{{ media.alt | split: "#" | first | escape }}"
                           class="w-full motion-reduce{% if media_aspect_ratio == "natural" %} aspect-auto{% else %} h-full min-h-full{% endif %} object-cover animate-Xpulse skeleton-image"
-                          loading="lazy"
+                          {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                           onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');
                             setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);"
                           width="{{ media.width }}"
                           height="{{ media.height }}"
                         />
                       </picture>
+                      {% # theme-check-enable ImgLazyLoading %}
                     </div>
                   {% endif %}
                   {% liquid 
@@ -489,6 +476,30 @@
           {%- endif -%}
         </div>
       </div>
+      {%- assign swatch_count = 0 -%}   
+      {%- for option in card_product.options_with_values -%}
+        {% liquid
+          assign show_swatch = false
+          assign show_color_swatch = false
+          assign show_text_swatch = false
+          if settings.products_color_swatches_enable_on_collection_page 
+            if settings.text_option_name contains option.name and settings.swatches_type == 'text'
+              assign show_text_swatch = true
+            endif
+            if settings.color_option_name contains option.name and settings.swatches_type == 'color'
+              assign show_color_swatch = true
+            endif
+            if settings.swatches_type == 'both_text_and_color'
+              if settings.text_option_name contains option.name or settings.color_option_name contains option.name
+                assign show_swatch = true
+              endif
+            endif
+          endif
+        %}
+        {% if show_swatch or show_text_swatch or show_color_swatch %}
+          {%- assign swatch_count = swatch_count | plus: 1 -%}
+        {% endif %}
+      {%- endfor -%}
       {% unless disable_quickview %}
         <div class="md:list-layout:hidden" x-show="$store.xQuickView" :class="$store.xQuickView && $store.xQuickView.btn_atc_bottom ? 'mobile-bottom':''">
           {%- unless settings.hide_cart -%} 
@@ -500,28 +511,6 @@
                 :class="if($store.xQuickView){ return ($store.xQuickView.btn_atc_bottom ? 'hidden' : '') + ($store.xQuickView.atc_btn_image_desktop ? ' lg:block' : ' lg:hidden') }"
                 x-cloak
               >
-                {%- assign swatch_count = 0 -%}   
-                {%- for option in card_product.options_with_values -%}
-                  {% liquid
-                    assign show_swatch = false
-                    assign show_color_swatch = false
-                    assign show_text_swatch = false
-                    if settings.text_option_name contains option.name and settings.swatches_type == 'text'
-                      assign show_text_swatch = true
-                    endif
-                    if settings.color_option_name contains option.name and settings.swatches_type == 'color'
-                      assign show_color_swatch = true
-                    endif
-                    if settings.swatches_type == 'both_text_and_color'
-                      if settings.text_option_name contains option.name or settings.color_option_name contains option.name
-                        assign show_swatch = true
-                      endif
-                    endif
-                  %}
-                  {% if show_swatch or show_text_swatch or show_color_swatch %}
-                    {%- assign swatch_count = swatch_count | plus: 1 -%}
-                  {% endif %}
-                {%- endfor -%}
                 {% if card_product.options_with_values.size == swatch_count or card_product.has_only_default_variant %}
                   {%- assign product_form_id = 'product-form-choose-option' | append: card_product.id | append: index_param -%}
                   {%- form 'product', card_product, id: product_form_id, class: 'form h-full', novalidate: 'novalidate', data-type: 'add-to-cart-form', x-ref: 'product_form' -%}
@@ -674,10 +663,19 @@
                     data-id="{{ section_id }}-{{ card_product.id }}-{{ block_id }}"
                     class="button button--quickview button-solid not-icon leading-normal w-full pr-5 pl-5 py-2.5 lg:py-3 h-full text-[12px] lg:text-[14px] lg:-translate-x-0 disabled:cursor-not-allowed disabled:opacity-60 hidden{% if show_icon_atc %} xl:block{% else %} lg:block{% endif %}"
                     :class="errorMessage && 'opacity-60 cursor-not-allowed'"
-                    aria-label="{{ 'products.product.choose_options' | t }}"
+                    {% if card_product.selected_or_first_available_variant.available == false %}
+                      disabled
+                      aria-label="{{ 'products.product.sold_out' | t }}"
+                    {% else %}
+                      aria-label="{{ 'products.product.choose_options' | t }}"
+                    {% endif %}
                   >
                     <span :class="{ 'lg:block opacity-0 is-focus-button' : loading, 'hidden' : errorMessage}">
-                      {% assign button_label = 'products.product.choose_options' | t %}
+                      {% if card_product.selected_or_first_available_variant.available == false %}
+                        {% assign button_label = 'products.product.sold_out' | t %}
+                      {% else %}
+                        {% assign button_label = 'products.product.choose_options' | t %}
+                      {% endif %}
                       <span class="flex items-center justify-center">
                         {% render 'button-label', button_label: button_label, show_button_style: 'primary' %}
                       </span>
@@ -760,11 +758,14 @@
     {% capture card_info %}
       <div class="card-info{% if product_complementary %} pl-4 pt-1{% elsif collage %} pt-3.5{% else %} pt-5{% endif %} md:list-layout:pt-0 md:list-layout:lg:pt-0{% if card_full_width %} pl-5 pr-5 md:pl-0 md:pr-0{% endif %}">
         <div class="no-collage:mb-2{% unless product_complementary %} text-{{ content_alignment }}{% else %} pr-4{% endunless %} {% unless is_rtl %} md:list-layout:text-left{% else %} md:list-layout:text-right{% endunless %}">
+          {% if show_highlighted_features and settings.highlighted_features_position == "top_card" %}
+            {% render 'highlighted-features', card_product: card_product %}
+          {% endif %}
           <div class="below-image ltr flex flex-wrap justify-{{ content_alignment }} md:list-layout:justify-start rtl:md:list-layout:justify-end mb-2 gap-1 empty:hidden"></div>
           {%- if show_vendor -%}
             <div class="mb-0.5 uppercase tracking-widest {% if mediaGallery %}card-product-vendor-text-{{ block_id }}{% else %}text-small{% endif %} p-break-words">{{ card_product.vendor }}</div>
           {%- endif -%}
-          <{% if product_complementary %}p{% else %}h3{% endif %} class="card__heading h5 no-collage:mb-2 mb-3 leading-tight"{% if card_product.featured_media %} id="title-{{ section_id }}-{{ card_product.id }}"{% endif %}>
+          <{% if product_complementary or list_layout %}p{% else %}h3{% endif %} class="card__heading h5 no-collage:mb-2 mb-3 leading-tight"{% if card_product.featured_media %} id="title-{{ section_id }}-{{ card_product.id }}"{% endif %}>
             <a href="{{ card_product.url | within: collection }}"
               class="x-card-title full-unstyled-link link-product-variant {% if mediaGallery %}card-product-title-text-{{ block_id }}{% endif %} text-[rgba(var(--colors-heading))] hover:text-[rgba(var(--colors-text-link))] cursor-pointer duration-200 p-break-words"
               @click='$store.xCustomerEvent.fire("product_selected", $el)'
@@ -772,7 +773,10 @@
             >
               {{ card_product.title | escape }}
             </a>
-          {% if product_complementary %}</p>{% else %}</h3>{% endif %}
+          {% if product_complementary or list_layout %}</p>{% else %}</h3>{% endif %}
+          {% if show_highlighted_features and settings.highlighted_features_position == "below_title" %}
+            {% render 'highlighted-features', card_product: card_product %}
+          {% endif %}
           {% if show_highlighted_attributes %}
             {% render 'highlight-icon-card-product', card_product: card_product, content_alignment: content_alignment %}
           {% endif %}
@@ -800,6 +804,9 @@
             {% endif %}
             <div class="next-price empty:hidden"></div>
           </div>
+          {% if show_highlighted_features and settings.highlighted_features_position == "below_price" %}
+            {% render 'highlighted-features', card_product: card_product %}
+          {% endif %}
           <div id="x-availability-notice-{{ section.id }}" class="flex items-center flex-wrap gap-1{% unless product_complementary %}{% unless content_alignment == 'right' %} justify-{{ content_alignment }}{% endunless %} rtl:flex-row-reverse md:rtl:list-layout:flex-row md:list-layout:justify-start{% if content_alignment == 'right' %} flex-row-reverse rtl:flex-row md:list-layout:flex-row{% endif %}{% endunless %}" x-show="$store.xStoreSelector?.canShow('{{ card_product.id }}', [{{ card_product.collections | map: 'id' | join: ', ' }}])">
             {%- render 'availability-notice',
               product: card_product
@@ -921,10 +928,8 @@
           %}
           <div
             class="x-variants-data"
-            {% if settings.swatches_type == 'both_text_and_color' or settings.swatches_type == 'color' %}
-              x-data="xVariantSelect($el,'{{ section_id }}-{{ product_card_id }}', false, '{{ 'products.product.unavailable' | t }}', '{{ card_product.url | within: collection | split: "?" | first }}', '{{ card_product.id }}', false, true, false, '{{ section.id }}', '', '', '{{ card_product.featured_media | image_url | default: "" }}', {{ index_param }})"
-              {% unless is_cbl %}x-init="initVariant()"{% endunless %}
-            {% endif %}
+            x-data="xVariantSelect($el,'{{ section_id }}-{{ product_card_id }}', false, '{{ 'products.product.unavailable' | t }}', '{{ card_product.url | within: collection | split: "?" | first }}', '{{ card_product.id }}', false, true, false, '{{ section.id }}', '', '', '{{ card_product.featured_media | image_url | default: "" }}', {{ index_param }})"
+            {% unless is_cbl %}x-init="initVariant($el)"{% endunless %}
           >
             <script type="application/json">
               {{ card_product.variants | json }}
@@ -1089,21 +1094,21 @@
                           value="{{ value | escape | replace: '&lt;', '\u003c' | replace: '&gt;', '\u003e' }}"
                           form="{{ product_form_id }}"
                           class="absolute opacity-0 h-1 w-1 input-radio{% if option_disabled and settings.swatches_type != 'both_text_and_color' %} disabled{% endif %}"
+                          x-model="options[{{ option_index }}]"
                           {% if settings.swatches_type == 'both_text_and_color' %}
                             {% if option_index > 0 %}
                               :class="{'disabled': isSelect && (!currentAvailableOptions[{{ option_index }}] || !currentAvailableOptions[{{ option_index }}].includes(`{{ value | escape }}`))}"
                             {% elsif option_disabled %}
                               :class="{'disabled': isSelect }"
                             {% endif %}
-                            x-model="options[{{ option_index }}]"
                           {% endif %}
                           {% if settings.swatches_type == 'both_text_and_color' and card_product.options_with_values.size > 1 %}
-                            x-on:change="setTimeout(() => { $store.xBadges && $store.xBadges.load(document.getElementById('{{ card_product.id }}-{{ section.id }}'), () => {}, null, true);$store.xPreviewColorSwatch.onChangeVariant($el,'{{ card_product.url | within: collection | split: "?" | first }}', '{{ card_product.featured_media | image_url | default: "" }}', {{ variant_value.id | default: "" }}, '{{ section_id }}-{{ product_card_id }}', {% if settings.swatches_type == 'color' or settings.swatches_type == 'both_text_and_color' and settings.color_option_name contains option.name %}true{% endif %}) }, 0)"
+                            x-on:change="setTimeout(() => { $store.xBadges && $store.xBadges.load(document.getElementById('{{ card_product.id }}-{{ section.id }}'), () => {}, null, true);$store.xPreviewColorSwatch.onChangeVariant($el,'{{ card_product.url | within: collection | split: "?" | first }}', '{{ card_product.featured_media | image_url | default: "" }}', {{ variant_value.id | default: "" }}, '{{ section_id }}-{{ product_card_id }}', {% if settings.swatches_type == 'color' or settings.swatches_type == 'both_text_and_color' and settings.color_option_name contains option.name %}true{% endif %});$store.xQuickView.show_atc_button && $store.xPreviewColorSwatch.updateQuickAdd('{{ card_product.url | within: collection | split: "?" | first }}','{{ variant_value.id }}', {% if index_param %}{{ index_param }},{% endif %} '{{ card_product.id }}', $el) }, 0)"
                           {% else %}
-                            x-on:change="setTimeout(() => { $store.xBadges && $store.xBadges.load(document.getElementById('{{ card_product.id }}-{{ section.id }}'), () => {}, null, true);$store.xPreviewColorSwatch.updateImage($el,'{{ card_product.url | within: collection | split: "?" | first }}', '{{ preview_image | image_url | default: "" }}', '{{ variant_value.id }}'); $store.xQuickView.show_atc_button && $store.xPreviewColorSwatch.updateQuickAdd('{{ card_product.url | within: collection | split: "?" | first }}','{{ variant_value.id }}', {% if index_param %}{{ index_param }},{% endif %} '{{ card_product.id }}') }, 0)"
+                            x-on:change="setTimeout(() => { $store.xBadges && $store.xBadges.load(document.getElementById('{{ card_product.id }}-{{ section.id }}'), () => {}, null, true);$store.xPreviewColorSwatch.updateImage($el,'{{ card_product.url | within: collection | split: "?" | first }}', '{{ preview_image | image_url | default: "" }}', '{{ variant_value.id }}'); $store.xQuickView.show_atc_button && $store.xPreviewColorSwatch.updateQuickAdd('{{ card_product.url | within: collection | split: "?" | first }}','{{ variant_value.id }}', {% if index_param %}{{ index_param }},{% endif %} '{{ card_product.id }}', $el) }, 0)"
                           {% endif %}
                           aria-label="{{ value | escape }}"
-                          {% if forloop.first %}
+                          {% if value == option.selected_value %}
                             checked
                           {% endif %}
                         >
@@ -1414,7 +1419,7 @@
                       {% endif %}
                     {%- endif -%}
                     data-id="{{ section_id }}-{{ card_product.id }}-{{ block_id }}"
-                    class="button button--quickview button-solid not-icon leading-normal w-full py-2.5 pl-5 pr-5 lg:py-3 h-full z-50 text-[12px] lg:text-[14px] lg:-translate-x-0 disabled:cursor-not-allowed disabled:opacity-60 hidden{% if show_icon_atc %} xl:block{% else %} lg:block{% endif %}"
+                    class="button button--quickview button-solid not-icon leading-normal w-full py-2.5 pl-5 pr-5 lg:py-3 h-full z-20 text-[12px] lg:text-[14px] lg:-translate-x-0 disabled:cursor-not-allowed disabled:opacity-60 hidden{% if show_icon_atc %} xl:block{% else %} lg:block{% endif %}"
                     {% if settings.enable_shipping_insurance and settings.shipping_insurance_added_by_default and shipping_insurance %}
                       x-init="loadInsurance('{{ shipping_insurance }}')"
                     {% endif %}
@@ -1582,7 +1587,7 @@
           <button 
             x-on:mouseover="$store.xQuickView && $store.xQuickView.load('{{ card_product.url | within: collection | split: "?" | first }}', $el, '{{ section_id }}-{{ card_product.id }}-{{ block_id }}')" 
             x-on:focus="$store.xQuickView && $store.xQuickView.load('{{ card_product.url | within: collection | split: "?" | first }}', $el, '{{ section_id }}-{{ card_product.id }}-{{ block_id }}')" 
-            @click.prevent='$store.xQuickView && $store.xQuickView.load("{{ card_product.url | within: collection | split: "?" | first }}", $el, "{{ section_id }}-{{ card_product.id }}-{{ block_id }}") && $store.xQuickView.open(); $store.xCustomerEvent.fire("product_selected", $el);' 
+            @click.prevent='$store.xQuickView && $store.xQuickView.open(); $store.xCustomerEvent.fire("product_selected", $el);' 
             class="button label-btn-quickview button-solid button--quickview leading-normal none_border pt-2 pl-5 pb-2 pr-5 lg:pt-3 lg:pb-3" 
             aria-label="{{ 'products.product.button_quickview' | t }}"
             x-customer-event-data="{{ data_for_customer_event | escape }}"

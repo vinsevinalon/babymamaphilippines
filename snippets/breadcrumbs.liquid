@@ -2,12 +2,16 @@
   .bg-breadcrumb--{{ section.id }} {
     {% unless background_color_light.alpha == 0.0 %}
       background: {{ background_color_light }};
+    {% else %}
+      background: rgba(var(--colors-background-secondary));
     {% endunless %}
   }
   .breadcrumb__divider,
   .bg-breadcrumb--{{ section.id }}, .bg-breadcrumb--{{ section.id }} .before-link::before, .bg-breadcrumb--{{ section.id }} .nav-link:before {
     {% unless text_color_light.alpha == 0.0 %}
       --colors-text: {{ text_color_light.red }},{{ text_color_light.green }},{{ text_color_light.blue }};
+    {% else %}
+      --colors-text: {{ settings.secondary_text.red }}, {{ settings.secondary_text.green }}, {{ settings.secondary_text.blue }};
     {% endunless %}
     {% unless textlink_color_light.alpha == 0.0 %}
       --colors-text-link: {{ textlink_color_light.red }},{{ textlink_color_light.green }},{{ textlink_color_light.blue }};
@@ -17,7 +21,7 @@
     {% unless background_color_dark.alpha == 0.0 %}
       background: {{ background_color_dark }};
     {% else %}
-      background: {{ settings.colors_dark_background }};
+      background: rgba(var(--colors-background-secondary));
     {% endunless %}
   }
   .dark .breadcrumb__divider,
@@ -25,7 +29,7 @@
     {%- unless text_color_dark.alpha == 0.0 -%}
       --colors-text: {{ text_color_dark.red }},{{ text_color_dark.green }},{{ text_color_dark.blue }};
     {% else %}  
-      --colors-text: transparent;
+      --colors-text: {{ settings.secondary_text_dark.red }}, {{ settings.secondary_text_dark.green }}, {{ settings.secondary_text_dark.blue }};
     {% endunless %}
     {%- unless textlink_color_dark.alpha == 0.0 -%}
       --colors-text-link: {{ textlink_color_dark.red }},{{ textlink_color_dark.green }},{{ textlink_color_dark.blue }};

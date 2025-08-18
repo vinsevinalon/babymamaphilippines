@@ -39,6 +39,24 @@
     endif
   endif
   
+  assign rounded_desktop = section.settings.rounded_corner_image
+  assign rounded_mobile = section.settings.rounded_corner_image_mobile
+
+  if section.settings.adapt_corners_desktop 
+    if settings.edges_type == 'rounded_corners'
+      assign rounded_desktop = true
+    else
+      assign rounded_desktop = false
+    endif 
+  endif
+
+  if section.settings.adapt_corners_mobile
+    if settings.edges_type == 'rounded_corners'
+      assign rounded_mobile = true
+    else
+      assign rounded_mobile = false
+    endif 
+  endif
 -%}
 
 {%- style -%}
@@ -78,7 +96,7 @@
   {%- endif -%}
 {%- endstyle -%}
 <div class="pt-[{{ section.settings.padding_top_mobile }}px] md:pt-[{{ section.settings.padding_top }}px] pb-[{{ section.settings.padding_bottom_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px]{% if section.settings.full_width %} {% if section.settings.padding_full_width %} md:pl-5 md:pr-5{% else %} md:pl-0 md:pr-0{% endif %}{% else %} x-pgw page-width{% endif %}{% if section.settings.full_width_mobile %} full-width-mobile{% else %} pl-5 pr-5{% endif %}">
-  <div class="promotion bg-opacity-80 bg-[#c9c9c9] section--{{ section.id }} w-full flex relative overflow-hidden{% if section.settings.desktop_height == "natural" %}{% if section.settings.image != blank %} md:h-0 desktop-{{ section.id }}-natural{% else %} md:promotion:h-[650px]{% endif %}{% else %} md:promotion:h-[{{ section.settings.desktop_height }}] md:promotion:pb-0{% endif %}{% if section.settings.rounded_corner_image %} md:rounded-[10px] z-20{% else %} md:rounded-none{% endif %}{% if section.settings.rounded_corner_image_mobile %}  z-20 rounded-[10px]{% endif %}
+  <div class="promotion bg-opacity-80 bg-[#c9c9c9] section--{{ section.id }} w-full flex relative overflow-hidden{% if section.settings.desktop_height == "natural" %}{% if section.settings.image != blank %} md:h-0 desktop-{{ section.id }}-natural{% else %} md:promotion:h-[650px]{% endif %}{% else %} md:promotion:h-[{{ section.settings.desktop_height }}] md:promotion:pb-0{% endif %}{% if rounded_desktop %} md:rounded-[10px] z-20{% else %} md:rounded-none{% endif %}{% if rounded_mobile %}  z-20 rounded-[10px]{% endif %}
     {% if section.settings.mobile_height == "natural" %}{% if section.settings.image_mobile != blank %} h-0 mobile-{{ section.id }}-natural{% else %} h-[550px]{% endif %}{% else %}h-[{{ section.settings.mobile_height }}] md:h-auto{% endif %}"
     x-data='{
       data: {
@@ -131,11 +149,18 @@
         {%- endif -%}
         {%- if section.settings.image != blank -%}
           {% if section.settings.show_hero %}
+            {% liquid
+              if settings.enable_lazy_loading_image
+                assign loading = 'lazy'
+              else
+                assign loading = 'eager'
+              endif
+            %}
             <div class="hidden">
               {%- if section.settings.image_mobile != blank -%}
-                {{ image_url_mobile | image_url: width: 1500 | image_tag: widths: '375, 450, 750, 900, 1100, 1500', preload: true, loading: 'lazy' }}
+                {{ image_url_mobile | image_url: width: 1500 | image_tag: widths: '375, 450, 750, 900, 1100, 1500', preload: true, loading: loading }}
               {%- endif -%}
-              {{ section.settings.image | image_url: width: 3840 | image_tag: widths: '750, 900, 1100, 1500, 1780, 2000, 3000, 3840', preload: true, loading: 'lazy' }}
+              {{ section.settings.image | image_url: width: 3840 | image_tag: widths: '750, 900, 1100, 1500, 1780, 2000, 3000, 3840', preload: true, loading: loading }}
             </div>
           {% endif %}
           <div class="w-full{{ class_img_1 }}">
@@ -164,7 +189,11 @@
                       {{ section.settings.image | image_url: width: 3000 }} 3000w,
                       {{ section.settings.image | image_url: width: 3840 }} 3840w"
                     {% unless section.settings.show_hero %}
-                      loading="lazy"
+                      {% if settings.enable_lazy_loading_image %}
+                        loading="lazy"
+                      {% else %}
+                        loading="eager"
+                      {% endif %}
                     {% else %}
                       loading="eager"
                       fetchpriority="high"
@@ -222,7 +251,11 @@
                       {{ section.settings.image_2 | image_url: width: 3000 }} 3000w,
                       {{ section.settings.image_2 | image_url: width: 3840 }} 3840w"
                     {% unless section.settings.show_hero %}
-                      loading="lazy"
+                      {% if settings.enable_lazy_loading_image %}
+                        loading="lazy"
+                      {% else %}
+                        loading="eager"
+                      {% endif %}
                     {% else %}
                       loading="eager"
                       fetchpriority="high"
@@ -279,7 +312,11 @@
                     {{ section.settings.image_3 | image_url: width: 3000 }} 3000w,
                     {{ section.settings.image_3 | image_url: width: 3840 }} 3840w"
                   {% unless section.settings.show_hero %}
-                    loading="lazy"
+                    {% if settings.enable_lazy_loading_image %}
+                      loading="lazy"
+                    {% else %}
+                      loading="eager"
+                    {% endif %}
                   {% else %}
                     loading="eager"
                     fetchpriority="high"
@@ -315,7 +352,11 @@
                   src="{{ section.settings.image_mobile | image_url: width: 767 }}"
                   alt="{{ section.settings.image_mobile.alt | escape }}"
                   {% unless section.settings.show_hero %}
-                    loading="lazy"
+                    {% if settings.enable_lazy_loading_image %}
+                      loading="lazy"
+                    {% else %}
+                      loading="eager"
+                    {% endif %}
                   {% else %}
                     loading="eager"
                     fetchpriority="high"
@@ -586,7 +627,8 @@
                       "end_day": {{ block.settings.end_day | default: 0 }},
                       "end_hour": {{ block.settings.end_hour | default: 0 }},
                       "end_minute": {{ block.settings.end_minute | default: 0 }},
-                      "justify": "{{ section.settings.content_alignment }}"
+                      "reset": {% if block.settings.countdown_type == 'evergreen' %}true{% else %}false{% endif %},
+                      "duration": {% if block.settings.interval_unit == 'day' %}{{ block.settings.countdown_interval | times: 86400000 }}{% else %}{{ block.settings.countdown_interval | times: 3600000 }}{% endif %}
                     }, (canShow, s, m, h, d) => {
                       days = d;
                       hours = h;
@@ -676,6 +718,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.promotion_banner"
+    },
     {
       "type": "text",
       "label": "t:sections.all.text.heading",
@@ -785,7 +831,8 @@
       "unit": "%",
       "label": "t:sections.promotion-banner.settings.content_horizontal.label",
       "default": 50,
-      "info": "t:sections.all.content_position.custom_position_info"
+      "info": "t:sections.all.content_position.custom_position_info",
+      "visible_if": "{{ section.settings.content_position == 'custom' }}"
     },
     {
       "type": "range",
@@ -796,7 +843,8 @@
       "unit": "%",
       "label": "t:sections.promotion-banner.settings.content_vertical.label",
       "default": 50,
-      "info": "t:sections.all.content_position.custom_position_info"
+      "info": "t:sections.all.content_position.custom_position_info",
+      "visible_if": "{{ section.settings.content_position == 'custom' }}"
     },
     {
       "type": "select",
@@ -884,13 +932,21 @@
       "id": "padding_full_width",
       "default": false,
       "label": "t:sections.all.padding.padding_full_width.label",
-      "info": "t:sections.all.padding.padding_full_width.info"
+      "info": "t:sections.all.padding.padding_full_width.info",
+      "visible_if": "{{ section.settings.full_width }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "adapt_corners_desktop",
+      "label": "t:sections.slideshow.settings.enable_adapt",
+      "default": true
     },
     {
       "type": "checkbox",
       "id": "rounded_corner_image",
       "default": false,
-      "label": "t:sections.promotion-grid.blocks.promotion.settings.rounded_corner_image.label"
+      "label": "t:sections.featured-product.blocks.rounded_corner.label",
+      "visible_if": "{{ section.settings.adapt_corners_desktop == false }}"
     },
     {
       "type": "select",
@@ -956,9 +1012,16 @@
     },
     {
       "type": "checkbox",
+      "id": "adapt_corners_mobile",
+      "label": "t:sections.slideshow.settings.enable_adapt",
+      "default": true
+    },
+    {
+      "type": "checkbox",
       "id": "rounded_corner_image_mobile",
       "default": false,
-      "label": "t:sections.promotion-grid.blocks.promotion.settings.rounded_corner_image.label"
+      "label": "t:sections.featured-product.blocks.rounded_corner.label",
+      "visible_if": "{{ section.settings.adapt_corners_mobile == false }}"
     },
     {
       "type": "select",
@@ -1290,6 +1353,61 @@
         {
           "type": "paragraph",
           "content": "t:sections.promotion-banner.blocks.countdown.content"
+        },
+        {
+          "type": "select",
+          "id": "countdown_type",
+          "options": [
+            {
+              "value": "standard",
+              "label": "t:sections.promotion-banner.blocks.countdown.settings.countdown_type.standard"
+            },
+            {
+              "value": "evergreen",
+              "label": "t:sections.promotion-banner.blocks.countdown.settings.countdown_type.evergreen"
+            }
+          ],
+          "default": "standard",
+          "label": "t:sections.promotion-banner.blocks.countdown.settings.countdown_type.label",
+          "info": "t:sections.promotion-banner.blocks.countdown.settings.countdown_type.info"
+        },
+        {
+          "type": "range",
+          "id": "countdown_interval",
+          "label": "t:sections.promotion-banner.blocks.countdown.settings.countdown_interval.label",
+          "default": 7,
+          "max": 30,
+          "min": 1,
+          "step": 1,
+          "visible_if": "{{ block.settings.countdown_type == 'evergreen' }}"
+        },
+        {
+          "type": "select",
+          "id": "interval_unit",
+          "label": "t:sections.promotion-banner.blocks.countdown.settings.interval_unit.label",
+          "options": [
+            {
+              "label": "t:sections.promotion-banner.blocks.countdown.settings.interval_unit.options.days",
+              "value": "day"
+            },
+            {
+              "label": "t:sections.promotion-banner.blocks.countdown.settings.interval_unit.options.hours",
+              "value": "hour"
+            }
+          ],
+          "default": "day",
+          "visible_if": "{{ block.settings.countdown_type == 'evergreen' }}"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.event-calendar.blocks.event.settings.start_date.content",
+          "info": "t:sections.promotion-banner.blocks.countdown.settings.start_date_group.info",
+          "visible_if": "{{ block.settings.countdown_type == 'evergreen' }}"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.event-calendar.blocks.event.settings.end_date.content",
+          "visible_if": "{{ block.settings.countdown_type == 'standard' }}"
         },
         {
           "type": "select",
@@ -1734,6 +1852,10 @@
           "label": "t:settings_schema.shipping_delivery.estimate_delivery.cutoff_minute.label"
         },
         {
+          "type": "header",
+          "content": "t:sections.promotion-banner.blocks.countdown.settings.timer_style_group.content"
+        },
+        {
           "type": "select",
           "id": "timer_style",
           "options": [
@@ -1860,6 +1982,7 @@
   "presets": [
     {
       "name": "t:sections.promotion-banner.name",
+      "category": "t:categories.promotions",
       "blocks": [
         {
           "type": "image_banner"

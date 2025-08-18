@@ -14,12 +14,10 @@
     assign enable_desktop_slider = false
   endif
   if settings.lang_direction contains request.locale.iso_code
-  assign is_rtl = true
-  assign class_rtl = "margin-left"
-else
-  assign is_rtl = false
-  assign class_rtl = "margin-right"
-endif
+    assign is_rtl = true
+  else
+    assign is_rtl = false
+  endif
 -%}
 {%- style -%}
   .size_icon_testimonial--{{ section.id }} {
@@ -121,7 +119,7 @@ endif
     {% if section.settings.item_text_color_dark.alpha != 0.0 %}
       --colors-text: {{ section.settings.item_text_color_dark.red }}, {{ section.settings.item_text_color_dark.green }}, {{ section.settings.item_text_color_dark.blue }};
     {% else %}
-      --colors-text: var(--colors-text);
+      --colors-text: {{ settings.colors_dark_text.red }}, {{ settings.colors_dark_text.green }}, {{ settings.colors_dark_text.blue }};
     {% endif %}
   }
   .pagination-color-{{ section.id }} {
@@ -140,15 +138,27 @@ endif
     color: rgba({{ settings.colors_dark_text.red }}, {{ settings.colors_dark_text.green }}, {{ settings.colors_dark_text.blue }});
     border-color: rgba({{ settings.colors_dark_text.red }}, {{ settings.colors_dark_text.green }}, {{ settings.colors_dark_text.blue }});
   }
+  {% if request.visual_preview_mode %}
+    @media (min-width: 1024px){
+      .x-splide-slide {
+          width: calc(50% + 0px);
+      }
+    }
+    @media(min-width: 768px) {
+      .testimonial-with-card .testimonial_slide {
+        padding: 16px;
+      }
+    }
+    @media (max-width: 1023px) {
+      .x-splide-slide {
+        width: 100%
+      }
+    }
+  {% endif %} 
   {% if enable_desktop_slider %}
     @media (min-width: 1024px){
-      .preload-slide--{{ section.id }} .splide__track {
-        padding-left: 207px;
-        padding-right: 207px;
-      }
       .preload-slide--{{ section.id }} .x-splide-slide {
-        width: calc(100% + 0px);
-        {{ class_rtl }}: 10px;
+        width: calc(50% + 0px);
       }
     }
   {% endif %}
@@ -156,7 +166,6 @@ endif
   {% if swiper_on_mobile %}
     @media (max-width: 1023px) {
       .preload-slide--{{ section.id }} .x-splide-slide {
-        {{ class_rtl }}: 20px;
         width: 100%
       }
     }
@@ -167,7 +176,17 @@ endif
   }
   @media (min-width: 1280px) {
     .section--{{ section.id }} .testimonial-with-card {
-      max-width: calc(var(--page-width) + 40px);
+      max-width: min(calc(var(--page-width) + 40px), 100vw);
+    }
+  }
+  @media(min-width: 768px) {
+    .section--{{ section.id }} .testimonial_slide {% if request.visual_preview_mode %}, .testimonial-with-card .testimonial_slide{% endif %}{
+      padding: 16px;
+    }
+    .section--{{ section.id }} .testimonial_slide.is-active .x-testimonial-image, 
+    .section--{{ section.id }} .testimonial_slide.is-active .x-testimonial-content {
+      {% if settings.edges_type == 'rounded_corners' %} border-radius: 10px;{% endif %}
+      box-shadow: 0px 0px 24px 0px rgba(var(--colors-text), 0.16);
     }
   }
 {%- endstyle -%}
@@ -178,26 +197,28 @@ endif
   <div class="testimonial-with-card carousel-mobile carousel-tablet x-pgw page-width max-w-full pl-5 pr-5 mx-auto">
     <div
       id="x-testimonial-{{ section.id }}"
-      class="{% if enable_desktop_slider %}opacity-0{% endif %} duration-300 color-text-{{ section.id }}{% if enable_desktop_slider or swiper_on_mobile %} overflow-hidden x-splide splide visible preload-slide--{{ section.id }}{% endif %} mt-4 mb-4 relative splider-testimonial" 
+      class="duration-300 color-text-{{ section.id }}{% if enable_desktop_slider or swiper_on_mobile %} overflow-hidden x-splide splide visible preload-slide--{{ section.id }}{% endif %} mt-4 mb-4 relative splider-testimonial" 
       {% if enable_desktop_slider or swiper_on_mobile -%}
       x-intersect.once.margin.200px='$store.xSplide.load($el, {
         "updateOnMove": "true",
         "mediaQuery": "min",
-        "gap": 30,
+        "gap": 10,
+        "type": "loop",
         {%- if section.settings.auto_play -%}
-          "type": "loop",
           "autoplay": true,
           "interval": {{ section.settings.change_slides_speed | times: 1000 }},
         {%- endif %}
         {%- if settings.lang_direction contains request.locale.iso_code %} 
           "direction": "rtl",
         {%- endif %}
+        "pauseOnFocus": false,
         "progressBar": {{ section.blocks.size }},
         "breakpoints": {
           768: {
             {% if swiper_on_mobile == false -%} 
               "destroy": true,
             {%- endif %}
+            "gap": 0,
             "perPage": 1,
             "perMove": 1,
           },
@@ -208,7 +229,7 @@ endif
               "destroy": true,
             {%- endif %}
             "perPage": 2,
-            "perMove": 2,
+            "perMove": 1,
             "speed": 800
           }
         },
@@ -220,9 +241,9 @@ endif
           {
             "event": "ready",
             "callback": () => {
+              document.dispatchEvent(new CustomEvent("eurus:{{ section.id }}:splide-ready"));
               let currentIndex = `1`;
               document.querySelector(".pagination-current-{{ section.id }}").innerText = currentIndex;
-              $el.style.opacity = 1;
             }
           },
           {
@@ -241,7 +262,9 @@ endif
           {%- if section.settings.subheading != blank or section.settings.heading != blank -%}
             <div class="text-{{ section.settings.heading_alignment }}{% if section.settings.heading_alignment == 'center' %} md:text-left{% endif %}">
               {%- if section.settings.subheading != blank -%}
-                <p class="subheading rte mb-1.5">{{ section.settings.subheading }}</p>
+                <div class="mb-1.5{% unless settings.disable_heading_animation %} overflow-hidden{% endunless %}"{% unless settings.disable_heading_animation %} x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')"{% endunless %}>
+                  <p class="subheading rte{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ section.settings.subheading }}</p>
+                </div>
               {% endif %}
               {% if section.settings.heading != blank %}
                 {% render 'heading-highlight',
@@ -250,6 +273,7 @@ endif
                   highlight_type: section.settings.highlight_type,
                   class: 'h2 block empty:hidden',
                   heading_tag: section.settings.heading_tag,
+                  animation_heading: true
                 %}
               {% endif %}
             </div>
@@ -258,14 +282,14 @@ endif
         {% if enable_desktop_slider %}
           <div class="splide__arrows hidden w-fit z-10{% if section.blocks.size < 2 %} md:hidden{% else %} md:flex {% if section.settings.heading_alignment == 'right' %}flex-row-reverse{% else %}flex-row{% endif %} items-center gap-7{% endif %}">
             <div class="pagination-index-container w-fit h-12 min-w-12 min-h-12 flex justify-center items-center rtl:flex-row-reverse">
-              <span class="pagination-current-{{ section.id }} pagination-color-{{ section.id }} pr-3 rtl:pr-0 rtl:pl-3"></span><div class="h-0 min-w-5 w-5 border-[1px] pagination-color-{{ section.id }} rounded-full"></div><span class="pagination-color-{{ section.id }} pl-3 rtl:pl-0 rtl:pr-3">{{ section.blocks.size }}</span>
+              <span class="pagination-current-{{ section.id }} pagination-color-{{ section.id }} pr-3 rtl:pr-0 rtl:pl-3">1</span><div class="h-0 min-w-5 w-5 border-[1px] pagination-color-{{ section.id }} rounded-full"></div><span class="pagination-color-{{ section.id }} pl-3 rtl:pl-0 rtl:pr-3">{{ section.blocks.size }}</span>
             </div>
             <div class="pagination-arrow-container flex items-center gap-3 rtl:flex-row-reverse">
-              <button class="splide__arrow splide__arrow--prev bg-transparent border border-solid button-pagination-color-{{ section.id }} disable-effect-hover hidden md:block relative p-2.5 rounded-full z-10 w-10 h-10 min-w-10 min-h-10 after:text-[20px] disabled:cursor-not-allowed disabled:opacity-30 duration-300 -rotate-180 rtl:rotate-0" aria-label="previous slide">
-                {% render 'icon-alls', icon: 'icon-arrow' %}
+              <button class="splide__arrow splide__arrow--prev bg-transparent border border-solid button-pagination-color-{{ section.id }} disable-effect-hover hidden md:block relative rounded-full w-[40px] h-[40px] border pr-3 pl-3 pt-3 pb-3 z-10 min-w-10 min-h-10 after:text-[20px] disabled:cursor-not-allowed disabled:opacity-30 duration-300" aria-label="previous slide">
+                {% render 'icon-labels-bags', icon: 'chevron-left' %}
               </button>
-              <button class="splide__arrow splide__arrow--next bg-transparent border border-solid button-pagination-color-{{ section.id }} disable-effect-hover hidden md:block relative p-2.5 rounded-full z-10 w-10 h-10 min-w-10 min-h-10 after:text-[20px] disabled:cursor-not-allowed disabled:opacity-30 duration-300 -rotate-0 rtl:-rotate-180" aria-label="previous slide">
-                {% render 'icon-alls', icon: 'icon-arrow' %}
+              <button class="splide__arrow splide__arrow--next bg-transparent border border-solid button-pagination-color-{{ section.id }} disable-effect-hover hidden md:block relative rounded-full w-[40px] h-[40px] border pr-3 pl-3 pt-3 pb-3 z-10 min-w-10 min-h-10 after:text-[20px] disabled:cursor-not-allowed disabled:opacity-30 duration-300" aria-label="previous slide">
+                {% render 'icon-labels-bags', icon: 'chevron-right' %}
               </button>  
             </div>
           </div>
@@ -274,7 +298,7 @@ endif
       <div class="splide__track pt-8{% if enable_desktop_slider %} md:cursor-grab{% endif %}">
         <div class="splide__list {% if section.blocks.size == 1 %}justify-items-center{% endif %} flex w-full{% if enable_desktop_slider == false %} lg:grid lg:!translate-x-0{% if section.blocks.size > 3 %} lg:grid-cols-3{% else %} lg:grid-cols-{{ section.blocks.size }}{% endif %} lg:gap-7{% endif %}{% if swiper_on_mobile %} flex w-full{% else %} grid grid-cols-1{% endif %}">
           {%- for block in section.blocks -%}
-            <div id="Slide-{{ section.id }}-{{ forloop.index }}" x-slide-index="{{ forloop.index | minus: 1 }}" class="{% if is_rtl %}ltr {% endif %}{% if section.blocks.size == 1 %}w-fit {% endif %}testimonial_slide{% if swiper_on_mobile or enable_desktop_slider %} splide__slide x-splide-slide{% if forloop.first or forloop.index == 2 %} is-active{% endif %}{% endif %} flex flex-col justify-center {% if section.blocks.size == 1 %} md:min-w-[350px]{% endif %} md:pl-12 md:pr-12 lg:pl-0 lg:pr-0" {{ block.shopify_attributes }}>
+            <div id="Slide-{{ section.id }}-{{ forloop.index }}" x-slide-index="{{ forloop.index | minus: 1 }}" class="{% if is_rtl %}ltr {% endif %}{% if section.blocks.size == 1 %}w-fit {% endif %}testimonial_slide{% if swiper_on_mobile or enable_desktop_slider %} splide__slide x-splide-slide{% if forloop.first %} is-active{% endif %}{% endif %} flex flex-col justify-center {% if section.blocks.size == 1 %} md:min-w-[350px]{% endif %} md:pl-12 md:pr-12 lg:pl-0 lg:pr-0" {{ block.shopify_attributes }}>
               <div class="scale-item{% if enable_desktop_slider %} opacity-100 scale-100 is-active:duration-300 ease-in-out duration-300{% endif %} origin-center h-full w-full flex md:flex-row flex-col gap-2 justify-center multiple md:ml-auto md:mr-auto {% if block.settings.show_author_image %} md:grid-cols-5{% else %} md:grid-cols-1{% endif %}">
                 {% if block.settings.cards_image != blank %}
                   <div class="x-testimonial-image w-full md:w-1/2 flex-grow overflow-hidden {% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
@@ -292,8 +316,15 @@ endif
                     {% capture image_class %}
                       h-full w-full object-cover image-hover{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}
                     {% endcapture %}
+                    {% liquid
+                      if settings.enable_lazy_loading_image
+                        assign loading = 'lazy'
+                      else
+                        assign loading = 'eager'
+                      endif
+                    %}
                     {{ block.settings.cards_image | image_url: width: 3840 | image_tag: 
-                      loading: 'lazy', 
+                      loading: loading, 
                       sizes: sizes, 
                       widths: '375, 450, 750, 900, 1100, 1500, 1780, 2000, 3000, 3840', 
                       class: image_class, 
@@ -303,17 +334,18 @@ endif
                 {% endif %}
                 <div class="x-testimonial-content flex flex-col flex-grow w-full {% if block.settings.cards_image != blank %}md:w-1/2{% else %}w-full{% endif %}">
                   <div class="flex flex-col justify-between items-center border-solid border border-item--{{ section.id }} bg-item--{{ section.id }}{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
-                    <div class="flex flex-col {% if block.settings.cards_image == blank %}w-full{% endif %}"> 
+                    <div class="flex flex-col {% if block.settings.cards_image == blank %}w-full{% else %}w-full md:w-fit{% endif %}"> 
                       <div class="x-testimonial-author-container flex flex-row rtl:flex-row-reverse rtl:text-right gap-4 justify-start pt-6 pb-4 mb-4 ml-6 mr-6 md:pt-7 md:mb-5 md:pb-5 md:ml-7 md:mr-7 border-b border-item--{{ section.id }}">
                         {% if block.settings.show_author_image %}
                           <div class="x-author-image relative inline-block aspect-square min-w-16 min-h-16 w-16 h-16 isolate overflow-hidden {% if block.settings.author_image != blank %} z-0 animate_transition_card__image animate-Xpulse skeleton-image{% endif %}{% if section.settings.image_ratio == 'round' %} rounded-full{% else %}{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}{% endif %} text-[#acacac]{% if block.settings.author_image == blank %} bg-[#c9c9c9]{% endif %}">
                             {% if block.settings.author_image != blank %}
+                              {% # theme-check-disable ImgLazyLoading %}
                               <img
                                 srcset="{{ block.settings.author_image | image_url: width: 150 }} 150w,
                                 {{ block.settings.author_image | image_url: width: 375 }} 375w"
                                 src="{{ block.settings.author_image | image_url: width: 375 }}"
                                 alt="{{ block.settings.author_image.alt | escape }}"
-                                loading="lazy"  
+                                {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                                 onload="this.closest('.animate_transition_card__image')?.classList.remove('animate-Xpulse', 'skeleton-image'); setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);"
                                 sizes="(min-width: 1024px) 150px, 150px"
                                 width="{{ block.settings.author_image.width }}"
@@ -321,6 +353,7 @@ endif
                                 class="h-full w-full{% if section.settings.image_ratio == 'round' %} rounded-full{% endif %} object-cover absolute image-hover"
                                 style="object-position: {{ block.settings.author_image.presentation.focal_point }};"
                               >
+                              {% # theme-check-enable ImgLazyLoading %}
                             {% else %}
                               {% render 'icon-placeholder', icon: 'icon-image', class: "w-full h-full absolute" %}
                             {% endif %}
@@ -359,6 +392,7 @@ endif
                           <a class="w-full flex justify-center" href="{{ product.url }}">
                             <div class="flex rtl:flex-row-reverse p-5 gap-x-2.5 flex-grow xl:min-w-[unset] min-w-0 card-testimonial{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
                               {% if product.featured_image != blank %}
+                                {% # theme-check-disable ImgLazyLoading %}
                                 <img
                                   srcset="{{ product.featured_media | image_url: width: 225 }} 225w,
                                     {{ product.featured_media | image_url: width: 375 }} 375w,
@@ -372,9 +406,10 @@ endif
                                   alt="{{ product.featured_image.alt | escape }}"  
                                   width="{{ product.featured_image.width }}"
                                   height="{{ product.featured_image.height }}"
-                                  loading="lazy"
+                                  {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                                   class="w-12 h-12 min-w-12 min-h-12 object-cover {% if settings.edges_type == 'rounded_corners' %}rounded-[10px]{% endif %}"
                                 >
+                                {% # theme-check-enable ImgLazyLoading %}
                               {% else %}
                                 <div class="w-12 h-12 min-w-12 min-h-12">
                                   <div class="h-0 w-full relative pb-[100%] overflow-hidden">
@@ -384,8 +419,8 @@ endif
                                   </div>
                                 </div>
                               {% endif %}
-                              <div class="flex text-[rgba(var(--colors-text-secondary))] flex-col gap-y-2.5 max-w-[168px] min-w-0 rtl:text-right">
-                                <p class="rte text-[rgba(var(--colors-heading-secondary))] p-break-words truncate rtl:text-right">{{ product.title }}</p>
+                              <div class="flex flex-col gap-y-2.5 max-w-[168px] min-w-0 rtl:text-right">
+                                <p class="rte h3 text-[100%] p-break-words truncate rtl:text-right">{{ product.title }}</p>
                                 {% render 'price', product: product, align_left: true %}
                               </div>
                             </div>
@@ -421,7 +456,6 @@ endif
     </div>
   </div>
 </div>
-<script src="{{ 'testimonials-with-card.js' | asset_url }}" defer></script>
 {% schema %}
 {
   "name": "t:sections.testimonials-with-card.name",
@@ -435,6 +469,10 @@ endif
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.testimonial_with_cards"
+    },
     {
       "type": "text",
       "id": "heading",
@@ -544,7 +582,8 @@ endif
       "step": 1,
       "unit": "s",
       "label": "t:sections.slideshow.settings.change_slides_speed.label",
-      "default": 5
+      "default": 5,
+      "visible_if": "{{ section.settings.auto_play }}"
     },
     {
       "type": "select",
@@ -781,6 +820,7 @@ endif
   "presets": [
     {
       "name": "t:sections.testimonials-with-card.name",
+      "category": "t:categories.brand_trust",
       "blocks": [
         {
           "type": "testimonial"

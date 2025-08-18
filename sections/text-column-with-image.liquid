@@ -51,6 +51,16 @@
   if swiper_on_mobile and section.settings.enable_arrow_mobile
     assign arrow_swipe_mobile = true
   endif
+    
+  assign rounded_corners = section.settings.rounded_corner_image
+
+  if section.settings.adapt_corners
+    if settings.edges_type == 'rounded_corners'
+      assign rounded_corners = true
+    else
+      assign rounded_corners = false
+    endif 
+  endif
 -%}
 {%- style -%}
   .heading-{{ section.id }} {
@@ -161,13 +171,16 @@
 <div class="section--{{ section.id }}{% if section.settings.secondary_background == "section" %} bg--{{ section.id }}{% endif %} pb-[{{ section.settings.padding_bottom_mobile }}px] pt-[{{ section.settings.padding_top_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px] md:pt-[{{ section.settings.padding_top }}px] section--{{ section.id }}{% if section.settings.padding_full_width and section.settings.full_width %} md:pl-5 md:pr-5{% endif %}">
   <div class="relative{% if section.settings.full_width %} md:pl-0 md:pr-0{% else %} x-pgw page-width mx-auto{% endif %}{% if section.settings.full_width_mobile %} full-width-mobile{% else %} pl-5 pr-5{% endif %}">
     {% if section.settings.title != blank %}
-      {% render 'heading-highlight',
-        headingId: section.id,
-        heading: section.settings.title,
-        highlight_type: section.settings.highlight_type,
-        class: 'text-center h2 block pb-3 md:pb-8',
-        heading_tag: section.settings.heading_tag
-      %}
+      <div class="pb-3 md:pb-8">
+        {% render 'heading-highlight',
+          headingId: section.id,
+          heading: section.settings.title,
+          highlight_type: section.settings.highlight_type,
+          class: 'text-center h2 block',
+          heading_tag: section.settings.heading_tag,
+          animation_heading: true
+        %}
+      </div>
     {% endif %}
     <div
       id="x-text-column-with-image-{{ section.id }}"
@@ -265,10 +278,10 @@
                 {% if section.settings.column_layout_mobile == 'w-1/2' %} pl-2 pr-2{% endif %} 
               {% endunless %}"
             >
-              <div class="flex {% if section.settings.image_position_mobile == 'top' %}flex-col{% else %}flex-col-reverse{% endif %} {% if section.settings.image_position_desktop == 'top' %}md:flex-col{% else %}md:flex-col-reverse{% endif %} h-full{% if section.settings.secondary_background == "column" %} bg--{{ section.id }}{% endif %}{% if section.settings.rounded_corner_image %} rounded-[10px]{% endif %}" {{ block.shopify_attributes }}>
+              <div class="flex {% if section.settings.image_position_mobile == 'top' %}flex-col{% else %}flex-col-reverse{% endif %} {% if section.settings.image_position_desktop == 'top' %}md:flex-col{% else %}md:flex-col-reverse{% endif %} h-full{% if section.settings.secondary_background == "column" %} bg--{{ section.id }}{% endif %}{% if rounded_corners %} rounded-[10px]{% endif %}" {{ block.shopify_attributes }}>
                 <div
                   x-intersect.once.margin.-20px.0px.-20px.0px="$el.querySelector('.animate_transition_card__image')?.classList.add('active')" 
-                  class="overflow-hidden block h-0 relative w-full pb-[{{ section.settings.image_ratio }}] {% if section.settings.image_ratio == 'round' %} rounded-full pb-[100%]{% elsif section.settings.rounded_corner_image %} rounded-[10px]{% endif %}{% if section.settings.image_ratio == 'natural' and block.settings.image == blank %} pb-[100%]{% endif %}"
+                  class="overflow-hidden block h-0 relative w-full pb-[{{ section.settings.image_ratio }}] {% if section.settings.image_ratio == 'round' %} rounded-full pb-[100%]{% elsif rounded_corners %} rounded-[10px]{% endif %}{% if section.settings.image_ratio == 'natural' and block.settings.image == blank %} pb-[100%]{% endif %}"
                   {% if section.settings.image_ratio == 'natural' and block.settings.image != blank %} style='padding-bottom: {{ 1 | divided_by: block.settings.image.aspect_ratio | times: 100 }}%;'{% endif %}
                 >
                   {% if block.settings.image_link %}
@@ -277,6 +290,7 @@
                     <div class="w-full h-full z-0 overflow-hidden absolute top-0 left-0{% if block.settings.image != blank %} animate_transition_card__image animate-Xpulse skeleton-image{% endif %}">
                   {% endif %}
                     {% if block.settings.image != blank %}
+                      {% # theme-check-disable ImgLazyLoading %}
                       <img
                         srcset="{{ block.settings.image | image_url: width: 225 }} 225w,
                         {{ block.settings.image | image_url: width: 375 }} 375w,
@@ -291,16 +305,17 @@
                         src="{{ block.settings.image | image_url: width: 1780 }}"
                         alt="{{ block.settings.image.alt | escape }}"
                         sizes="(min-width: 1024px){% if section.settings.full_width %} calc(100vw / {{ section.settings.column_layout_desktop }}){% else %} {{ settings.page_width | divided_by: columns_desktop }}px{% endif %}, (min-width: 768px) calc((100vw - 5rem) / 2), calc((100vw) / {{ columns_mobile }})"
-                        class="animate_transition_image w-full h-full object-cover object-center image-hover absolute top-0 left-0{% if section.settings.image_ratio == 'round' %} rounded-full{% elsif section.settings.rounded_corner_image %} rounded-[10px]{% endif %}"
-                        loading="lazy"  
+                        class="animate_transition_image w-full h-full object-cover object-center image-hover absolute top-0 left-0{% if section.settings.image_ratio == 'round' %} rounded-full{% elsif rounded_corners %} rounded-[10px]{% endif %}"
+                        {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                         width="{{ block.settings.image.width }}"
                         height="{{ block.settings.image.height }}"
                         style="object-position: {{ block.settings.image.presentation.focal_point }}"
-                        onload="this?.classList.add('active'); 
+                        onload="this?.classList.add('active');
                           this.closest('.animate_transition_card__image')?.classList.remove('animate-Xpulse', 'skeleton-image');
                           setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);
                         "
                       >
+                      {% # theme-check-enable ImgLazyLoading %}
                     {% else %}
                       {{ 'image' | placeholder_svg_tag: 'absolute w-full h-full bg-[#C9C9C9] text-[#acacac]' }}
                     {% endif %}
@@ -408,6 +423,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.text_columns_with_images"
+    },
     {
       "type": "text",
       "id": "title",
@@ -531,9 +550,16 @@
     },
     {
       "type": "checkbox",
+      "id": "adapt_corners",
+      "label": "t:sections.slideshow.settings.enable_adapt",
+      "default": true
+    },
+    {
+      "type": "checkbox",
       "id": "rounded_corner_image",
       "default": false,
-      "label": "t:sections.promotion-grid.blocks.promotion.settings.rounded_corner_image.label"
+      "label": "t:sections.featured-product.blocks.rounded_corner.label",
+      "visible_if": "{{ section.settings.adapt_corners == false }}"
     },
     {
       "type": "select",
@@ -627,7 +653,8 @@
       "type": "checkbox",
       "id": "enable_arrow_mobile",
       "default": false,
-      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile"
+      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile",
+      "visible_if": "{{ section.settings.swiper_on_mobile }}"
     },
     {
       "type": "checkbox",
@@ -643,7 +670,8 @@
       "step": 1,
       "unit": "s",
       "label": "t:sections.announcement-bar.settings.change_bar_every.label",
-      "default": 5
+      "default": 5,
+      "visible_if": "{{ section.settings.auto_play }}"
     },
     {
       "type": "header",
@@ -710,7 +738,8 @@
       "id": "padding_full_width",
       "default": false,
       "label": "t:sections.all.padding.padding_full_width.label",
-      "info": "t:sections.all.padding.padding_full_width.info"
+      "info": "t:sections.all.padding.padding_full_width.info",
+      "visible_if": "{{ section.settings.full_width }}"
     },
     {
       "type": "checkbox",
@@ -925,6 +954,7 @@
   "presets": [
     {
       "name": "t:sections.text-column-image.name",
+      "category": "t:categories.storytelling",
       "blocks": [
         {
           "type": "column"

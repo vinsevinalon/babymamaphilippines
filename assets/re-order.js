@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('re-order.js')) {
-  window.Eurus.loadedScript.push('re-order.js');
+if (!window.Eurus.loadedScript.has('re-order.js')) {
+  window.Eurus.loadedScript.add('re-order.js');
 
   requestAnimationFrame(() => {
     document.addEventListener("alpine:init", () => {

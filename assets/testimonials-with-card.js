@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('testimonials-with-card.js')) {
-  window.Eurus.loadedScript.push('testimonials-with-card.js');
+if (!window.Eurus.loadedScript.has('testimonials-with-card.js')) {
+  window.Eurus.loadedScript.add('testimonials-with-card.js');
 
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {

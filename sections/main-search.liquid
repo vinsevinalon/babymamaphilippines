@@ -14,7 +14,13 @@
   endif
   for filter in search.filters
     if filter.type == 'price_range' and search.filters.size <= 1
-      assign show_filter = false
+      assign max = filter.range_max
+      if filter.max_value.value
+         assign max = filter.max_value.value
+      endif
+      if max == null or max == 0
+        assign show_filter = false
+      endif
     endif
   endfor
 
@@ -60,7 +66,11 @@
 {%- endstyle -%} 
 <div {% if search.filters != empty %}{%- if section.settings.enable_filtering or section.settings.enable_sorting -%}x-data="xFiltersAndSortby('{{ section.id }}')"{% endif %}{% endif %} class="search-page pb-[{{ section.settings.padding_bottom_mobile }}px] pt-[{{ section.settings.padding_top_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px] md:pt-[{{ section.settings.padding_top }}px]">
   <div class="x-pgw page-width">
-    <h1 class="text-center h2 font-semibold mb-4">{%- if search.performed -%}{{ 'templates.search.title' | t }}{%- else -%}{{ 'general.search.search' | t }}{%- endif -%}</h1>
+    <div class="mb-4">
+      {% unless settings.disable_heading_animation %}<div class="overflow-hidden" x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')">{% endunless %}
+        <h1 class="text-center h2 font-semibold{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{%- if search.performed -%}{{ 'templates.search.title' | t }}{%- else -%}{{ 'general.search.search' | t }}{%- endif -%}</h1>
+      {% unless settings.disable_heading_animation %}</div>{% endunless %}
+    </div>
     <div x-data="xModalSearch('{{ settings.search_type }}','{{ settings.search_desktop_maximun_results }}',{{ settings.search_mobile_maximun_results }})" 
       class="flex justify-center relative mb-14" tabindex="-1">
           <form action="{{ routes.search_url }}" method="get" role="search" class="max-w-3xl w-full">
@@ -85,7 +95,7 @@
               >
               <input type="hidden" name="options[prefix]" value="last">
               <button class="btn-search absolute none_border bg-none w-5 h-5{% if is_rtl %} left-7{% else %} right-7{% endif %} top-1/2 -translate-y-1/2 opacity-60 bg-transparent dark:bg-transparent text-current" aria-label="{{ 'general.search.search' | t }}">
-                {%- render 'icon-alls', icon: 'icon-search' -%}
+                {%- render 'icon-alls', icon: 'icon-search', animation_class: 'icon-animation' -%}
               </button>
               {% if settings.show_speech_search %}
                 <button class="search__speech cursor-pointer absolute none_border bg-none w-5 h-5{% if is_rtl %} left-14{% else %} right-14{% endif %} top-1/2 -translate-y-1/2 opacity-60 bg-transparent dark:bg-transparent text-current" x-data="xSpeechSearch($el)" x-init="initSpeechSearch()" x-show="show" x-cloak>
@@ -198,7 +208,7 @@
               {% endif %}
               <div id="items-grid" class="grid gap-{{ section.id }} grid-cols-{{ section.settings.columns_mobile_grid }} md:grid-cols-2 lg:grid-cols-{{ section.settings.columns_desktop_grid }} list-layout:grid-cols-1{% if request.design_mode and section.settings.pagination != 'pagination' %} opacity-0{% endif %}" {% if request.design_mode and section.settings.pagination != 'pagination' %} :class="loading ? 'opacity-0' : 'opacity-100'"{% endif %}>
                 {%- for item in search.results -%}
-                  {%- if forloop.index < 3 -%}
+                  {%- if forloop.index < 3 or settings.enable_lazy_loading_image == false -%}
                     {%- assign loading = 'eager' -%}
                   {%- else -%}
                     {%- assign loading = 'lazy' -%}
@@ -214,6 +224,7 @@
                           {% render 'card-product',
                             card_product: item,
                             show_vendor: section.settings.show_vendor,
+                            show_highlighted_features: section.settings.show_highlighted_features,
                             show_highlighted_attributes: section.settings.show_highlighted_attributes,
                             show_rating: section.settings.show_rating,
                             loading: loading,
@@ -285,6 +296,10 @@
   "class": "section x-section x-section-search-result",
   "settings": [
     {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.pages_and_templates.search_page"
+    },
+    {
       "type": "header",
       "content": "t:sections.main-collection-product-grid.settings.header__1.content"
     },
@@ -299,7 +314,8 @@
       "type": "checkbox",
       "id": "sticky_filtering",
       "default": false,
-      "label": "t:sections.main-collection-product-grid.settings.sticky_filtering.label"
+      "label": "t:sections.main-collection-product-grid.settings.sticky_filtering.label",
+      "visible_if": "{{ section.settings.enable_filtering }}"
     },
     {
       "type": "select",
@@ -320,7 +336,8 @@
       ],
       "default": "drawer",
       "label": "t:sections.main-collection-product-grid.settings.filter_type.label",
-      "info": "t:sections.main-collection-product-grid.settings.filter_type.info"
+      "info": "t:sections.main-collection-product-grid.settings.filter_type.info",
+      "visible_if": "{{ section.settings.enable_filtering }}"
     },
     {
       "type": "select",
@@ -336,21 +353,24 @@
         }
       ],
       "default": "square",
-      "label": "t:sections.main-collection-product-grid.settings.filter_edge_style"
+      "label": "t:sections.main-collection-product-grid.settings.filter_edge_style",
+      "visible_if": "{{ section.settings.enable_filtering }}"
     },
     {
       "type": "checkbox",
       "id": "default_hide_filtering",
       "default": false,
       "label": "t:sections.main-collection-product-grid.settings.default_hide_filtering.label",
-      "info": "t:sections.main-collection-product-grid.settings.default_hide_filtering.info"
+      "info": "t:sections.main-collection-product-grid.settings.default_hide_filtering.info",
+      "visible_if": "{{ section.settings.enable_filtering }}"
     },
     {
       "type": "checkbox",
       "id": "expand_filter",
       "default": false,
       "label": "t:sections.main-collection-product-grid.settings.expand_filter.label",
-      "info": "t:sections.main-collection-product-grid.settings.expand_filter.info"
+      "info": "t:sections.main-collection-product-grid.settings.expand_filter.info",
+      "visible_if": "{{ section.settings.enable_filtering }}"
     },
     {
       "type": "checkbox",
@@ -360,7 +380,7 @@
     },
     {
       "type": "header",
-      "content": "t:sections.quick_view.settings.button_style.label"
+      "content": "t:settings_schema.products.product_cards"
     },
     {
       "type": "checkbox",
@@ -374,6 +394,12 @@
       "default": false,
       "label": "t:sections.featured-collection.blocks.collection.settings.show_rating.label",
       "info": "t:sections.featured-collection.blocks.collection.settings.show_rating.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_highlighted_features",
+      "default": true,
+      "label": "t:sections.product-recommendations.settings.show_highlighted_features.label"
     },
     {
       "type": "checkbox",
@@ -477,7 +503,8 @@
       ],
       "default": "circle",
       "label": "t:sections.main-collection-product-grid.settings.paginate_type.label",
-      "info": "t:sections.main-collection-product-grid.settings.paginate_type.info"
+      "info": "t:sections.main-collection-product-grid.settings.paginate_type.info",
+      "visible_if": "{{ section.settings.pagination == 'pagination' }}"
     },
     {
       "type": "header",

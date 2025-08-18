@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('sticky-atc.js')) {
-  window.Eurus.loadedScript.push('sticky-atc.js');
+if (!window.Eurus.loadedScript.has('sticky-atc.js')) {
+  window.Eurus.loadedScript.add('sticky-atc.js');
 
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {

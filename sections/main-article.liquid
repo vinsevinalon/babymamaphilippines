@@ -64,6 +64,7 @@
           {% endstyle %}
           <div class="{% if block.settings.full_width %} md:pl-0 md:pr-0{% else %} x-pgw page-width mx-auto{% endif %}{% if block.settings.full_width_mobile %} full-width-mobile{% else %} pr-5 pl-5{% endif %}" {{ block.shopify_attributes }}>
             <div itemprop="image" class="promotion w-full overflow-hidden relative{% if block.settings.mobile_height != 'auto' %} h-[{{ block.settings.mobile_height }}] md:h-auto{% else %} mobile-{{ block.id }}-natural{% endif %}{% if block.settings.desktop_height != 'auto' %} md:promotion:h-[{{ block.settings.desktop_height }}] md:promotion:pb-0{% else %} desktop-{{ block.id }}-natural{% endif %}{% if block.settings.full_width %} md:rounded-none{% else %}{% if settings.edges_type == 'rounded_corners' %} md:rounded-[10px]{% endif %}{% endif %}{% unless block.settings.full_width_mobile %}{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}{% endunless %}">
+              {% # theme-check-disable ImgLazyLoading %}
               <img
                 srcset="{{ article.image | image_url: width: 450 }} 450w,
                 {{ article.image | image_url: width: 750 }} 750w,
@@ -75,12 +76,13 @@
                 sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width }}px, 100vw"
                 src="{{ article.image | image_url: width: 3000 }}"
                 alt="{{ article.image.alt | escape }}"
-                loading="lazy" 
+                {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                 width="{{ article.image.width }}"
                 height="{{ article.image.height }}"
                 class="h-full w-full absolute object-cover top-0 left-0 animate-Xpulse skeleton-image"
                 onload='this.classList.remove("animate-Xpulse", "skeleton-image");'
               >
+              {% # theme-check-enable ImgLazyLoading %}
             </div>
           </div>
         {%- endif -%}
@@ -117,14 +119,16 @@
             }
           {%- endstyle -%}
           <header class="page__title x-pgw page-width ml-auto mr-auto mt-6 mb-4 md:mt-12 {{ block.settings.content_alignment }}" {{ block.shopify_attributes }}>
-            <{{ block.settings.heading_tag }} class="mb-3 h2 {{ block.settings.content_alignment }} title-{{ block.id }} ltr" itemprop="headline">{{ article.title | escape }}</{{ block.settings.heading_tag }}>
-            <div class="{{ block.settings.content_alignment }}">
-              {% if block.settings.blog_show_author %}
+            {% unless settings.disable_heading_animation %}<div class="overflow-hidden" x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')">{% endunless %}
+              <{{ block.settings.heading_tag }} class="h2 {{ block.settings.content_alignment }} title-{{ block.id }} ltr {% unless settings.disable_heading_animation %} anm-move-up{% endunless %}" itemprop="headline">{{ article.title | escape }}</{{ block.settings.heading_tag }}>
+            {% unless settings.disable_heading_animation %}</div>{% endunless %}
+            <div class="{{ block.settings.content_alignment }} mt-3 empty:hidden">
+              {%- if block.settings.blog_show_author -%}
                 <span class="w-max capitalize mr-0.5"><span>{{ 'sections.featured_blog.by_author' | t }} </span><span>{{ article.author }} </span></span>
-              {% endif %}
-              {% if block.settings.blog_show_date %}
+              {%- endif -%}
+              {%- if block.settings.blog_show_date -%}
                 <span class="w-max mr-2 capitalize">{{ article.published_at | date: format: 'day_month_year' }}</span>
-              {% endif %}
+              {%- endif -%}
             </div>
           </header>
         {%- when 'content'-%}
@@ -427,9 +431,11 @@
   {%- endif -%}
 </article>
 {% if section.settings.enable_microdata %}
+  {% # theme-check-disable %}
   <script type="application/ld+json">
     {{ article | structured_data }}
   </script>
+  {% # theme-check-enable %}
 {% endif %}
 
 {% schema %}
@@ -762,6 +768,10 @@
   ],
   "settings": [
     {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.pages_and_templates.blog_post_page"
+    },
+    {
       "type": "checkbox",
       "id": "blog_show_comment_counts",
       "default": false,
@@ -817,7 +827,8 @@
       "type": "text",
       "id": "table_of_contents_title",
       "default": "t:sections.main-article.settings.toc.header",
-      "label": "t:sections.main-article.settings.toc.table_of_contents_title.label"
+      "label": "t:sections.main-article.settings.toc.table_of_contents_title.label",
+      "visible_if": "{{ section.settings.enable_table_of_contents }}"
     },
     {
       "type": "select",
@@ -834,19 +845,22 @@
       ],
       "default": "left",
       "label": "t:sections.main-article.settings.toc.table_position.label",
-      "info": "t:sections.main-article.settings.toc.table_position.info"
+      "info": "t:sections.main-article.settings.toc.table_position.info",
+      "visible_if": "{{ section.settings.enable_table_of_contents }}"
     },
     {
       "type": "checkbox",
       "id": "open_tab",
       "default": true,
-      "label": "t:sections.featured-product.blocks.collapsible_tab.settings.open_by_default.label"
+      "label": "t:sections.featured-product.blocks.collapsible_tab.settings.open_by_default.label",
+      "visible_if": "{{ section.settings.enable_table_of_contents }}"
     },
     {
       "type": "checkbox",
       "id": "sticky_table_of_contents",
       "default": false,
-      "label": "t:sections.main-article.settings.toc.sticky_table_of_contents.label"
+      "label": "t:sections.main-article.settings.toc.sticky_table_of_contents.label",
+      "visible_if": "{{ section.settings.enable_table_of_contents }}"
     },
     {
       "type": "select",
@@ -862,13 +876,15 @@
         }
       ],
       "default": "Ordered",
-      "label": "t:sections.main-article.settings.toc.list_style.label"
+      "label": "t:sections.main-article.settings.toc.list_style.label",
+      "visible_if": "{{ section.settings.enable_table_of_contents }}"
     },
     {
       "type": "checkbox",
       "id": "social_sharing",
       "default": true,
-      "label": "t:sections.header.blocks.contact_menu.settings.enable_social_icon.label"
+      "label": "t:sections.header.blocks.contact_menu.settings.enable_social_icon.label",
+      "visible_if": "{{ section.settings.enable_table_of_contents }}"
     }
   ],
   "default": {

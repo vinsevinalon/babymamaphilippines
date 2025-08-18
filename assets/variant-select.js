@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('variant-select.js')) {
-  window.Eurus.loadedScript.push('variant-select.js');
+if (!window.Eurus.loadedScript.has('variant-select.js')) {
+  window.Eurus.loadedScript.add('variant-select.js');
 
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => {
@@ -18,6 +18,9 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
         pageParam,
         productFeaturedImage,
         quickAddPageParam,
+        updateImage,
+        isVideoLooping,
+        cloneSectionId = element.closest('.data-id-section-card') ? element.closest('.data-id-section-card').id : ''
       ) => ({
         variants: null,
         currentVariant: {},
@@ -34,7 +37,7 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
         handleSticky: '',
         initfirstMedia: false,
         initialized: false,
-        initVariant() {
+        initVariant(el) {
           this.variants = JSON.parse(this.$el.querySelector('[type="application/json"]').textContent);
 
           document.addEventListener(`eurus:product-variant-get:${sectionId}`, (e) => {
@@ -57,7 +60,7 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
 
           this.$watch('options', () => {
             setTimeout(() => { 
-              this._updateVariantSelector(productFeaturedImage);
+              this._updateVariantSelector(productFeaturedImage, el);
             }, 0) // INP
           });
         },
@@ -69,7 +72,14 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
           this._updateMedia();
           this.initfirstMedia = false;
         },
-        _updateVariantSelector(productFeaturedImage = "") {
+        updateActiveMedia() {
+          const cacheKey = sectionId + '-' + this.currentVariant.id;
+          if (this.cachedResults[cacheKey]) {
+            const html = this.cachedResults[cacheKey];
+            this._updateMedia(html);
+          }
+        },
+        _updateVariantSelector(productFeaturedImage = "", el) {
           this._updateMasterId();
           this._updateVariantStatuses();
           this._updateOptionImage();
@@ -88,7 +98,7 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
           if (chooseOption == '' && !isProductPage) {
             this._updateImageVariant(productFeaturedImage);
           }
-          if(quickAddPageParam){
+          if(quickAddPageParam || updateImage){
             this._updateImageVariant(productFeaturedImage);
           }
           this._updateVariantInput();
@@ -99,34 +109,24 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
           const cacheKey = sectionId + '-' + this.currentVariant.id;
           if (this.cachedResults[cacheKey]) {
             const html = this.cachedResults[cacheKey];
-            this._updateQuickAdd(html);
+            this._updateQuickAdd(html, el);
             this._renderPriceProduct(html);
-            this._renderProductAvailability(html);
-            this._renderSkuProduct(html);
-            this._renderProductBadges(html);
-            this._renderInventoryStatus(html);
-            this._renderInventoryQuantity(html);
-            this._renderQuantityPricing(html);
 
+            const selectors = ['block-inventory-', 'block-available-quantity-', 'quantity-selector-', 'volume-', 'x-availability-notice-', 'sku-', 'x-badges-', 'preorder-', 'cart-edt-'];
+            for (let selector of selectors) {
+              this._renderDestination(html, selector);
+            }
             this._updateMedia(html);
             this._renderBuyButtons(html);
             this._setMessagePreOrder(html)
             this._setEstimateDelivery(html);
-            this._setMetafieldInfo(html,'.properties_re_render');
-            this._setMetafieldInfo(html,'.table_info_details');
-            this._setMetafieldInfo(html,'.block-text');
-            this._setMetafieldInfo(html,'.text-icon');
-            this._setMetafieldInfo(html,'.collapsible-content');
-            this._setMetafieldInfo(html,'.nutrition-bar-content');
-            this._setMetafieldInfo(html,'.horizontab');
-            this._setMetafieldInfo(html,'.featured-icon');
-            this._setCartEstimateDelivery(html);
-            this._setPreorderProperties(html);
+
+            const mtfSelectors = ['.properties_re_render', '.table_info_details', '.block-text', '.text-icon', '.collapsible-content', '.nutrition-bar-content', '.horizontab', '.featured-icon'];
+            for (let selector of mtfSelectors) {
+              this._setMetafieldInfo(html, selector);
+            }
             this._setBackInStockAlert(html);
             this._setPickupPreOrder(html);
-            if (this.currentVariant.featured_media != null ) {
-              //this._updateColorSwatch(html);
-            }
             this._dispatchUpdateVariant();
             this._dispatchVariantSelected(html);
             if (!productBundle) {
@@ -139,15 +139,15 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
               .then((response) => response.text())
               .then((responseText) => {
                 const html = new DOMParser().parseFromString(responseText, 'text/html');
-                this._updateQuickAdd(html);
+                this._updateQuickAdd(html, el);
                 if (this.currentVariant && variantId == this.currentVariant.id
                   && html.getElementById(`x-product-template-${productId}-${sectionId}`)) {                  
                   this._renderPriceProduct(html);
-                  this._renderSkuProduct(html);
-                  this._renderProductBadges(html);
-                  this._renderInventoryStatus(html);
-                  this._renderInventoryQuantity(html);
-                  this._renderQuantityPricing(html);
+                  const selectors = ['block-inventory-', 'block-available-quantity-', 'quantity-selector-', 'volume-', 'x-availability-notice-', 'sku-', 'x-badges-', 'preorder-', 'cart-edt-'];
+                  for (let selector of selectors) {
+                    this._renderDestination(html, selector);
+                  }
+                  
                   if (showFirstImageAvaiable) {
                     this._updateMedia(html);
                   } else if (this.isChange) {
@@ -156,21 +156,13 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
                   this._renderBuyButtons(html);
                   this._setMessagePreOrder(html);
                   this._setEstimateDelivery(html);
-                  this._setMetafieldInfo(html,'.properties_re_render');
-                  this._setMetafieldInfo(html,'.table_info_details');
-                  this._setMetafieldInfo(html,'.block-text');
-                  this._setMetafieldInfo(html,'.text-icon');
-                  this._setMetafieldInfo(html,'.collapsible-content');
-                  this._setMetafieldInfo(html,'.nutrition-bar-content');
-                  this._setMetafieldInfo(html,'.horizontab');
-                  this._setMetafieldInfo(html,'.featured-icon');
-                  this._setPickupPreOrder(html);
-                  this._setCartEstimateDelivery(html);
-                  this._setPreorderProperties(html);
-                  this._setBackInStockAlert(html);
-                  if (this.currentVariant.featured_media != null ) {
-                    //this._updateColorSwatch(html);
+                  const mtfSelectors = ['.properties_re_render', '.table_info_details', '.block-text', '.text-icon', '.collapsible-content', '.nutrition-bar-content', '.horizontab', '.featured-icon'];
+                  for (let selector of mtfSelectors) {
+                    this._setMetafieldInfo(html, selector);
                   }
+                  this._setPickupPreOrder(html);
+                  this._setBackInStockAlert(html);
+                  
                   if (!productBundle) {
                     Alpine.store('xUpdateVariantQuanity').render(html, sectionId);
                   }
@@ -181,6 +173,7 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
                 } else if (this.currentVariant && variantId == this.currentVariant.id) {
                   this._renderPriceProduct(html);
                   this._dispatchUpdateVariant(html);
+                  this._updateMedia(html);
                 }
               });
           }
@@ -215,42 +208,30 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
                     .replaceAll('\\/', '/');
           }
         },
-        _renderInventoryStatus(html) {
-          const destination = document.getElementById('block-inventory-' + sectionId);
-          const source = html.getElementById('block-inventory-' + sectionId);
+        _renderDestination(html, selector) {
+          const destination = document.getElementById(selector + sectionId);
+          const source = html.getElementById(selector + sectionId);
           if (source && destination) destination.innerHTML = source.innerHTML;
         },
-        _renderInventoryQuantity(html) {
-          const destination = document.getElementById('block-available-quantity-' + sectionId);
-          const source = html.getElementById('block-available-quantity-' + sectionId);
-          if (source && destination) destination.innerHTML = source.innerHTML;
-        },
-        _renderQuantityPricing(html) {
-          const destinationQtyRules = document.getElementById('quantity-selector-' + sectionId);
-          const destinationQtyPricing = document.getElementById('volume-' + sectionId);
-          const sourceQtyRules = html.getElementById('quantity-selector-' + sectionId);
-          const sourceQtyPricing = html.getElementById('volume-' + sectionId);
-
-          if(destinationQtyRules && sourceQtyRules) {
-            destinationQtyRules.innerHTML = sourceQtyRules.innerHTML;
-          }
-          if(destinationQtyPricing && sourceQtyPricing){
-            destinationQtyPricing.innerHTML = sourceQtyPricing.innerHTML;
-          }
-        },
-        _updateQuickAdd(html){
-            const listCurrent = document.querySelectorAll(`#product-form-choose-option${productId}${quickAddPageParam}`);
-            const destination = html.querySelector(`#product-form-choose-option${productId}${quickAddPageParam}`);
-            if(listCurrent.length>0 && destination){
-              listCurrent.forEach((item)=>{
-                item.innerHTML = destination.innerHTML;
-                const currentPrice = item.closest('.card-product').querySelector(".main-product-price");
-                const updatePrice = html.querySelector(".main-product-price");
-                if(currentPrice && updatePrice){
-                  currentPrice.innerHTML = updatePrice.innerHTML
-                }
+        _updateQuickAdd(html, el){
+          const listCurrent = document.querySelectorAll(`#product-form-choose-option${productId}${quickAddPageParam ?? ''}`);
+          const destination = html.querySelector(`#product-form-choose-option${productId}${quickAddPageParam ?? ''}`);
+          if (listCurrent.length > 0 && destination){
+            listCurrent.forEach((item) => {
+              item.innerHTML = destination.innerHTML;
+            })
+          } else {
+            if (listCurrent.length > 0) {
+              listCurrent.forEach((item) => {
+                item.innerHTML = html.querySelector('.form').innerHTML;
               })
             }
+          }
+          const currentPrice = el?.closest('.card-product')?.querySelector(".main-product-price");
+          const updatePrice = html.querySelector(".main-product-price");
+          if(currentPrice && updatePrice){
+            currentPrice.innerHTML = updatePrice.innerHTML;
+          }
         },
         _updateMedia(html) {
           let mediaWithVariantSelected = document.getElementById("product-media-" + sectionId) && document.getElementById("product-media-" + sectionId).dataset.mediaWithVariantSelected;
@@ -539,27 +520,16 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
           const destination = document.getElementById('price-' + sectionId);
           let source = html.getElementById('price-' + sectionId);
           if(!source) {
-            source = html.querySelector('.price-clone');
+            source = html.querySelector('.price');
+            if (source && destination) destination.innerHTML = source.outerHTML;
+          } else {
+            if (source && destination) destination.innerHTML = source.innerHTML;
           }
-          if (source && destination) destination.innerHTML = source.innerHTML;
-        },
-        _renderProductAvailability(html) {
-          const destination = document.getElementById('x-availability-notice-' + sectionId);
-          const source = html.getElementById('x-availability-notice-' + sectionId);
-  
-          if (source && destination) destination.innerHTML = source.innerHTML;
-        },
-        _renderSkuProduct(html) {
-          const destination = document.getElementById('sku-' + sectionId);
-          const source = html.getElementById('sku-' + sectionId);
-  
-          if (source && destination) destination.innerHTML = source.innerHTML;
-        },
-        _renderProductBadges(html) {
-          const destination = document.getElementById('x-badges-' + sectionId);
-          const source = html.getElementById('x-badges-'+ sectionId);
           
-          if (source && destination) destination.innerHTML += source.innerHTML;
+          if (isVideoLooping) {
+            const cloneDestination = document.getElementById('price-' + cloneSectionId);
+            if (source && cloneDestination) cloneDestination.innerHTML = source.innerHTML;
+          }          
         },
         _renderBuyButtons(html) {
           const productForms = document.querySelectorAll(`#product-form-${sectionId}, #product-form-installment-${sectionId}, #product-form-sticky-${sectionId}`);
@@ -587,6 +557,34 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
               atcDestination.dataset.available = "false";
               atcDestination.setAttribute('disabled', 'disabled');
             }
+
+            const cloneProductForms = document.querySelectorAll(`#product-form-${cloneSectionId}, #product-form-installment-${cloneSectionId}, #product-form-sticky-${cloneSectionId}`);
+            cloneProductForms.forEach((cloneProductForm) => {
+              if (cloneProductForm.getAttribute("id").includes(productForm.getAttribute("id"))){
+                const atcCloneDestination = cloneProductForm.querySelector('.add_to_cart_button');
+                if (!atcCloneDestination) return;
+
+                if (atcSource && atcCloneDestination) atcCloneDestination.innerHTML = atcSource.innerHTML;
+        
+                if (this.currentVariant?.available) {
+                  /// Enable add to cart button
+                  atcCloneDestination.dataset.available = "true";
+                  if (html.getElementById('form-gift-card-' + sectionId)) {
+                    if (document.getElementById('Recipient-checkbox-' + sectionId).checked && document.getElementById('recipient-form-' + sectionId).dataset.disabled == "true") {
+                      atcCloneDestination.setAttribute('disabled', 'disabled') 
+                    } else {
+                      atcCloneDestination.removeAttribute('disabled');
+                    }
+                  } else {
+                    atcCloneDestination.removeAttribute('disabled');
+                  }
+                } else {
+                  atcCloneDestination.dataset.available = "false";
+                  atcCloneDestination.setAttribute('disabled', 'disabled');
+                }
+              }
+            })
+
           });
           const paymentButtonDestination = document.getElementById('x-payment-button-' + sectionId);
           const paymentButtonSource = html.getElementById('x-payment-button-' + sectionId);
@@ -638,16 +636,6 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
             })
           }
         },
-        _setPreorderProperties(html) {
-          const preorder = document.getElementById(`preorder-${sectionId}`);
-          const preorder_res = html.getElementById(`preorder-${sectionId}`);
-          if (preorder && preorder_res) preorder.innerHTML = preorder_res.innerHTML;
-        },
-        _setCartEstimateDelivery(html) {
-          const est = document.getElementById(`cart-edt-${sectionId}`);
-          const est_res = html.getElementById(`cart-edt-${sectionId}`);
-          if (est && est_res) est.innerHTML = est_res.innerHTML;
-        },
         _setBackInStockAlert(html) {
           if (!this.initialized) {
             this.initialized = true;
@@ -668,55 +656,27 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
           }
         },
         _setUnavailable() {
-          const price = document.getElementById(`price-` + sectionId);
-          if (price) price.classList.add('hidden');
-
-          const priceDesktop = document.getElementById(`price-sticky-${sectionId}`);
-          if (priceDesktop) priceDesktop.classList.add('hidden');
+          const selectors = ['price-', 'price-sticky-', 'block-inventory-', 'x-badges-', 'pickup-', 'sku-', 'back_in_stock_alert-'];
+          for (let selector of selectors) {
+            const element = document.getElementById(selector + sectionId);
+            if (element) element.classList.add('hidden');
+          }
           
-          const inventory = document.getElementById(`block-inventory-` + sectionId);
-          if (inventory) inventory.classList.add('hidden');
-  
-          const badges = document.getElementById(`x-badges-` + sectionId);
-          if (badges) badges.classList.add('hidden');
-  
-          const pickup = document.getElementById(`pickup-` + sectionId);
-          if (pickup) pickup.classList.add('hidden');
-  
-          const quantity = document.getElementById('x-quantity-' + sectionId);
-          if (quantity) quantity.classList.add('unavailable');
-
           const msg_pre = document.querySelector(`.pre-order-${sectionId}`);
           if (msg_pre) msg_pre.classList.add('hidden');
-          
-          const sku = document.getElementById('sku-' + sectionId);
-          if (sku) sku.classList.add('hidden');
-          const back_in_stock_alert = document.getElementById(`back_in_stock_alert-${sectionId}`);
-          if (back_in_stock_alert) back_in_stock_alert.classList.add('hidden');
+          const quantity = document.getElementById('x-quantity-' + sectionId);
+          if (quantity) quantity.classList.add('unavailable');
 
           this._setBuyButtonUnavailable();
         },
         _setAvailable() {
-          const price = document.getElementById(`price-` + sectionId);
-          if (price) price.classList.remove('hidden');
-  
-          const inventory = document.getElementById(`block-inventory-` + sectionId);
-          if (inventory) inventory.classList.remove('hidden');
-  
-          const badges = document.getElementById(`x-badges-` + sectionId);
-          if (badges) badges.classList.remove('hidden');
-  
-          const pickup = document.getElementById(`pickup-` + sectionId);
-          if (pickup) pickup.classList.remove('hidden');
-  
+          const selectors = ['price-', 'block-inventory-', 'x-badges-', 'pickup-', 'sku-', 'back_in_stock_alert-'];
+          for (let selector of selectors) {
+            const element = document.getElementById(selector + sectionId);
+            if (element) element.classList.remove('hidden');
+          }
           const quantity = document.getElementById('x-quantity-' + sectionId);
           if (quantity) quantity.classList.remove('unavailable');
-
-          const sku = document.getElementById('sku-' + sectionId);
-          if (sku) sku.classList.remove('hidden');
-
-          const back_in_stock_alert = document.getElementById(`back_in_stock_alert-${sectionId}`);
-          if (back_in_stock_alert) back_in_stock_alert.classList.remove('hidden');
         },
         _setBuyButtonUnavailable() {
           const productForms = document.querySelectorAll(`#product-form-${sectionId},  #product-form-sticky-${sectionId}`);
@@ -755,195 +715,6 @@ if (!window.Eurus.loadedScript.includes('variant-select.js')) {
               .find(label => label !== null);
             if (card_label) card_label.style.setProperty('--bg-image', `url(${option_image})`)
           }
-        },
-        initEventSticky() {
-          document.addEventListener(`eurus:product-page-variant-select-sticky:updated:${sectionId}`, (e) => {
-            this.handleSticky = e.detail.variantElSticky;
-            this.updateVariantSelector(e.detail.inputId, e.detail.targetUrl);
-          });
-        },
-        changeSelectOption(event) {
-          Array.from(event.target.options)
-            .find((option) => option.getAttribute('selected'))
-            .removeAttribute('selected');
-            event.target.selectedOptions[0].setAttribute('selected', 'selected');
-          const input = event.target.selectedOptions[0];
-          const inputId = input.id;
-          const targetUrl = input.dataset.productUrl;
-          this.updateVariantSelector(inputId, targetUrl);
-        },
-        updateVariantSelector(inputId, target) {
-          if (chooseOption) {
-            this.handleSectionId = 'choose-option';
-          }
-          if (productBundle) {
-            this.handleSectionId = handleSectionId;
-          }
-          this.currentVariant = this._getVariantData(inputId);
-          let updateFullpage = false;
-          let callback = () => {};
-          
-          const targetUrl = target || element.dataset.url;
-          if (element.dataset.url !== targetUrl) {
-            this._updateURL(targetUrl);
-            this._setAvailable();
-            if (isProductPage) {
-              updateFullpage = true;
-            }
-            callback = (html) => {
-              this._handleSwapProduct(sectionId, html, updateFullpage);
-              this._handleSwapQuickAdd(html);
-              this._renderCardBundle(html);
-              this._renderCardFBT(html);
-              this._dispatchUpdateVariant(html);
-            };
-          } else if (!this.currentVariant) {
-            this._setUnavailable();
-            callback = (html) => {
-              this._updateOptionValues(html);
-              this._dispatchVariantSelected(html);
-              this._dispatchUpdateVariant(html);
-            };
-          } else {
-            this._updateURL(targetUrl);
-            this._updateVariantInput();
-            this._setAvailable();
-            callback = (html) => {
-              this._handleUpdateProductInfo(html);
-              this._updateOptionValues(html);
-              this._updateMedia(html);
-              this._handleAvailable(html);
-            }
-          }
-          this._renderProductInfo(targetUrl, callback, updateFullpage);
-        },
-        _renderProductInfo(url, callback, updateFullpage) {
-          let link = "";
-          let params = `option_values=${this._getSelectedOptionValues().join(',')}`;
-          if (chooseOption || productBundle) {
-            params = `option_values=${this._getSelectedOptionValues().join(',')}&page=${pageParam}`;
-          }
-          link = updateFullpage?`${url}?${params}`:`${url}?section_id=${this.handleSectionId}&${params}`;
-      
-          if (this.cachedResults[link]) {
-            const html = this.cachedResults[link];
-            callback(html);
-          } else {
-            fetch(link)
-              .then((response) => response.text())
-              .then((responseText) => {
-                const html = new DOMParser().parseFromString(responseText, 'text/html');
-                callback(html);
-                this.cachedResults[link] = html;
-              })
-          }
-          this.handleSticky = '';
-        },
-        _handleUpdateProductInfo(html) {
-            this._renderCardBundle(html);
-            this._renderCardFBT(html);
-            this._renderPriceProduct(html);
-            this._renderProductBadges(html);
-            this._renderInventoryStatus(html);
-            this._renderInventoryQuantity(html);
-            this._renderQuantityPricing(html);
-            this._renderSkuProduct(html);
-            this._renderBuyButtons(html);
-            this._setMessagePreOrder(html);
-            this._setEstimateDelivery(html);
-            this._setMetafieldInfo(html,'.properties_re_render');
-            this._setMetafieldInfo(html,'.table_info_details');
-            this._setMetafieldInfo(html,'.block-text');
-            this._setMetafieldInfo(html,'.text-icon');
-            this._setMetafieldInfo(html,'.collapsible-content');
-            this._setMetafieldInfo(html,'.nutrition-bar-content');
-            this._setMetafieldInfo(html,'.horizontab');
-            this._setMetafieldInfo(html,'.featured-icon');
-            this._setPickupPreOrder(html);
-            this._setCartEstimateDelivery(html);
-            this._setPreorderProperties(html);
-            this._setBackInStockAlert(html);
-            if (!productBundle) {
-              Alpine.store('xUpdateVariantQuanity').render(html, this.handleSectionId);
-            }
-            this._dispatchUpdateVariant(html);
-            this._dispatchVariantSelected(html);
-            this._updateOptionValues(html);
-            Alpine.store('xPickupAvailable').updatePickUp(sectionId, this.currentVariant.id);
-            
-        },
-        initFirstAvailableVariant(el) {
-          this.currentVariant = JSON.parse(el.querySelector(`script[type="application/json"][data-selected-variant]`).textContent);
-          if (!productBundle) {
-            document.addEventListener('eurus:cart:items-changed', () => {
-              this.cachedResults = [];
-              Alpine.store('xUpdateVariantQuanity').updateQuantity(sectionId, productUrl, this.currentVariant?.id);
-            });
-          }
-        },
-        _handleAvailable(html) {
-          const selectedVariant = html.querySelector('.variant-selects [data-selected-variant]')?.innerHTML;
-          if (selectedVariant == 'null') {
-            this._setUnavailable();
-          }
-        },
-        _updateOptionValues(html) {
-          if (!productBundle) {
-            const variantSelects = html.querySelector('.variant-selects');
-            if (variantSelects) element.innerHTML = variantSelects.innerHTML;
-          }
-        },
-        _getVariantData(inputId) {
-          return JSON.parse(this._getVariantDataElement(inputId).textContent);
-        },
-        _getVariantDataElement(inputId) {
-          return element.querySelector(`script[type="application/json"][data-resource="${inputId}"]`);
-        },
-        _updateURL(url) {
-          if (!isProductPage) return;
-          window.history.replaceState({}, '', `${url}${this.currentVariant?.id ? `?variant=${this.currentVariant.id}` : ''}`);
-        },
-        _getSelectedOptionValues() {
-          if (this.handleSticky == '') {
-            return Array.from(element.querySelectorAll('select option[selected], fieldset input:checked')).map(
-              (e) => e.dataset.optionValueId
-            );
-          } else {
-            return Array.from(this.handleSticky.querySelectorAll('select option[selected]')).map(
-              (e) => e.dataset.optionValueId
-            );
-          }
-        },
-        _renderCardBundle(html) {
-          const destination = element.closest(".x-product-bundle-data");
-          const card = html.getElementById('card-product-bundle-'+ this.handleSectionId);
-          if (card) {
-            const source = card.querySelector(".x-product-bundle-data");
-            if (source && destination) destination.innerHTML = source.innerHTML;
-          }
-        },
-        _renderCardFBT(html) {
-          const destination = element.closest(".card-product-fbt");
-          const source = html.querySelector('.card-product-fbt-clone .card-product-fbt');
-          
-          if (source && destination) destination.innerHTML = source.innerHTML;
-        },
-        _handleSwapProduct(sectionId, html, updateFullpage) {
-          if (updateFullpage) {
-            document.querySelector('head title').innerHTML = html.querySelector('head title').innerHTML;
-            const destination = document.querySelector('main');
-            const source = html.querySelector('main');
-            if (source && destination) destination.innerHTML = source.innerHTML;
-          } else {
-            const destination = document.querySelector('.x-product-' + sectionId);
-            const source = html.querySelector('.x-product-' + sectionId);
-            if (source && destination) destination.innerHTML = source.innerHTML;
-          }
-        },
-        _handleSwapQuickAdd(html) {
-          const destination = element.closest(".choose-options-content");
-          const source = html.querySelector('.choose-options-content');
-          if (source && destination) destination.innerHTML = source.innerHTML;
         }
       }))
     });

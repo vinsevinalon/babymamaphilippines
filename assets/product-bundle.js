@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('product-bundle.js')) {
-window.Eurus.loadedScript.push('product-bundle.js');
+if (!window.Eurus.loadedScript.has('product-bundle.js')) {
+window.Eurus.loadedScript.add('product-bundle.js');
 
 requestAnimationFrame(() => {
   document.addEventListener("alpine:init", () => {

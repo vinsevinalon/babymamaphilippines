@@ -56,7 +56,19 @@
         "applied_products": [{{ block.settings.applied_products | map: 'id' | join: ', ' }}],
         "applied_collections": [{{ block.settings.applied_collections | map: 'id' | join: ', ' }}],
         "content": "{{ block.settings.content | replace: "&", "&amp;" | replace: '"', "&#8221;" | replace: "'", "&#039;" | replace: "\", "&#8726;" }}",
-        "type": "{{ block.settings.display_type | default: "square" }}",
+        {% if block.settings.display_type != 'adapt' %}
+          "type": "{{ block.settings.display_type | default: "square" }}",
+        {% else %}
+          {% liquid
+            assign display_type = 'square'
+            if settings.buttons_type == 'rounded'
+              assign display_type = 'rounded-full'
+            elsif settings.buttons_type == 'rounded_corners' or settings.buttons_type == 'mixed'
+              assign display_type = 'round'
+            endif
+          %}
+          "type": "{{ display_type | default: "square" }}",
+        {% endif %}
         "background_color": "{{ block.settings.background_color }}",
         "text_color": "{{ block.settings.text_color }}",
         "image": {{ block.settings.image | json }},
@@ -136,9 +148,9 @@
         endcase
       -%}
       <div class="card-product model-inner absolute !bg-[rgba(var(--background-color),1)] overflow-y-auto max-w-[90%] w-96 h-auto max-h-[90%] top-1/2 left-1/2 translate-y-[-50%] translate-x-[-50%] border">
-        <div class="modal-content flex h-full relative pl-2 pr-2 pt-8 pb-6">
-          <div class="close-btn w-4 h-4 absolute top-2 right-2 cursor-pointer" x-on:click="close">
-            {% render 'icon-alls', icon: 'icon-close' %}
+        <div class="modal-content flex h-full relative pl-2 pr-2 pt-14 pb-6">
+          <div class="close-btn p-3 w-fit rounded-full bg-[rgb(var(--colors-line-and-border))] group-close-btn absolute top-2 right-2 cursor-pointer" x-on:click="close">
+            {% render 'icon-alls', icon: 'icon-close', animation_class: 'icon-close-animation w-4 h-4' %}
           </div>
           {% liquid
             if settings.metafield_label != blank
@@ -586,13 +598,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "text",
@@ -641,6 +655,10 @@
           "id": "display_type",
           "options": [
             {
+              "value": "adapt",
+              "label": "t:settings_schema.buttons.adapt_edge_setting"
+            },
+            {
               "value": "square",
               "label": "t:settings_schema.products.square"
             },
@@ -653,7 +671,7 @@
               "label": "t:settings_schema.buttons.rounded"
             }
           ],
-          "default": "square",
+          "default": "adapt",
           "label": "t:sections.product-labels-and-badges.blocks.type.label"
         },
         {
@@ -771,7 +789,8 @@
           "unit": "%",
           "label": "t:sections.product-labels-and-badges.blocks.horizontal_position.label",
           "default": 95,
-          "info": "t:sections.all.content_position.custom_position_info"
+          "info": "t:sections.all.content_position.custom_position_info",
+          "visible_if": "{{ block.settings.position == 'custom' }}"
         },
         {
           "type": "range",
@@ -782,7 +801,8 @@
           "unit": "%",
           "label": "t:sections.product-labels-and-badges.blocks.vertical_position.label",
           "default": 5,
-          "info": "t:sections.all.content_position.custom_position_info"
+          "info": "t:sections.all.content_position.custom_position_info",
+          "visible_if": "{{ block.settings.position == 'custom' }}"
         },
         {
           "type": "header",
@@ -1185,13 +1205,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "text",
@@ -1224,6 +1246,10 @@
           "id": "display_type",
           "options": [
             {
+              "value": "adapt",
+              "label": "t:settings_schema.buttons.adapt_edge_setting"
+            },
+            {
               "value": "square",
               "label": "t:settings_schema.products.square"
             },
@@ -1236,7 +1262,7 @@
               "label": "t:settings_schema.buttons.rounded"
             }
           ],
-          "default": "square",
+          "default": "adapt",
           "label": "t:sections.product-labels-and-badges.blocks.type.label"
         },
         {
@@ -1334,7 +1360,8 @@
           "unit": "%",
           "label": "t:sections.product-labels-and-badges.blocks.horizontal_position.label",
           "default": 5,
-          "info": "t:sections.all.content_position.custom_position_info"
+          "info": "t:sections.all.content_position.custom_position_info",
+          "visible_if": "{{ block.settings.position == 'custom' }}"
         },
         {
           "type": "range",
@@ -1345,7 +1372,8 @@
           "unit": "%",
           "label": "t:sections.product-labels-and-badges.blocks.vertical_position.label",
           "default": 5,
-          "info": "t:sections.all.content_position.custom_position_info"
+          "info": "t:sections.all.content_position.custom_position_info",
+          "visible_if": "{{ block.settings.position == 'custom' }}"
         },
         {
           "type": "header",
@@ -1753,13 +1781,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "text",
@@ -1812,6 +1842,10 @@
           "id": "display_type",
           "options": [
             {
+              "value": "adapt",
+              "label": "t:settings_schema.buttons.adapt_edge_setting"
+            },
+            {
               "value": "square",
               "label": "t:settings_schema.products.square"
             },
@@ -1824,7 +1858,7 @@
               "label": "t:settings_schema.buttons.rounded"
             }
           ],
-          "default": "square",
+          "default": "adapt",
           "label": "t:sections.product-labels-and-badges.blocks.type.label"
         },
         {
@@ -1931,7 +1965,8 @@
           "unit": "%",
           "label": "t:sections.product-labels-and-badges.blocks.horizontal_position.label",
           "default": 5,
-          "info": "t:sections.all.content_position.custom_position_info"
+          "info": "t:sections.all.content_position.custom_position_info",
+          "visible_if": "{{ block.settings.position == 'custom' }}"
         },
         {
           "type": "range",
@@ -1942,7 +1977,8 @@
           "unit": "%",
           "label": "t:sections.product-labels-and-badges.blocks.vertical_position.label",
           "default": 5,
-          "info": "t:sections.all.content_position.custom_position_info"
+          "info": "t:sections.all.content_position.custom_position_info",
+          "visible_if": "{{ block.settings.position == 'custom' }}"
         },
         {
           "type": "header",
@@ -2116,17 +2152,20 @@
             }
           ],
           "default": "-4",
-          "label": "t:sections.announcement-bar.blocks.timezone.label"
+          "label": "t:sections.announcement-bar.blocks.timezone.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "paragraph",
-          "content": "t:sections.product-labels-and-badges.blocks.schedule_start_time.content"
+          "content": "t:sections.product-labels-and-badges.blocks.schedule_start_time.content",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "number",
           "id": "start_year",
           "default": 2023,
-          "label": "t:sections.product-labels-and-badges.blocks.start_year.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_year.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -2182,7 +2221,8 @@
             }
           ],
           "default": "1",
-          "label": "t:sections.product-labels-and-badges.blocks.start_month.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_month.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -2314,7 +2354,8 @@
             }
           ],
           "default": "1",
-          "label": "t:sections.product-labels-and-badges.blocks.start_day.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_day.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -2418,7 +2459,8 @@
             }
           ],
           "default": "0",
-          "label": "t:sections.product-labels-and-badges.blocks.start_hour.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_hour.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -2442,17 +2484,20 @@
             }
           ],
           "default": "0",
-          "label": "t:sections.product-labels-and-badges.blocks.start_minute.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_minute.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "paragraph",
-          "content": "t:sections.product-labels-and-badges.blocks.schedule_end_time.content"
+          "content": "t:sections.product-labels-and-badges.blocks.schedule_end_time.content",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "number",
           "id": "end_year",
           "default": 2023,
-          "label": "t:sections.product-labels-and-badges.blocks.end_year.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_year.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -2508,7 +2553,8 @@
             }
           ],
           "default": "1",
-          "label": "t:sections.product-labels-and-badges.blocks.end_month.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_month.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -2640,7 +2686,8 @@
             }
           ],
           "default": "1",
-          "label": "t:sections.product-labels-and-badges.blocks.end_day.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_day.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -2744,7 +2791,8 @@
             }
           ],
           "default": "0",
-          "label": "t:sections.product-labels-and-badges.blocks.end_hour.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_hour.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -2768,7 +2816,8 @@
             }
           ],
           "default": "0",
-          "label": "t:sections.product-labels-and-badges.blocks.end_minute.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_minute.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         }
       ]
     },
@@ -2892,7 +2941,8 @@
           "unit": "%",
           "label": "t:sections.product-labels-and-badges.blocks.horizontal_position.label",
           "default": 5,
-          "info": "t:sections.all.content_position.custom_position_info"
+          "info": "t:sections.all.content_position.custom_position_info",
+          "visible_if": "{{ block.settings.position == 'custom' }}"
         },
         {
           "type": "range",
@@ -2903,7 +2953,8 @@
           "unit": "%",
           "label": "t:sections.product-labels-and-badges.blocks.vertical_position.label",
           "default": 5,
-          "info": "t:sections.all.content_position.custom_position_info"
+          "info": "t:sections.all.content_position.custom_position_info",
+          "visible_if": "{{ block.settings.position == 'custom' }}"
         },
         {
           "type": "header",
@@ -3037,17 +3088,20 @@
             }
           ],
           "default": "-4",
-          "label": "t:sections.announcement-bar.blocks.timezone.label"
+          "label": "t:sections.announcement-bar.blocks.timezone.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "paragraph",
-          "content": "t:sections.product-labels-and-badges.blocks.schedule_start_time.content"
+          "content": "t:sections.product-labels-and-badges.blocks.schedule_start_time.content",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "number",
           "id": "start_year",
           "default": 2023,
-          "label": "t:sections.product-labels-and-badges.blocks.start_year.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_year.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -3103,7 +3157,8 @@
             }
           ],
           "default": "1",
-          "label": "t:sections.product-labels-and-badges.blocks.start_month.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_month.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -3235,7 +3290,8 @@
             }
           ],
           "default": "1",
-          "label": "t:sections.product-labels-and-badges.blocks.start_day.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_day.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -3339,7 +3395,8 @@
             }
           ],
           "default": "0",
-          "label": "t:sections.product-labels-and-badges.blocks.start_hour.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_hour.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -3363,17 +3420,20 @@
             }
           ],
           "default": "0",
-          "label": "t:sections.product-labels-and-badges.blocks.start_minute.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_minute.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "paragraph",
-          "content": "t:sections.product-labels-and-badges.blocks.schedule_end_time.content"
+          "content": "t:sections.product-labels-and-badges.blocks.schedule_end_time.content",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "number",
           "id": "end_year",
           "default": 2023,
-          "label": "t:sections.product-labels-and-badges.blocks.end_year.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_year.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -3429,7 +3489,8 @@
             }
           ],
           "default": "1",
-          "label": "t:sections.product-labels-and-badges.blocks.end_month.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_month.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -3561,7 +3622,8 @@
             }
           ],
           "default": "1",
-          "label": "t:sections.product-labels-and-badges.blocks.end_day.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_day.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -3665,7 +3727,8 @@
             }
           ],
           "default": "0",
-          "label": "t:sections.product-labels-and-badges.blocks.end_hour.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_hour.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         },
         {
           "type": "select",
@@ -3689,7 +3752,8 @@
             }
           ],
           "default": "0",
-          "label": "t:sections.product-labels-and-badges.blocks.end_minute.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_minute.label",
+          "visible_if": "{{ block.settings.schedule_enabled }}"
         }
       ]
     },
@@ -4048,13 +4112,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "text",
@@ -4103,6 +4169,10 @@
           "id": "display_type",
           "options": [
             {
+              "value": "adapt",
+              "label": "t:settings_schema.buttons.adapt_edge_setting"
+            },
+            {
               "value": "square",
               "label": "t:settings_schema.products.square"
             },
@@ -4115,7 +4185,7 @@
               "label": "t:settings_schema.buttons.rounded"
             }
           ],
-          "default": "square",
+          "default": "adapt",
           "label": "t:sections.product-labels-and-badges.blocks.type.label"
         },
         {
@@ -4228,7 +4298,8 @@
           "unit": "%",
           "label": "t:sections.product-labels-and-badges.blocks.horizontal_position.label",
           "default": 95,
-          "info": "t:sections.all.content_position.custom_position_info"
+          "info": "t:sections.all.content_position.custom_position_info",
+          "visible_if": "{{ block.settings.position == 'custom' }}"
         },
         {
           "type": "range",
@@ -4239,7 +4310,8 @@
           "unit": "%",
           "label": "t:sections.product-labels-and-badges.blocks.vertical_position.label",
           "default": 5,
-          "info": "t:sections.all.content_position.custom_position_info"
+          "info": "t:sections.all.content_position.custom_position_info",
+          "visible_if": "{{ block.settings.position == 'custom' }}"
         },
         {
           "type": "header",
@@ -4669,13 +4741,15 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "text",
@@ -4724,6 +4798,10 @@
           "id": "display_type",
           "options": [
             {
+              "value": "adapt",
+              "label": "t:settings_schema.buttons.adapt_edge_setting"
+            },
+            {
               "value": "square",
               "label": "t:settings_schema.products.square"
             },
@@ -4736,7 +4814,7 @@
               "label": "t:settings_schema.buttons.rounded"
             }
           ],
-          "default": "square",
+          "default": "adapt",
           "label": "t:sections.product-labels-and-badges.blocks.type.label"
         },
         {
@@ -4843,7 +4921,8 @@
           "unit": "%",
           "label": "t:sections.product-labels-and-badges.blocks.horizontal_position.label",
           "default": 5,
-          "info": "t:sections.all.content_position.custom_position_info"
+          "info": "t:sections.all.content_position.custom_position_info",
+          "visible_if": "{{ block.settings.position == 'custom' }}"
         },
         {
           "type": "range",
@@ -4854,7 +4933,8 @@
           "unit": "%",
           "label": "t:sections.product-labels-and-badges.blocks.vertical_position.label",
           "default": 5,
-          "info": "t:sections.all.content_position.custom_position_info"
+          "info": "t:sections.all.content_position.custom_position_info",
+          "visible_if": "{{ block.settings.position == 'custom' }}"
         },
         {
           "type": "header",

@@ -290,15 +290,16 @@
 {% endif %}
   <div x-data="xCouponCodeList('{{ section.id }}')" class="x-container-promo-code-list {% if section.settings.secondary_background == "section" %}bg-{{ section.id }}{% if settings.edges_type == 'rounded_corners' and rounded_corner %} md:rounded-[10px]{% else %} md:rounded-none{% endif %}{% endif %} pb-[{{ section.settings.padding_bottom_mobile }}px] pt-[{{ section.settings.padding_top_mobile }}px] md:pb-[{{ section.settings.padding_bottom }}px] md:pt-[{{ section.settings.padding_top }}px] section--{{ section.id }}">
     {% if section.settings.title != blank %}
-      <div class="{% unless section.settings.full_width %} x-pgw page-width mx-auto{% endunless %}">
+      <div class="pb-5 md:pb-8 pr-5 pl-5{% unless section.settings.full_width %} x-pgw page-width mx-auto{% endunless %}">
         {% render 'heading-highlight',
           headingId: section.id,
           heading: section.settings.title,
           highlight_type: section.settings.highlight_type,
           color_heading_highlight_dark: section.settings.color_heading_highlight_dark,
           color_heading_highlight_light: section.settings.color_heading_highlight_light,
-          class: 'x-block-header text-center h2 block empty:hidden pb-5 md:pb-8 leading-tight p-break-words pr-5 pl-5',
+          class: 'x-block-header text-center h2 block empty:hidden leading-tight p-break-words',
           heading_tag: section.settings.heading_tag,
+          animation_heading: true
         %}
       </div>
     {% endif %}
@@ -531,16 +532,18 @@
                       {% unless block.settings.custom_image == blank and block.settings.custom_icon == blank and block.settings.another_icon == blank and block.settings.icon == 'another_icon' %}
                         <span class="inline-block relative size-icon-{{ section.id }} color-icon--{{ section.id }}{% if block.settings.custom_image != blank %} animate-Xpulse skeleton-image{% endif %}">
                           {% if block.settings.custom_image != blank %}
+                            {% # theme-check-disable ImgLazyLoading %}
                             <img 
                               src="{{ block.settings.custom_image | image_url: width: section.settings.icon_size }}"
                               alt="{{ block.settings.custom_image.alt | escape }}"
-                              loading="lazy"
+                              {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                               onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                               width="{{ block.settings.custom_image.width }}"
                               height="{{ block.settings.custom_image.height }}"
                               style="object-position: {{ block.settings.custom_image.presentation.focal_point }}"
                               class="object-cover absolute top-0 left-0 w-full h-full{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}"
                             >
+                            {% # theme-check-enable ImgLazyLoading %}
                           {% else %}
                             {% if block.settings.custom_icon == blank %}
                               {% if block.settings.another_icon != blank and block.settings.icon == 'another_icon' %}
@@ -780,6 +783,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.promo_code_list"
+    },
     {
       "type": "text",
       "id": "title",
@@ -1075,7 +1082,8 @@
       "type": "checkbox",
       "id": "enable_arrow_mobile",
       "default": false,
-      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile"
+      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile",
+      "visible_if": "{{ section.settings.swiper_on_mobile }}"
     },
     {
       "type": "range",
@@ -1144,7 +1152,8 @@
       "id": "padding_full_width",
       "default": false,
       "label": "t:sections.all.padding.padding_full_width.label",
-      "info": "t:sections.all.padding.padding_full_width.info"
+      "info": "t:sections.all.padding.padding_full_width.info",
+      "visible_if": "{{ section.settings.full_width }}"
     },
     {
       "type": "checkbox",
@@ -1748,18 +1757,21 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "image_picker",
           "id": "custom_image",
-          "label": "t:sections.multicolumn.blocks.column.settings.custom_image"
+          "label": "t:sections.multicolumn.blocks.column.settings.custom_image",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon",
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "text",
@@ -1868,7 +1880,8 @@
           "type": "number",
           "id": "start_year",
           "default": 2024,
-          "label": "t:sections.product-labels-and-badges.blocks.start_year.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_year.label",
+          "visible_if": "{{ block.settings.show_start_date }}"
         },
         {
           "type": "select",
@@ -1924,7 +1937,8 @@
             }
           ],
           "default": "1",
-          "label": "t:sections.product-labels-and-badges.blocks.start_month.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_month.label",
+          "visible_if": "{{ block.settings.show_start_date }}"
         },
         {
           "type": "select",
@@ -2056,7 +2070,8 @@
             }
           ],
           "default": "1",
-          "label": "t:sections.product-labels-and-badges.blocks.start_day.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_day.label",
+          "visible_if": "{{ block.settings.show_start_date }}"
         },
         {
           "type": "select",
@@ -2160,7 +2175,8 @@
             }
           ],
           "default": "0",
-          "label": "t:sections.product-labels-and-badges.blocks.start_hour.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_hour.label",
+          "visible_if": "{{ block.settings.show_start_date }}"
         },
         {
           "type": "select",
@@ -2184,7 +2200,8 @@
             }
           ],
           "default": "00",
-          "label": "t:sections.product-labels-and-badges.blocks.start_minute.label"
+          "label": "t:sections.product-labels-and-badges.blocks.start_minute.label",
+          "visible_if": "{{ block.settings.show_start_date }}"
         },
         {
           "type": "checkbox",
@@ -2195,7 +2212,8 @@
           "type": "number",
           "id": "end_year",
           "default": 2024,
-          "label": "t:sections.product-labels-and-badges.blocks.end_year.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_year.label",
+          "visible_if": "{{ block.settings.show_end_date }}"
         },
         {
           "type": "select",
@@ -2251,7 +2269,8 @@
             }
           ],
           "default": "1",
-          "label": "t:sections.product-labels-and-badges.blocks.end_month.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_month.label",
+          "visible_if": "{{ block.settings.show_end_date }}"
         },
         {
           "type": "select",
@@ -2383,7 +2402,8 @@
             }
           ],
           "default": "1",
-          "label": "t:sections.product-labels-and-badges.blocks.end_day.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_day.label",
+          "visible_if": "{{ block.settings.show_end_date }}"
         },
         {
           "type": "select",
@@ -2487,7 +2507,8 @@
             }
           ],
           "default": "0",
-          "label": "t:sections.product-labels-and-badges.blocks.end_hour.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_hour.label",
+          "visible_if": "{{ block.settings.show_end_date }}"
         },
         {
           "type": "select",
@@ -2511,7 +2532,8 @@
             }
           ],
           "default": "00",
-          "label": "t:sections.product-labels-and-badges.blocks.end_minute.label"
+          "label": "t:sections.product-labels-and-badges.blocks.end_minute.label",
+          "visible_if": "{{ block.settings.show_end_date }}"
         }
       ]
     }
@@ -2519,6 +2541,7 @@
   "presets": [
     {
       "name": "t:sections.promo-code-list.name",
+      "category": "t:categories.promotions",
       "blocks": [
         {
           "type": "column",

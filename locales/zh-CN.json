@@ -1,14 +1,9 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "general": {
+    "theme-mode": {
+      "light": "浅色",
+      "dark": "深色"
+    },
     "global": {
       "cancel": "取消",
       "copy_code": "复制代码",
@@ -78,8 +73,11 @@
       "view": "查看购物车 ({{ count}})",
       "item_added": "物品已添加到购物车",
       "terms_confirm": "请同意条款和条件",
-      "enable_amount_freeship_html": "添加<span class=\"text-medium font-medium\">{{ amount_to_freeshipping }}</span> more to get <span class=\"font-medium\">FREE</span> shipping",
+      "enable_amount_freeship_html": "添加<span class=\"text-medium font-medium\">{{ amount_to_freeshipping }}<\/span> more to get <span class=\"font-medium\">FREE</span> shipping",
+      "enable_amount_freegift_html": "添加<span class=\"text-medium font-medium\">{{ amount_to_freegift }}<\/span>，即可获得{{ other_offer }}",
       "freeshipping": "恭喜！你有资格享受免费配送",
+      "freegift": "恭喜！您已符合{{ other_offer }}的资格！",
+      "free_all_offer": "恭喜！您已符合免运费和{{ other_offer }}的资格！",
       "freeshipping_value": "免运费",
       "apply": "申请",
       "copy_link": "链接复制",
@@ -323,8 +321,8 @@
       "title": "你的购物车",
       "subtotal": "小计",
       "total": "总共",
-      "total_savings": "You've saved {{total_discount}}!",
-      "order_note": "Order note",
+      "total_savings": "你已经节省了{{ total_discount }}!",
+      "order_note": "订单备注",
       "note": "订购特别说明",
       "checkout": "结算",
       "empty": "你的购物车是空的",
@@ -426,7 +424,8 @@
       "choose_option": "先选择变体",
       "add_to_bundle": "添加到捆绑包",
       "bundle_empty": "你的捆绑包是空的",
-      "discount_label": "促销"
+      "discount_label": "促销",
+      "save": "保存"
     },
     "promo-code-list": {
       "expired": "已到期",
@@ -452,6 +451,9 @@
       "hours": "小时",
       "mins": "分钟",
       "secs": "秒"
+    },
+    "social-feeds": {
+      "view_on_social": "在社交上查看"
     }
   },
   "localization": {

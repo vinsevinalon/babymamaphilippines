@@ -42,9 +42,11 @@
       <div class="{% if section.settings.show_collection_image and collection.image %}absolute z-10 top-0 left-0 w-full h-full flex flex-col justify-end{% endif %}">
         {% if section.settings.show_collection_name %}
           <div class="collection-title{% if section.settings.full_width_title %} pl-5 pr-5{% else %} x-pgw page-width{% endif %} w-full mx-auto pt-10{% if section.settings.show_collection_image and collection.image %} pb-12 md:pb-20 pl-5 pr-5{% else %} pb-6 md:pb-8{% endif %}">
-            <{{ section.settings.heading_tag }} class="title--{{ section.id }} h2 leading-tight {{ section.settings.title_position }} ltr{% if section.settings.show_collection_image and collection.image %} image-treatment-text{% endif %}">
-              {{ collection.title | escape }}
-            </{{ section.settings.heading_tag }}>
+            {% unless settings.disable_heading_animation %}<div class="overflow-hidden" x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')">{% endunless %}
+              <{{ section.settings.heading_tag }} class="title--{{ section.id }} h2 leading-tight {{ section.settings.title_position }} ltr{% if section.settings.show_collection_image and collection.image %} image-treatment-text{% endif %}{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">
+                {{ collection.title | escape }}
+              </{{ section.settings.heading_tag }}>
+            {% unless settings.disable_heading_animation %}</div>{% endunless %}
           </div>
         {% endif %}
         {%- if section.settings.show_collection_image and collection.image -%}
@@ -151,6 +153,10 @@
   "settings": [
     {
       "type": "paragraph",
+      "content": "t:sections.user_guide_link.collection_page.collection_banner"
+    },
+    {
+      "type": "paragraph",
       "content": "t:sections.main-collection-banner.settings.paragraph.content"
     },
     {
@@ -172,7 +178,8 @@
       "step": 10,
       "unit": "%",
       "label": "t:sections.collection-list.settings.image_overlay_opacity.label",
-      "default": 20
+      "default": 20,
+      "visible_if": "{{ section.settings.show_collection_image }}"
     },
     {
       "type": "checkbox",
@@ -198,7 +205,8 @@
         }
       ],
       "default": "text-left",
-      "label": "t:sections.main-collection-banner.settings.title_position.label"
+      "label": "t:sections.main-collection-banner.settings.title_position.label",
+      "visible_if": "{{ section.settings.show_collection_name }}"
     },
     {
       "type": "range",
@@ -208,7 +216,8 @@
       "step": 10,
       "unit": "%",
       "label": "t:sections.main-collection-banner.settings.size_title.label",
-      "default": 170
+      "default": 170,
+      "visible_if": "{{ section.settings.show_collection_name }}"
     },
     {
       "type": "select",
@@ -244,13 +253,15 @@
           "value": "p",
           "label": "p"
         }
-      ]
+      ],
+      "visible_if": "{{ section.settings.show_collection_name }}"
     },
     {
       "type": "checkbox",
       "id": "full_width_title",
       "default": false,
-      "label": "t:sections.main-collection-banner.settings.full_width_title.label"
+      "label": "t:sections.main-collection-banner.settings.full_width_title.label",
+      "visible_if": "{{ section.settings.show_collection_name }}"
     },
     {
       "type": "header",
@@ -511,13 +522,15 @@
           "type": "text",
           "id": "read_more_label",
           "default": "Read more",
-          "label": "t:sections.all.read_more_label.label"
+          "label": "t:sections.all.read_more_label.label",
+          "visible_if": "{{ block.settings.number_of_lines_shown != 'none' }}"
         },
         {
           "type": "text",
           "id": "see_less_label",
           "default": "See less",
-          "label": "t:sections.all.see_less_label.label"
+          "label": "t:sections.all.see_less_label.label",
+          "visible_if": "{{ block.settings.number_of_lines_shown != 'none' }}"
         },
         {
           "type": "checkbox",
@@ -623,6 +636,7 @@
   "presets": [
     {
       "name": "t:sections.main-collection-banner.name",
+      "category": "t:categories.collections",
       "blocks": [
         {
           "type": "breadcrumbs"

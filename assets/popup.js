@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('popup.js')) {
-  window.Eurus.loadedScript.push('popup.js');
+if (!window.Eurus.loadedScript.has('popup.js')) {
+  window.Eurus.loadedScript.add('popup.js');
   
   requestAnimationFrame(() => {
     document.addEventListener('alpine:init', () => { 

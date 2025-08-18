@@ -176,7 +176,11 @@
                     {{ block.settings.image | image_url: width: 3000 }} 3000w,
                     {{ block.settings.image | image_url: width: 3840 }} 3840w"
                   {% unless section.settings.show_hero and forloop.first %}
-                    loading="lazy"
+                    {% if settings.enable_lazy_loading_image %}
+                      loading="lazy"
+                    {% else %}
+                      loading="eager"
+                    {% endif %}
                   {% else %}
                     loading="eager"
                     fetchpriority="high"
@@ -212,7 +216,11 @@
             alt="{{ block.settings.image_mobile.alt | escape }}"
             class="object-cover h-full w-full{% if block.settings.image_mobile != blank %} md:hidden{% endif %}"
             {% unless section.settings.show_hero and forloop.first %}
-              loading="lazy"
+              {% if settings.enable_lazy_loading_image %}
+                loading="lazy"
+              {% else %}
+                loading="eager"
+              {% endif %}
             {% else %}
               loading="eager"
               fetchpriority="high"
@@ -261,7 +269,11 @@
                     {{ block.settings.image_2 | image_url: width: 3000 }} 3000w,
                     {{ block.settings.image_2 | image_url: width: 3840 }} 3840w"
                   {% unless section.settings.show_hero and forloop.first %}
-                    loading="lazy"
+                    {% if settings.enable_lazy_loading_image %}
+                      loading="lazy"
+                    {% else %}
+                      loading="eager"
+                    {% endif %}
                   {% else %}
                     loading="eager"
                     fetchpriority="high"
@@ -297,7 +309,11 @@
             alt="{{ block.settings.image_mobile_2.alt | escape }}"
             class="object-cover h-full w-full{% if block.settings.image_mobile_2 != blank %} md:hidden{% endif %}"
             {% unless section.settings.show_hero and forloop.first %}
-              loading="lazy"
+              {% if settings.enable_lazy_loading_image %}
+                loading="lazy"
+              {% else %}
+                loading="eager"
+              {% endif %}
             {% else %}
               loading="eager"
               fetchpriority="high"
@@ -347,7 +363,11 @@
                   {{ block.settings.image_2 | image_url: width: 3000 }} 3000w,
                   {{ block.settings.image_2 | image_url: width: 3840 }} 3840w"
                 {% unless section.settings.show_hero and forloop.first %}
-                  loading="lazy"
+                  {% if settings.enable_lazy_loading_image %}
+                    loading="lazy"
+                  {% else %}
+                    loading="eager"
+                  {% endif %}
                 {% else %}
                   loading="eager"
                   fetchpriority="high"
@@ -383,7 +403,11 @@
           alt="{{ block.settings.image_mobile.alt | escape }}"
           class="object-cover h-full w-full{% if block.settings.image_mobile != blank %} md:hidden{% endif %}"
           {% unless section.settings.show_hero and forloop.first %}
-            loading="lazy"
+            {% if settings.enable_lazy_loading_image %}
+              loading="lazy"
+            {% else %}
+              loading="eager"
+            {% endif %}
           {% else %}
             loading="eager"
             fetchpriority="high"
@@ -424,7 +448,7 @@
           </div>
         {%- endif -%}
         {%- if block.settings.button_label_1 != blank or block.settings.button_label_2 != blank -%}
-          <div class="mt-4 pointer-events-auto lg:mt-9 inline-flex flex-wrap gap-y-2 p-break-words gap-x-1{% if block.settings.content_alignment == 'custom' or block.settings.content_alignment contains 'center' %} justify-center{% else %} justify-{{ alignment[1] }}{% endif %}" {{ block.shopify_attributes }}>
+          <div class="mt-4 pointer-events-auto lg:mt-9 inline-flex flex-wrap gap-y-2 p-break-words gap-x-3{% if block.settings.content_alignment == 'custom' or block.settings.content_alignment contains 'center' %} justify-center{% else %} justify-{{ alignment[1] }}{% endif %}" {{ block.shopify_attributes }}>
             {%- if block.settings.button_label_1 != blank -%}
               <a{% if block.settings.button_link_1 %} href="{{ block.settings.button_link_1 }}"{% if block.settings.open_new_window_button %} target="_blank"{% endif %}{% else %} role="link" aria-disabled="true"{% endif %} class="button button--{{ block.id }}{% if block.settings.show_button_style_1 == 'secondary' %} button-outline{% elsif block.settings.show_button_style_1 == 'text-link' %} button-text-link {% else %} button-solid{% endif %} border mt-0.5 mb-0.5 empty:hidden pl-6 pr-6 lg:pl-9 lg:pr-9 pt-2.5 pb-2.5 md:pt-3 md:pb-3 leading-normal{% unless block.settings.button_link_1 %} hover:cursor-not-allowed opacity-70{% endunless %}">
                 {% render 'button-label', button_label: block.settings.button_label_1, show_button_style: block.settings.show_button_style_1 %}

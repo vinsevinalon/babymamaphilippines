@@ -265,20 +265,23 @@
   <div 
     class="{% unless section.settings.full_width %} x-pgw page-width{% endunless %} pl-5 pr-5 mx-auto mb-5 lg:mb-10{% unless section.settings.heading_alignment contains 'center' %} flex items-center{% endunless %} heading-{{ section.settings.heading_alignment }}"
   > 
-    <div class="flex-auto section-header">
+    <div class="flex-auto text-{{ section.settings.heading_alignment }}">
+      {%- if section.settings.subheading != blank -%}
+        <div class="mt-2 mb-2{% unless settings.disable_heading_animation %} overflow-hidden{% endunless %}"{% unless settings.disable_heading_animation %} x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')"{% endunless %}>
+          <p class="block leading-tight flex-auto p-break-words{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">
+            {{ section.settings.subheading | escape }}
+          </p>
+        </div>
+      {%- endif -%}
       {%- if section.settings.heading != blank -%}
         {% render 'heading-highlight',
           headingId: section.id,
           heading: section.settings.heading,
           highlight_type: section.settings.highlight_type,
           class: 'h2 block leading-tight p-break-words',
-          heading_tag: section.settings.heading_tag
+          heading_tag: section.settings.heading_tag,
+          animation_heading: true
         %}
-      {%- endif -%}
-      {%- if section.settings.subheading != blank -%}
-        <p class="block leading-tight flex-auto p-break-words mt-2 mb-2">
-          {{ section.settings.subheading | escape }}
-        </p>
       {%- endif -%}
     </div>
     {% unless array_article_handles.size > 0 %}
@@ -725,6 +728,10 @@
   },
   "settings": [
     {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.related_blog_posts"
+    },
+    {
       "type": "text",
       "id": "heading",
       "default": "Related blog posts",
@@ -858,7 +865,8 @@
       "id": "show_show_more",
       "default": false,
       "label": "t:sections.featured-blog.settings.show_show_more.label",
-      "info": "t:sections.featured-blog.settings.show_show_more.info"
+      "info": "t:sections.featured-blog.settings.show_show_more.info",
+      "visible_if": "{{ section.settings.enable_desktop_slider == false or section.settings.swiper_on_mobile == false }}"
     },
     {
       "type": "checkbox",
@@ -881,7 +889,8 @@
           "value": "bottom",
           "label": "t:sections.all.content_position.options__12.label"
         }
-      ]
+      ],
+      "visible_if": "{{ section.settings.show_view_all }}"
     },
     {
       "type": "header",
@@ -969,13 +978,15 @@
         }
       ],
       "default": "75",
-      "label": "t:sections.all.image_ratio.label"
+      "label": "t:sections.all.image_ratio.label",
+      "visible_if": "{{ section.settings.show_image }}"
     },
     {
       "type": "checkbox",
       "id": "item_secondary_background",
       "default": false,
-      "label": "t:sections.featured-blog.settings.item_secondary_background.label"
+      "label": "t:sections.featured-blog.settings.item_secondary_background.label",
+      "visible_if": "{{ section.settings.show_image }}"
     },
     {
       "type": "checkbox",
@@ -1023,7 +1034,8 @@
       "type": "text",
       "id": "button_read_more_label",
       "default": "READ NOW",
-      "label": "t:sections.featured-blog.settings.button_read_more_label.label"
+      "label": "t:sections.featured-blog.settings.button_read_more_label.label",
+      "visible_if": "{{ section.settings.show_read_more }}"
     },
     {
       "type": "header",
@@ -1054,13 +1066,15 @@
       "type": "checkbox",
       "id": "enable_arrow_mobile",
       "default": false,
-      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile"
+      "label": "t:sections.collection-list.settings.swipe_on_mobile.enable_arrow_mobile",
+      "visible_if": "{{ section.settings.swiper_on_mobile }}"
     },
     {
       "type": "checkbox",
       "id": "auto_play",
       "label": "t:sections.slideshow.settings.auto_play.label",
-      "default": false
+      "default": false,
+      "visible_if": "{{ section.settings.enable_desktop_slider or section.settings.swiper_on_mobile }}"
     },
     {
       "type": "range",
@@ -1070,7 +1084,8 @@
       "step": 1,
       "unit": "s",
       "label": "t:sections.slideshow.settings.change_slides_speed.label",
-      "default": 5
+      "default": 5,
+      "visible_if": "{{ section.settings.auto_play and section.settings.enable_desktop_slider or section.settings.swiper_on_mobile }}"
     },
     {
       "type": "header",
@@ -1136,7 +1151,8 @@
         }
       ],
       "default": "1",
-      "label": "t:sections.all.padding.section_layout_mobile"
+      "label": "t:sections.all.padding.section_layout_mobile",
+      "visible_if": "{{ section.settings.show_image }}"
     },
     {
       "type": "range",
@@ -1178,6 +1194,7 @@
   "presets": [
     {
       "name": "t:sections.featured-blog.related_blog",
+      "category": "t:categories.blog_and_page",
       "settings": {
         "blog": "News"
       }

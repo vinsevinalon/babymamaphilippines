@@ -890,6 +890,13 @@
       </div>
     </template>
   {%- when 'product_menu' -%}
+    {% liquid
+      if settings.enable_lazy_loading_image
+        assign loading = 'lazy'
+      else
+        assign loading = 'eager'
+      endif
+    %}
     <div class="toggle-menu toggle-menu-hidden background-header text-[rgba(var(--colors-text))] mega-menu-{{ block.settings.tab_style }} is-focus:text-[rgba(var(--colors-text))] absolute w-full background-header{% if is_rtl %} right-0{% else %} left-0{% endif %} z-50 shadow-md">
       <div class="mega-menu-container x-pgw page-width mx-auto{% if block.settings.tab_style == 'vertical' %} md:max-h-[80vh]{% endif %}{% if block.settings.enable_quick_access_blocks %} flex flex-wrap flex-row gap-5 xl:gap-8 grow{% endif %} ltr">
         {%- if block.settings.enable_quick_access_blocks -%}
@@ -1209,7 +1216,8 @@
                                         disable_quickview: true,
                                         disable_color_swatch: true,
                                         disable_highlight_icon: true,
-                                        animation_loading: true
+                                        animation_loading: true,
+                                        loading: loading
                                       %}
                                     {% endif %}
                                   {%- endfor -%}
@@ -1378,9 +1386,11 @@
                                         disable_quickview: true,
                                         disable_color_swatch: true,
                                         show_vendor: block.settings.show_vendor,
+                                        show_highlighted_features: block.settings.show_highlighted_features,
                                         show_highlighted_attributes: block.settings.show_highlighted_attributes,
                                         show_rating: block.settings.show_rating
-                                        animation_loading: true
+                                        animation_loading: true,
+                                        loading: loading
                                       %}
                                     {% endif %}
                                   {%- endfor -%}
@@ -1863,12 +1873,19 @@
         <div class="flex mx-auto x-pgw page-width gap-x-7 pt-8 pb-11">
           <div class="overflow-hidden {{ class_map }}{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
             {%- if block.settings.image != blank -%}
+              {% liquid
+                if settings.enable_lazy_loading_image
+                  assign loading = 'lazy'
+                else
+                  assign loading = 'eager'
+                endif
+              %}
               {%- capture sizes -%}
                 (min-width: {{ settings.page_width }}px) calc({{ settings.page_width | divided_by: 3 | plus: 200 }}px ), 
                 (min-width: 768px) 50vw, 
                 100vw
               {%- endcapture -%}
-              {{ block.settings.image | image_url: width: 3000 | image_tag: loading: 'lazy', sizes: sizes, widths: '375, 450, 750, 900, 1100, 1500, 1780, 2000, 3000, 3840', class: 'w-full h-full object-center object-cover z-0 inset-0 image-hover' }} 
+              {{ block.settings.image | image_url: width: 3000 | image_tag: loading: loading, sizes: sizes, widths: '375, 450, 750, 900, 1100, 1500, 1780, 2000, 3000, 3840', class: 'w-full h-full object-center object-cover z-0 inset-0 image-hover' }} 
             {%- elsif block.settings.store_address != blank -%}
               <div x-data="xMap('{{ block.settings.store_address }}')" class="h-full" x-intersect.once.margin.250px="load()"> 
                 <iframe src="" class="w-full h-full" title="Map"></iframe>

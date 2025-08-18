@@ -22,8 +22,8 @@
       --colors-heading: {{ section.settings.text_light.red }}, {{ section.settings.text_light.green }}, {{ section.settings.text_light.blue }};
       --colors-text: {{ section.settings.text_light.red }}, {{ section.settings.text_light.green }}, {{ section.settings.text_light.blue }};
     {% else %}
-      --colors-heading: {{ settings.colors_heading.red }}, {{ settings.colors_heading.green }}, {{ settings.colors_heading.green }};
-      --colors-text: {{ settings.colors_text.red }}, {{ settings.colors_text.green }}, {{ settings.colors_text.green }};
+      --colors-heading: {{ settings.colors_heading.red }}, {{ settings.colors_heading.green }}, {{ settings.colors_heading.blue }};
+      --colors-text: {{ settings.colors_text.red }}, {{ settings.colors_text.green }}, {{ settings.colors_text.blue }};
     {% endif %}
   }
   .dark .section--{{ section.id }} {
@@ -102,9 +102,14 @@
                   assign class_list = class_list | append: ' rounded-[10px]'
                 endif
                 assign width_tag = '50, 100, 150, 200, 250'
+                if settings.enable_lazy_loading_image
+                  assign loading = 'lazy'
+                else
+                  assign loading = 'eager'
+                endif
               %}
               {% if block.settings.image %}
-                {{ block.settings.image | image_url: width: 250 | image_tag: loading: "lazy", widths: width_tag, size: sizes, class: class_list }}
+                {{ block.settings.image | image_url: width: 250 | image_tag: loading: loading, widths: width_tag, size: sizes, class: class_list }}
               {%- else -%}
                 {%- capture placeholder_svg_tag -%}
                   bg-[#c9c9c9] text-[#acacac] md:block w-[{{ block.settings.image_width_mobile }}px] md:w-[{{ block.settings.image_width }}px] h-auto align-middle object-contain {{ ratio }}
@@ -181,6 +186,10 @@
   },
   "settings": [
     {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.highlight_text_with_image"
+    },
+    {
       "type": "select",
       "id": "section_height",
       "options": [
@@ -221,6 +230,7 @@
       "type": "checkbox",
       "id": "equal_lines",
       "label": "t:sections.highlight-text-with-image.settings.equal_lines.label",
+      "info": "t:sections.highlight-text-with-image.settings.equal_lines.info",
       "default": false
     },
     {
@@ -550,6 +560,7 @@
   "presets": [
     {
       "name": "t:sections.highlight-text-with-image.name",
+      "category": "t:categories.storytelling",
       "blocks": [
         {
           "type": "image"

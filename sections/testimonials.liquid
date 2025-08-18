@@ -9,14 +9,14 @@
   assign size_author_note = settings.text_base_size | times: 0.007875
   assign size_author_note_mobile = size_author_note | times: 0.9
   assign swiper_on_mobile = true
-  if section.blocks.size < 2 
+  if section.blocks.size < 2
     assign swiper_on_mobile = false
   endif
   assign enable_desktop_slider = true
-  if section.settings.testimonial_items_view == "single" and section.blocks.size < 2
+  if section.settings.testimonial_items_view == 'single' and section.blocks.size < 2
     assign enable_desktop_slider = false
   endif
-  if section.settings.testimonial_items_view == "multiple" and section.blocks.size < 4
+  if section.settings.testimonial_items_view == 'multiple' and section.blocks.size < 4
     assign enable_desktop_slider = false
   endif
   assign text_alignment = 'center'
@@ -28,11 +28,12 @@
   endif
   if settings.lang_direction contains request.locale.iso_code
     assign is_rtl = true
-    assign class_rtl = "margin-left"
+    assign class_rtl = 'margin-left'
   else
     assign is_rtl = false
-    assign class_rtl = "margin-right"
+    assign class_rtl = 'margin-right'
   endif
+  assign slide_content_only = section.settings.slide_content_only
 -%}
 {%- style -%}
   .size_icon_testimonial--{{ section.id }} {
@@ -63,7 +64,7 @@
       {% endif %}
     }
     .heading-{{ section.id }} {
-      font-size: {{ size_heading }}rem; 
+      font-size: {{ size_heading }}rem;
     }
     .author-note--{{ section.id }} {
       font-size: {{ size_author_note }}rem;
@@ -85,13 +86,13 @@
     }
   }
   #shopify-section-{{ section.id }} {
-    background: {{ section.settings.background_color_light }}; 
+    background: {{ section.settings.background_color_light }};
   }
   .dark #shopify-section-{{ section.id }} {
     {% if section.settings.background_color_dark.alpha == 0.0 %}
       background: transparent;
     {% else %}
-      background: {{ section.settings.background_color_dark }}; 
+      background: {{ section.settings.background_color_dark }};
     {% endif %}
   }
   .bg-item--{{ section.id }} {
@@ -103,22 +104,22 @@
   }
   .dark .bg-item--{{ section.id }} {
     {% if section.settings.item_background_color_dark.alpha != 0.0 %}
-      background: {{ section.settings.item_background_color_dark }}; 
+      background: {{ section.settings.item_background_color_dark }};
     {% else %}
       background: rgb(var(--colors-background-secondary));
     {% endif %}
   }
-  {% unless section.settings.heading_and_title_light.alpha == 0.0 %}
-    .color-heading--{{ section.id }} {
-      --colors-heading: {{ section.settings.heading_and_title_light.red }}, {{ section.settings.heading_and_title_light.green }}, {{ section.settings.heading_and_title_light.blue }};
-    }
-  {% endunless %}
+  /* Custom caption color override to #FAA353 */
+  .color-heading--{{ section.id }} {
+    --colors-heading: 250, 163, 83;
+  }
   .dark .color-heading--{{ section.id }} {
-    {% if section.settings.heading_and_title_dark.alpha != 0.0 %}
-      --colors-heading: {{ section.settings.heading_and_title_dark.red }}, {{ section.settings.heading_and_title_dark.green }}, {{ section.settings.heading_and_title_dark.blue }};
-    {% else %}
-      --colors-heading: var(--colors-heading-secondary);
-    {% endif %}
+    --colors-heading: 250, 163, 83;
+  }
+  /* Direct color application for author names */
+  #shopify-section-{{ section.id }} .h4,
+  #shopify-section-{{ section.id }} p.h4 {
+    color: #FAA353 !important;
   }
   {% unless section.settings.item_text_color_light.alpha == 0.0 %}
     .color-text-{{ section.id }} {
@@ -132,7 +133,7 @@
       --colors-text: var(--colors-text-secondary);
     {% endif %}
   }
-  {%- if enable_desktop_slider %}
+  {%- if enable_desktop_slider and slide_content_only == false %}
     @media (min-width: 1024px){
       {% if section.settings.testimonial_items_view == 'multiple' %}
         .preload-slide--{{ section.id }} .splide__track {
@@ -151,12 +152,26 @@
       }
     }
   {% endif -%}
-  {%- if swiper_on_mobile -%}
+  {%- if swiper_on_mobile and slide_content_only == false -%}
     @media (max-width: 1023px) {
       .preload-slide--{{ section.id }} .x-splide-slide {
         {{ class_rtl }}: 20px;
         width: 100%
       }
+    }
+  {%- endif -%}
+
+  {%- if slide_content_only -%}
+    .content-slider--{{ section.id }} .splide__slide {
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+    .content-slider--{{ section.id }} .splide__slide.is-active {
+      opacity: 1;
+    }
+    .static-image--{{ section.id }} {
+      position: sticky;
+      top: 0;
     }
   {%- endif -%}
 {%- endstyle -%}
@@ -174,216 +189,421 @@
         heading: section.settings.heading,
         highlight_type: section.settings.highlight_type,
         class: 'h2 block ml-auto mr-auto x-pgw page-width empty:hidden',
-        heading_tag: section.settings.heading_tag,
+        heading_tag: section.settings.heading_tag
       %}
     {% endif %}
   </div>
   <div class="testimonial carousel-mobile carousel-tablet x-pgw page-width mx-auto">
-    <div
-      id="x-testimonial-{{ section.id }}"
-      class="color-heading--{{ section.id }} color-text-{{ section.id }}{% if enable_desktop_slider or swiper_on_mobile %} overflow-hidden x-splide splide visible preload-slide--{{ section.id }}{% endif %}{% if enable_desktop_slider %} lg:pl-7 lg:pr-7{% endif %} mt-4 relative splider-testimonial{%- if section.settings.show_pagination %} pb-8{% endif %}" 
-      {% if enable_desktop_slider or swiper_on_mobile -%}
-        x-intersect.once.margin.200px='$store.xSplide.load($el, {
-          "updateOnMove": "true",
-          "mediaQuery": "min",
-          {%- if section.blocks.size > 2 %}
-            "type": "loop",
-          {%- endif %}
-          {%- if section.settings.auto_play %}
-            "autoplay": true,
-            "interval": {{ section.settings.change_slides_speed | times: 1000 }},
-          {%- endif %}
-          {%- if settings.lang_direction contains request.locale.iso_code %} 
-            "direction": "rtl",
-          {%- endif %}
-          "breakpoints": {
-            300: {
-              {%- if swiper_on_mobile == false %} 
-                "destroy": true,
-              {%- endif %}
-              "perPage": 1,
-              "perMove": 1,
-              "gap": 20,
-            },
-            1024: {
-              {%- if enable_desktop_slider %} 
-                "destroy": false,
-              {%- else %}
-                "destroy": true,
-              {%- endif %}
-              {%- if section.settings.testimonial_items_view == "single" %}  
-                "perPage": 1,
-                "perMove": 1,
-                "speed": 1000,
-                "gap": 30,
-                "padding": 0
-              {%- else %}
-                "gap":10,
-                "perPage": 1,
-                "perMove": 1,
-                "speed": 800,
-                "padding": 207
-              {%- endif %}
-            }
-          },
-          "classes": {
-            {%- if section.settings.show_arrow and enable_desktop_slider %}
-              "arrows": "splide__arrows block",
-            {%- else %}
-              "arrows": "splide__arrows hidden",
-            {%- endif %}
-            {%- if section.settings.show_pagination %}
-              "pagination": "gap-3 flex-nowrap absolute bottom-0 left-1/2 -translate-x-1/2{% if swiper_on_mobile %} flex{% else %} hidden{% endif %}{% if enable_desktop_slider %} md:flex{% else %} md:hidden{% endif %}",
-              "page": "paginate-testimonial duration-200 rounded-full w-3 flex items-center bg-[rgb(var(--colors-line-and-border))]{% if swiper_on_mobile %} h-3{% else %} h-0{% endif %}{% if enable_desktop_slider %} md:h-3{% else %} md:h-0{% endif %}"
-            {%- else %}
-              "pagination": "hidden"
-            {%- endif %}
-          }
-        })'
-      {%- endif -%}
-    >
-      {% if section.settings.show_arrow and enable_desktop_slider %}
-        <div class="splide__arrows hidden absolute left-0 top-1/2 justify-between w-full -translate-y-1/2 h-0 z-10{% if section.blocks.size < 2 %} md:hidden{% else %} md:flex{% endif %}">
-          <button class="splide__arrow splide__arrow--prev button-arrow hidden lg:block absolute top-1/2 -mt-6 p-4 rounded-full none_border z-10 w-12 h-12 after:text-[20px] rtl:right-0 rtl:-rotate-90 rtl:left-auto -left-2 rotate-90 duration-200 opacity-60 hover:opacity-100 disabled:cursor-not-allowed transition-all ease-in-out lg:-translate-x-full rtl:lg:translate-x-full disabled:opacity-30" aria-label="previous slide">
-            {% render 'icon-alls', icon: 'icon-caret' %}
-          </button>
-          <button class="splide__arrow splide__arrow--next button-arrow hidden lg:block absolute top-1/2 -mt-6 p-4 rounded-full none_border z-10 w-12 h-12 after:text-[20px] rtl:rotate-90 rtl:left-0 rtl:right-auto -right-2 -rotate-90 duration-200 opacity-60 hover:opacity-100 disabled:cursor-not-allowed transition-all ease-in-out lg:translate-x-full rtl:lg:-translate-x-full disabled:opacity-30" aria-label="previous slide">
-            {% render 'icon-alls', icon: 'icon-caret' %}
-          </button>
+    {% if slide_content_only
+      and section.settings.testimonial_items_view == 'single'
+      and section.settings.show_author_image
+    %}
+      <!-- Static Image Layout for Content-Only Sliding -->
+      <div class="{% if section.settings.testimonial_items_view == 'single' %}md:grid md:grid-cols-2 md:gap-8{% endif %} mt-4">
+        <!-- Static Image Section -->
+        <div class="static-image--{{ section.id }} {% if section.settings.testimonial_items_view == 'single' %}md:flex md:items-center md:justify-center{% endif %}">
+          {% assign first_block = section.blocks.first %}
+          {% if first_block.settings.author_image != blank %}
+            <div class="relative overflow-hidden inline-block aspect-square w-full max-w-md mx-auto isolate{% if section.settings.image_ratio == 'round' %} rounded-full{% endif %} desktop-height-{{ section.id }}{% if settings.edges_type == 'rounded_corners' and section.settings.image_ratio != 'round' %} rounded-[10px]{% endif %}">
+              <img
+                srcset="
+                  {{ first_block.settings.author_image | image_url: width: 375 }} 375w,
+                  {{ first_block.settings.author_image | image_url: width: 750 }} 750w,
+                  {{ first_block.settings.author_image | image_url: width: 1100 }} 1100w
+                "
+                src="{{ first_block.settings.author_image | image_url: width: 750 }}"
+                alt="{{ first_block.settings.author_image.alt | escape }}"
+                sizes="(min-width: 768px) 50vw, 100vw"
+                width="{{ first_block.settings.author_image.width }}"
+                height="{{ first_block.settings.author_image.height }}"
+                loading="lazy"
+                class="h-full w-full{% if section.settings.image_ratio == 'round' %} rounded-full{% endif %} object-cover absolute top-0 left-0"
+                style="object-position: {{ first_block.settings.author_image.presentation.focal_point }};"
+              >
+            </div>
+          {% else %}
+            <div class="relative overflow-hidden inline-block aspect-square w-full max-w-md mx-auto bg-[#c9c9c9] text-[#acacac] desktop-height-{{ section.id }}{% if section.settings.image_ratio == 'round' %} rounded-full{% endif %}{% if settings.edges_type == 'rounded_corners' and section.settings.image_ratio != 'round' %} rounded-[10px]{% endif %}">
+              {% render 'icon-placeholder', icon: 'icon-image', class: 'w-full h-full absolute' %}
+            </div>
+          {% endif %}
         </div>
-      {% endif %}
-      <div class="splide__track pt-4{% if enable_desktop_slider %} md:cursor-grab{% endif %}">
-        <div class="splide__list flex w-full{% if enable_desktop_slider == false %} lg:grid lg:!translate-x-0{% if section.settings.testimonial_items_view == "multiple" and section.blocks.size > 3 %} lg:grid-cols-3{% else %} lg:grid-cols-{{ section.blocks.size }}{% endif %} lg:gap-7{% endif %}{% if swiper_on_mobile %} flex w-full{% else %} grid grid-cols-1{% endif %}">
-          {%- for block in section.blocks -%}
-            <div id="Slide-{{ section.id }}-{{ forloop.index }}" x-slide-index="{{ forloop.index | minus: 1 }}" class="{% if is_rtl %}ltr {% endif %}testimonial_slide{% if swiper_on_mobile or enable_desktop_slider %} splide__slide x-splide-slide{% if forloop.first %} is-active{% endif %}{% endif %} flex flex-col justify-center {% if section.blocks.size == 1 %} md:min-w-[350px]{% endif %}{% if section.settings.testimonial_items_view == "single" %} md:pl-12 lg:pl-20 md:pr-12 lg:pr-20{% else %} md:pl-12 md:pr-12 lg:pl-0 lg:pr-0{% endif %}" {{ block.shopify_attributes }}>
-              <div class="scale-item{% if enable_desktop_slider %} is-active:opacity-100 is-active:scale-100 is-active:duration-300 ease-in-out splide__slide--clone:opacity-60 splide__slide--clone:scale-90 scale-90 opacity-60 duration-300{% endif %} origin-center bg-item--{{ section.id }} h-full w-full flex flex-col justify-center{% if section.settings.testimonial_items_view != "single" %} multiple{% else %} md:grid md:grid-cols-2 md:grid-rows-[auto_auto] content-center{% endif %} md:ml-auto md:mr-auto {% if section.settings.show_author_image %} md:grid-cols-5{% else %} md:grid-cols-1{% endif %}{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
-                <div class="text-{{ text_alignment }} pl-5 pr-5{% if section.settings.testimonial_items_view == "single" %} md:pl-8 lg:pl-14 md:pr-8 lg:pr-16 md:flex md:flex-col {% if block.settings.author == blank and block.settings.author_note == blank and block.settings.product == blank %}md:justify-center{% else %}md:justify-end{% endif %} md:col-span-3{% else %} md:mt-8 mt-4 md:pl-10 md:pr-10{% endif %}">
-                  <div class="h-6 md:mb-2{% if section.settings.testimonial_items_view == "single" %} mt-5{% if section.settings.show_author_image %} md:mt-8{% endif %}{% else %} md:mb-1{% endif %} flex justify-{{ section.settings.text_alignment }}">
-                    {% if block.settings.custom_icon == blank %}
-                      {% render 'icon-liststar', icon: block.settings.icon_star %}
-                    {% else %}
-                      {{ block.settings.custom_icon }}
-                    {% endif %}
+
+        <!-- Sliding Content Section -->
+        <div class="content-slider--{{ section.id }} {% if section.settings.testimonial_items_view == 'single' %}md:flex md:items-center{% endif %}">
+          <div
+            id="x-testimonial-content-{{ section.id }}"
+            class="color-heading--{{ section.id }} color-text-{{ section.id }} overflow-hidden x-splide splide visible mt-4 relative{% if section.settings.show_pagination %} pb-8{% endif %}"
+            x-intersect.once.margin.200px='
+              $store.xSplide.load($el, {
+                "updateOnMove": "true",
+                "mediaQuery": "min",
+                {%- if section.blocks.size > 2 %}
+                  "type": "loop",
+                {%- endif %}
+                {%- if section.settings.auto_play %}
+                  "autoplay": true,
+                  "interval": {{ section.settings.change_slides_speed | times: 1000 }},
+                {%- endif %}
+                {%- if settings.lang_direction contains request.locale.iso_code %}
+                  "direction": "rtl",
+                {%- endif %}
+                "perPage": 1,
+                "perMove": 1,
+                "gap": 0,
+                "classes": {
+                  {%- if section.settings.show_arrow %}
+                    "arrows": "splide__arrows block",
+                  {%- else %}
+                    "arrows": "splide__arrows hidden",
+                  {%- endif %}
+                  {%- if section.settings.show_pagination %}
+                    "pagination": "gap-3 flex-nowrap absolute bottom-0 left-1/2 -translate-x-1/2 flex",
+                    "page": "paginate-testimonial duration-200 rounded-full w-3 h-3 flex items-center bg-[rgb(var(--colors-line-and-border))]"
+                  {%- else %}
+                    "pagination": "hidden"
+                  {%- endif %}
+                }
+              })
+            '
+          >
+            {% if section.settings.show_arrow %}
+              <div class="splide__arrows absolute left-0 top-1/2 justify-between w-full -translate-y-1/2 h-0 z-10{% if section.blocks.size < 2 %} hidden{% else %} flex{% endif %}">
+                <button
+                  class="splide__arrow splide__arrow--prev button-arrow absolute top-1/2 -mt-6 p-4 rounded-full none_border z-10 w-12 h-12 after:text-[20px] rtl:right-0 rtl:-rotate-90 rtl:left-auto -left-2 rotate-90 duration-200 opacity-60 hover:opacity-100 disabled:cursor-not-allowed transition-all ease-in-out disabled:opacity-30"
+                  aria-label="previous slide"
+                >
+                  {% render 'icon-alls', icon: 'icon-caret' %}
+                </button>
+                <button
+                  class="splide__arrow splide__arrow--next button-arrow absolute top-1/2 -mt-6 p-4 rounded-full none_border z-10 w-12 h-12 after:text-[20px] rtl:rotate-90 rtl:left-0 rtl:right-auto -right-2 -rotate-90 duration-200 opacity-60 hover:opacity-100 disabled:cursor-not-allowed transition-all ease-in-out disabled:opacity-30"
+                  aria-label="next slide"
+                >
+                  {% render 'icon-alls', icon: 'icon-caret' %}
+                </button>
+              </div>
+            {% endif %}
+            <div class="splide__track">
+              <div class="splide__list flex w-full">
+                {%- for block in section.blocks -%}
+                  <div
+                    id="ContentSlide-{{ section.id }}-{{ forloop.index }}"
+                    x-slide-index="{{ forloop.index | minus: 1 }}"
+                    class="splide__slide x-splide-slide{% if forloop.first %} is-active{% endif %} flex flex-col justify-center w-full"
+                    {{ block.shopify_attributes }}
+                  >
+                    <div class="bg-item--{{ section.id }} h-full w-full flex flex-col justify-center p-8{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
+                      <div class="text-{{ text_alignment }}">
+                        <div class="h-6 mb-4 flex justify-{{ section.settings.text_alignment }}">
+                          {% if block.settings.custom_icon == blank %}
+                            {% render 'icon-liststar', icon: block.settings.icon_star %}
+                          {% else %}
+                            {{ block.settings.custom_icon }}
+                          {% endif %}
+                        </div>
+                        {% if block.settings.title != blank %}
+                          <h3 class="h2 title-size--{{ section.id }} pb-4">{{ block.settings.title | escape }}</h3>
+                        {% endif %}
+                        <div class="rte text-[rgb(var(--colors-text))] mb-6">
+                          {{ block.settings.text }}
+                        </div>
+                        {% if block.settings.author != blank or block.settings.author_note != blank %}
+                          <div class="text-{{ text_alignment }}">
+                            {% if block.settings.author != blank %}
+                              <p class="h4 text-[100%] block mb-2">{{ block.settings.author | escape }}</p>
+                            {% endif %}
+                            {% if block.settings.author_note != blank %}
+                              <div class="text-[rgb(var(--colors-text))] author-note--{{ section.id }} block rte">
+                                {{ block.settings.author_note }}
+                              </div>
+                            {% endif %}
+                          </div>
+                        {% endif %}
+                        {% if block.settings.product != blank %}
+                          {% liquid
+                            assign product = block.settings.product
+                          %}
+                          <div class="flex mt-4 items-center justify-{{ section.settings.text_alignment }}">
+                            <a href="{{ product.url }}">
+                              <div class="flex rtl:flex-row-reverse p-5 gap-x-2.5 max-w-[240px] card-testimonial{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
+                                {% if product.featured_image != blank %}
+                                  <img
+                                    srcset="
+                                      {{ product.featured_media | image_url: width: 225 }} 225w,
+                                      {{ product.featured_media | image_url: width: 375 }} 375w,
+                                      {{ product.featured_media | image_url: width: 450 }} 450w,
+                                      {{ product.featured_media | image_url: width: 750 }} 750w
+                                    "
+                                    src="{{ product.featured_media | image_url: width: 375 }}"
+                                    alt="{{ product.featured_image.alt | escape }}"
+                                    width="{{ product.featured_image.width }}"
+                                    height="{{ product.featured_image.height }}"
+                                    loading="lazy"
+                                    class="w-12 h-12 object-cover {% if settings.edges_type == 'rounded_corners' %}rounded-[10px]{% endif %}"
+                                  >
+                                {% else %}
+                                  <div class="w-12 h-12">
+                                    <div class="h-0 w-full relative pb-[100%] overflow-hidden">
+                                      <div class="bg-[#c9c9c9] flex justify-center absolute top-0 left-0 w-full h-full items-center">
+                                        {% render 'icon-placeholder', icon: 'icon-product', class: 'w-12 h-12' %}
+                                      </div>
+                                    </div>
+                                  </div>
+                                {% endif %}
+                                <div class="flex flex-col gap-y-2.5 max-w-[142px]">
+                                  <p class="rte p-break-words truncate rtl:text-right">{{ product.title }}</p>
+                                  {% render 'price', product: product, align_left: true %}
+                                </div>
+                              </div>
+                            </a>
+                          </div>
+                        {% endif %}
+                      </div>
+                    </div>
                   </div>
-                  {% if block.settings.title != blank %}
-                    <h3 class="h2 title-size--{{ section.id }} pt-0.5 md:pt-2 pb-2{% if section.settings.testimonial_items_view == "single" %} md:pt-0{% if section.settings.show_author_image %} md:pb-3.5{% else %} md:pb-1{% endif %}{% endif %}">{{ block.settings.title | escape }}</h3>
-                  {% endif %}
-                  <div class="rte text-[rgb(var(--colors-text))]">
-                    {{ block.settings.text }}
-                  </div>
-                </div>
-                {% if section.settings.show_author_image and section.settings.author_image == "left" and section.settings.testimonial_items_view == "multiple" %}
-                  <div class="flex pl-5 pr-5 md:pl-10 md:pr-10 gap-x-2.5 items-center mb-6 md:mb-6 mt-2.5 md:mt-3.5{% if section.settings.text_alignment == 'end' %} flex-row justify-end{% else %} justify-{{ section.settings.text_alignment }}{% endif %}">
-                    <div class="relative inline-block aspect-square w-12 h-12 isolate overflow-hidden {% if block.settings.author_image != blank %} z-0 animate_transition_card__image animate-Xpulse skeleton-image{% endif %}{% if section.settings.image_ratio == 'round' %} rounded-full{% endif %} min-w-12 max-w-[530px] text-[#acacac]{% if block.settings.author_image == blank %} bg-[#c9c9c9]{% endif %}">
-                      {% if block.settings.author_image != blank %}
-                        <img
-                          srcset="{{ block.settings.author_image | image_url: width: 150 }} 150w,
-                          {{ block.settings.author_image | image_url: width: 375 }} 375w"
-                          src="{{ block.settings.author_image | image_url: width: 375 }}"
-                          alt="{{ block.settings.author_image.alt | escape }}"
-                          loading="lazy"  
-                          onload="this.closest('.animate_transition_card__image')?.classList.remove('animate-Xpulse', 'skeleton-image'); setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);"
-                          sizes="(min-width: 1024px) {% if section.settings.testimonial_items_view == "single" %} 375px{% else %} 150px{% endif %}, 150px"
-                          width="{{ block.settings.author_image.width }}"
-                          height="{{ block.settings.author_image.height }}"
-                          class="h-full w-full{% if section.settings.image_ratio == 'round' %} rounded-full{% endif %} object-cover absolute image-hover{% if section.settings.testimonial_items_view == "single" %} absolute top-0{% endif %}"
-                          style="object-position: {{ block.settings.author_image.presentation.focal_point }};"
-                        >
+                {%- endfor -%}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <!-- Original Full Sliding Layout -->
+      <div
+        id="x-testimonial-{{ section.id }}"
+        class="color-heading--{{ section.id }} color-text-{{ section.id }}{% if enable_desktop_slider or swiper_on_mobile %} overflow-hidden x-splide splide visible preload-slide--{{ section.id }}{% endif %}{% if enable_desktop_slider %} lg:pl-7 lg:pr-7{% endif %} mt-4 relative splider-testimonial{%- if section.settings.show_pagination %} pb-8{% endif %}"
+        {% if enable_desktop_slider or swiper_on_mobile -%}
+          x-intersect.once.margin.200px='
+            $store.xSplide.load($el, {
+              "updateOnMove": "true",
+              "mediaQuery": "min",
+              {%- if section.blocks.size > 2 %}
+                "type": "loop",
+              {%- endif %}
+              {%- if section.settings.auto_play %}
+                "autoplay": true,
+                "interval": {{ section.settings.change_slides_speed | times: 1000 }},
+              {%- endif %}
+              {%- if settings.lang_direction contains request.locale.iso_code %}
+                "direction": "rtl",
+              {%- endif %}
+              "breakpoints": {
+                300: {
+                  {%- if swiper_on_mobile == false %}
+                    "destroy": true,
+                  {%- endif %}
+                  "perPage": 1,
+                  "perMove": 1,
+                  "gap": 20,
+                },
+                1024: {
+                  {%- if enable_desktop_slider %}
+                    "destroy": false,
+                  {%- else %}
+                    "destroy": true,
+                  {%- endif %}
+                  {%- if section.settings.testimonial_items_view == "single" %}
+                    "perPage": 1,
+                    "perMove": 1,
+                    "speed": 1000,
+                    "gap": 30,
+                    "padding": 0
+                  {%- else %}
+                    "gap":10,
+                    "perPage": 1,
+                    "perMove": 1,
+                    "speed": 800,
+                    "padding": 207
+                  {%- endif %}
+                }
+              },
+              "classes": {
+                {%- if section.settings.show_arrow and enable_desktop_slider %}
+                  "arrows": "splide__arrows block",
+                {%- else %}
+                  "arrows": "splide__arrows hidden",
+                {%- endif %}
+                {%- if section.settings.show_pagination %}
+                  "pagination": "gap-3 flex-nowrap absolute bottom-0 left-1/2 -translate-x-1/2{% if swiper_on_mobile %} flex{% else %} hidden{% endif %}{% if enable_desktop_slider %} md:flex{% else %} md:hidden{% endif %}",
+                  "page": "paginate-testimonial duration-200 rounded-full w-3 flex items-center bg-[rgb(var(--colors-line-and-border))]{% if swiper_on_mobile %} h-3{% else %} h-0{% endif %}{% if enable_desktop_slider %} md:h-3{% else %} md:h-0{% endif %}"
+                {%- else %}
+                  "pagination": "hidden"
+                {%- endif %}
+              }
+            })
+          '
+        {%- endif -%}
+      >
+        {% if section.settings.show_arrow and enable_desktop_slider %}
+          <div class="splide__arrows hidden absolute left-0 top-1/2 justify-between w-full -translate-y-1/2 h-0 z-10{% if section.blocks.size < 2 %} md:hidden{% else %} md:flex{% endif %}">
+            <button
+              class="splide__arrow splide__arrow--prev button-arrow hidden lg:block absolute top-1/2 -mt-6 p-4 rounded-full none_border z-10 w-12 h-12 after:text-[20px] rtl:right-0 rtl:-rotate-90 rtl:left-auto -left-2 rotate-90 duration-200 opacity-60 hover:opacity-100 disabled:cursor-not-allowed transition-all ease-in-out lg:-translate-x-full rtl:lg:translate-x-full disabled:opacity-30"
+              aria-label="previous slide"
+            >
+              {% render 'icon-alls', icon: 'icon-caret' %}
+            </button>
+            <button
+              class="splide__arrow splide__arrow--next button-arrow hidden lg:block absolute top-1/2 -mt-6 p-4 rounded-full none_border z-10 w-12 h-12 after:text-[20px] rtl:rotate-90 rtl:left-0 rtl:right-auto -right-2 -rotate-90 duration-200 opacity-60 hover:opacity-100 disabled:cursor-not-allowed transition-all ease-in-out lg:translate-x-full rtl:lg:-translate-x-full disabled:opacity-30"
+              aria-label="previous slide"
+            >
+              {% render 'icon-alls', icon: 'icon-caret' %}
+            </button>
+          </div>
+        {% endif %}
+        <div class="splide__track pt-4{% if enable_desktop_slider %} md:cursor-grab{% endif %}">
+          <div class="splide__list flex w-full{% if enable_desktop_slider == false %} lg:grid lg:!translate-x-0{% if section.settings.testimonial_items_view == "multiple" and section.blocks.size > 3 %} lg:grid-cols-3{% else %} lg:grid-cols-{{ section.blocks.size }}{% endif %} lg:gap-7{% endif %}{% if swiper_on_mobile %} flex w-full{% else %} grid grid-cols-1{% endif %}">
+            {%- for block in section.blocks -%}
+              <div
+                id="Slide-{{ section.id }}-{{ forloop.index }}"
+                x-slide-index="{{ forloop.index | minus: 1 }}"
+                class="{% if is_rtl %}ltr {% endif %}testimonial_slide{% if swiper_on_mobile or enable_desktop_slider %} splide__slide x-splide-slide{% if forloop.first %} is-active{% endif %}{% endif %} flex flex-col justify-center {% if section.blocks.size == 1 %} md:min-w-[350px]{% endif %}{% if section.settings.testimonial_items_view == "single" %} md:pl-12 lg:pl-20 md:pr-12 lg:pr-20{% else %} md:pl-12 md:pr-12 lg:pl-0 lg:pr-0{% endif %}"
+                {{ block.shopify_attributes }}
+              >
+                <div class="scale-item{% if enable_desktop_slider %} is-active:opacity-100 is-active:scale-100 is-active:duration-300 ease-in-out splide__slide--clone:opacity-60 splide__slide--clone:scale-90 scale-90 opacity-60 duration-300{% endif %} origin-center bg-item--{{ section.id }} h-full w-full flex flex-col justify-center{% if section.settings.testimonial_items_view != "single" %} multiple{% else %} md:grid md:grid-cols-2 md:grid-rows-[auto_auto] content-center{% endif %} md:ml-auto md:mr-auto {% if section.settings.show_author_image %} md:grid-cols-5{% else %} md:grid-cols-1{% endif %}{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
+                  <div class="text-{{ text_alignment }} pl-5 pr-5{% if section.settings.testimonial_items_view == "single" %} md:pl-8 lg:pl-14 md:pr-8 lg:pr-16 md:flex md:flex-col {% if block.settings.author == blank and block.settings.author_note == blank and block.settings.product == blank %}md:justify-center{% else %}md:justify-end{% endif %} md:col-span-3{% else %} md:mt-8 mt-4 md:pl-10 md:pr-10{% endif %}">
+                    <div class="h-6 md:mb-2{% if section.settings.testimonial_items_view == "single" %} mt-5{% if section.settings.show_author_image %} md:mt-8{% endif %}{% else %} md:mb-1{% endif %} flex justify-{{ section.settings.text_alignment }}">
+                      {% if block.settings.custom_icon == blank %}
+                        {% render 'icon-liststar', icon: block.settings.icon_star %}
                       {% else %}
-                        {% render 'icon-placeholder', icon: 'icon-image', class: "w-full h-full absolute" %}
+                        {{ block.settings.custom_icon }}
                       {% endif %}
                     </div>
-                    <div>
-                      {% if block.settings.author != blank %}
-                        <p class="h4 text-[100%] block">{{ block.settings.author | escape }}</p>
-                      {% endif %}
-                      {% if block.settings.author_note != blank %}
-                        <div class="additional-note text-[rgb(var(--colors-text))] author-note--{{ section.id }} pt-1 block rte p-break-words">{{ block.settings.author_note }}</div>
-                      {% endif %}
+                    {% if block.settings.title != blank %}
+                      <h3 class="h2 title-size--{{ section.id }} pt-0.5 md:pt-2 pb-2{% if section.settings.testimonial_items_view == "single" %} md:pt-0{% if section.settings.show_author_image %} md:pb-3.5{% else %} md:pb-1{% endif %}{% endif %}">
+                        {{ block.settings.title | escape }}
+                      </h3>
+                    {% endif %}
+                    <div class="rte text-[rgb(var(--colors-text))]">
+                      {{ block.settings.text }}
                     </div>
                   </div>
-                {% else %}
-                  {% if section.settings.show_author_image %}
-                    <div class="pt-3.5 pb-2 w-full pl-5 pr-5 flex items-center justify-{{ section.settings.text_alignment }}{% if section.settings.testimonial_items_view == "single" %} md:justify-center md:min-h-[350px] md:pt-14 md:pb-14 {% if is_rtl %}md:pr-0 md:pl-6 lg:pl-16 dark:lg:pl-16 dark:md:pl-6 dark:md:pr-0{% else %}md:pl-0 md:pr-6 lg:pr-16 dark:lg:pr-16 dark:md:pr-6 dark:md:pl-0{% endif %} {% if block.settings.author == blank and block.settings.author_note == blank and block.settings.product == blank %}md:row-span-1{% elsif block.settings.product == blank or block.settings.author == blank and block.settings.author_note == blank %}md:row-span-2{% else %}md:row-span-3{% endif %} md:row-start-1 {% if is_rtl %}md:col-start-1 md:col-end-3{% else %}md:col-start-4 md:col-end-6{% endif %}{% else %} md:pt-3.5 md:pb-2 md:pl-10 md:pr-10 dark:md:pl-10 dark:md:pr-10{% endif %}">
-                      <div class="relative overflow-hidden inline-block aspect-square w-20 h-20 isolate{% if block.settings.author_image != blank %} z-0 animate_transition_card__image animate-Xpulse skeleton-image{% endif %}{% if section.settings.image_ratio == 'round' %} rounded-full{% endif %} max-w-[530px] text-[#acacac]{% if block.settings.author_image == blank %} bg-[#c9c9c9]{% endif %}{% if section.settings.testimonial_items_view == "single" %} md:w-full relative{% if section.settings.image_ratio != 'round' %} desktop-height-{{ section.id }}{% else %} md:pb-[100%]{% endif %}{% else %} md:w-20 md:h-20{% endif %}{% if settings.edges_type == 'rounded_corners' and section.settings.image_ratio != 'round' %} rounded-[10px]{% endif %}">
+                  {% if section.settings.show_author_image
+                    and section.settings.author_image == 'left'
+                    and section.settings.testimonial_items_view == 'multiple'
+                  %}
+                    <div class="flex pl-5 pr-5 md:pl-10 md:pr-10 gap-x-2.5 items-center mb-6 md:mb-6 mt-2.5 md:mt-3.5{% if section.settings.text_alignment == 'end' %} flex-row justify-end{% else %} justify-{{ section.settings.text_alignment }}{% endif %}">
+                      <div class="relative inline-block aspect-square w-12 h-12 isolate overflow-hidden {% if block.settings.author_image != blank %} z-0 animate_transition_card__image animate-Xpulse skeleton-image{% endif %}{% if section.settings.image_ratio == 'round' %} rounded-full{% endif %} min-w-12 max-w-[530px] text-[#acacac]{% if block.settings.author_image == blank %} bg-[#c9c9c9]{% endif %}">
                         {% if block.settings.author_image != blank %}
                           <img
-                            srcset="{{ block.settings.author_image | image_url: width: 150 }} 150w,
-                            {{ block.settings.author_image | image_url: width: 375 }} 375w"
+                            srcset="
+                              {{ block.settings.author_image | image_url: width: 150 }} 150w,
+                              {{ block.settings.author_image | image_url: width: 375 }} 375w
+                            "
                             src="{{ block.settings.author_image | image_url: width: 375 }}"
-                            alt="{{ block.settings.author_image.alt | escape }}"  
-                            sizes="(min-width: 768px) {% if section.settings.testimonial_items_view == "single" %} 375px{% else %} 150px{% endif %}, 150px"
-                            width="{{ block.settings.author_image.width }}"
-                            height="{{ block.settings.author_image.height }}"
+                            alt="{{ block.settings.author_image.alt | escape }}"
                             loading="lazy"
                             onload="this.closest('.animate_transition_card__image')?.classList.remove('animate-Xpulse', 'skeleton-image'); setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);"
+                            sizes="(min-width: 1024px) {% if section.settings.testimonial_items_view == "single" %} 375px{% else %} 150px{% endif %}, 150px"
+                            width="{{ block.settings.author_image.width }}"
+                            height="{{ block.settings.author_image.height }}"
                             class="h-full w-full{% if section.settings.image_ratio == 'round' %} rounded-full{% endif %} object-cover absolute image-hover{% if section.settings.testimonial_items_view == "single" %} absolute top-0{% endif %}"
                             style="object-position: {{ block.settings.author_image.presentation.focal_point }};"
                           >
                         {% else %}
-                          {% render 'icon-placeholder', icon: 'icon-image', class: "w-full h-full absolute" %}
+                          {% render 'icon-placeholder', icon: 'icon-image', class: 'w-full h-full absolute' %}
                         {% endif %}
                       </div>
-                    </div>
-                  {% endif %}
-                  {% if block.settings.author != blank or block.settings.author_note != blank %}
-                    <div class="{% if is_rtl %}rtl {% endif %}mt-2 {% if block.settings.product == blank %}md:mb-8 mb-4 {% endif %}text-{{ text_alignment }} pl-5 pr-5{% if section.settings.testimonial_items_view == "single" %}{% if section.setitngs.show_author_image %} md:mt-5{% else %} md:mt-1{% endif %} md:pl-8 lg:pl-14 md:pr-8 lg:pr-16 dark:lg:pr-16 dark:md:pr-8 dark:lg:pl-14 dark:md:pl-8 md:col-span-3{% else %} md:mt-1.5 md:pl-10 md:pr-10 dark:md:pl-10 dark:md:pr-10{% endif %}">
-                      {% if block.settings.author != blank %}
-                        <p class="text-{{ text_alignment }} h4 text-[100%] block">{{ block.settings.author | escape }}</p>
-                      {% endif %}
-                      {% if block.settings.author_note != blank %}
-                        <div class="text-[rgb(var(--colors-text))] author-note--{{ section.id }} pt-1 pb-1 text-{{ text_alignment }} block rte">{{ block.settings.author_note }}</div>
-                      {% endif %}
-                    </div>
-                  {% endif %}
-                {% endif %}
-                {% if block.settings.product != blank %}
-                  {% liquid 
-                    assign product = block.settings.product
-                  %}
-                  <div class="flex md:mb-8 mb-4 pl-5 pr-5 md:pl-10 md:pr-10 {% if block.settings.author == blank or block.settings.author_note == blank %}mt-4 {% endif %}items-center justify-{{ section.settings.text_alignment }}{% if section.settings.testimonial_items_view == "single" %} md:pl-8 lg:pl-14 md:pr-8 lg:pr-16 md:flex md:flex-col md:justify-start md:items-{{ section.settings.text_alignment }} md:col-span-3{% endif %}">
-                    <a href="{{ product.url }}">
-                      <div class="flex rtl:flex-row-reverse p-5 gap-x-2.5 max-w-[240px] card-testimonial{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
-                        {% if product.featured_image != blank %}
-                          <img
-                            srcset="{{ product.featured_media | image_url: width: 225 }} 225w,
-                              {{ product.featured_media | image_url: width: 375 }} 375w,
-                              {{ product.featured_media | image_url: width: 450 }} 450w,
-                              {{ product.featured_media | image_url: width: 750 }} 750w,
-                              {{ product.featured_media | image_url: width: 900 }} 900w,
-                              {{ product.featured_media | image_url: width: 1100 }} 1100w,
-                              {{ product.featured_media | image_url: width: 1500 }} 1500w
-                              {% if product.featured_media.width %},{{ product.featured_media | image_url }} {{ product.featured_media.width }}w{% endif %}" 
-                            src="{{ product.featured_media | image_url: width: 1080 }}"
-                            alt="{{ product.featured_image.alt | escape }}"  
-                            width="{{ product.featured_image.width }}"
-                            height="{{ product.featured_image.height }}"
-                            loading="lazy"
-                            class="w-12 h-12 object-cover {% if settings.edges_type == 'rounded_corners' %}rounded-[10px]{% endif %}"
-                          >
-                        {% else %}
-                          <div class="w-12 h-12">
-                            <div class="h-0 w-full relative pb-[100%] overflow-hidden">
-                              <div class="bg-[#c9c9c9] flex justify-center absolute top-0 left-0 w-full h-full items-center">
-                                {% render 'icon-placeholder', icon: 'icon-product', class: "w-12 h-12" %}
-                              </div>
-                            </div>
+                      <div>
+                        {% if block.settings.author != blank %}
+                          <p class="h4 text-[100%] block">{{ block.settings.author | escape }}</p>
+                        {% endif %}
+                        {% if block.settings.author_note != blank %}
+                          <div class="additional-note text-[rgb(var(--colors-text))] author-note--{{ section.id }} pt-1 block rte p-break-words">
+                            {{ block.settings.author_note }}
                           </div>
                         {% endif %}
-                        <div class="flex flex-col gap-y-2.5 max-w-[142px]">
-                          <p class="rte p-break-words truncate rtl:text-right">{{ product.title }}</p>
-                          {% render 'price', product: product, align_left: true %}
+                      </div>
+                    </div>
+                  {% else %}
+                    {% if section.settings.show_author_image %}
+                      <div class="pt-3.5 pb-2 w-full pl-5 pr-5 flex items-center justify-{{ section.settings.text_alignment }}{% if section.settings.testimonial_items_view == "single" %} md:justify-center md:min-h-[350px] md:pt-14 md:pb-14 {% if is_rtl %}md:pr-0 md:pl-6 lg:pl-16 dark:lg:pl-16 dark:md:pl-6 dark:md:pr-0{% else %}md:pl-0 md:pr-6 lg:pr-16 dark:lg:pr-16 dark:md:pr-6 dark:md:pl-0{% endif %} {% if block.settings.author == blank and block.settings.author_note == blank and block.settings.product == blank %}md:row-span-1{% elsif block.settings.product == blank or block.settings.author == blank and block.settings.author_note == blank %}md:row-span-2{% else %}md:row-span-3{% endif %} md:row-start-1 {% if is_rtl %}md:col-start-1 md:col-end-3{% else %}md:col-start-4 md:col-end-6{% endif %}{% else %} md:pt-3.5 md:pb-2 md:pl-10 md:pr-10 dark:md:pl-10 dark:md:pr-10{% endif %}">
+                        <div class="relative overflow-hidden inline-block aspect-square w-20 h-20 isolate{% if block.settings.author_image != blank %} z-0 animate_transition_card__image animate-Xpulse skeleton-image{% endif %}{% if section.settings.image_ratio == 'round' %} rounded-full{% endif %} max-w-[530px] text-[#acacac]{% if block.settings.author_image == blank %} bg-[#c9c9c9]{% endif %}{% if section.settings.testimonial_items_view == "single" %} md:w-full relative{% if section.settings.image_ratio != 'round' %} desktop-height-{{ section.id }}{% else %} md:pb-[100%]{% endif %}{% else %} md:w-20 md:h-20{% endif %}{% if settings.edges_type == 'rounded_corners' and section.settings.image_ratio != 'round' %} rounded-[10px]{% endif %}">
+                          {% if block.settings.author_image != blank %}
+                            <img
+                              srcset="
+                                {{ block.settings.author_image | image_url: width: 150 }} 150w,
+                                {{ block.settings.author_image | image_url: width: 375 }} 375w
+                              "
+                              src="{{ block.settings.author_image | image_url: width: 375 }}"
+                              alt="{{ block.settings.author_image.alt | escape }}"
+                              sizes="(min-width: 768px) {% if section.settings.testimonial_items_view == "single" %} 375px{% else %} 150px{% endif %}, 150px"
+                              width="{{ block.settings.author_image.width }}"
+                              height="{{ block.settings.author_image.height }}"
+                              loading="lazy"
+                              onload="this.closest('.animate_transition_card__image')?.classList.remove('animate-Xpulse', 'skeleton-image'); setTimeout(() => { this.closest('.animate_transition_card__image')?.classList.add('lazy_active', 'active'); }, 250);"
+                              class="h-full w-full{% if section.settings.image_ratio == 'round' %} rounded-full{% endif %} object-cover absolute image-hover{% if section.settings.testimonial_items_view == "single" %} absolute top-0{% endif %}"
+                              style="object-position: {{ block.settings.author_image.presentation.focal_point }};"
+                            >
+                          {% else %}
+                            {% render 'icon-placeholder', icon: 'icon-image', class: 'w-full h-full absolute' %}
+                          {% endif %}
                         </div>
                       </div>
-                    </a>
-                  </div>
-                {% endif %}
+                    {% endif %}
+                    {% if block.settings.author != blank or block.settings.author_note != blank %}
+                      <div class="{% if is_rtl %}rtl {% endif %}mt-2 {% if block.settings.product == blank %}md:mb-8 mb-4 {% endif %}text-{{ text_alignment }} pl-5 pr-5{% if section.settings.testimonial_items_view == "single" %}{% if section.setitngs.show_author_image %} md:mt-5{% else %} md:mt-1{% endif %} md:pl-8 lg:pl-14 md:pr-8 lg:pr-16 dark:lg:pr-16 dark:md:pr-8 dark:lg:pl-14 dark:md:pl-8 md:col-span-3{% else %} md:mt-1.5 md:pl-10 md:pr-10 dark:md:pl-10 dark:md:pr-10{% endif %}">
+                        {% if block.settings.author != blank %}
+                          <p class="text-{{ text_alignment }} h4 text-[100%] block">
+                            {{ block.settings.author | escape }}
+                          </p>
+                        {% endif %}
+                        {% if block.settings.author_note != blank %}
+                          <div class="text-[rgb(var(--colors-text))] author-note--{{ section.id }} pt-1 pb-1 text-{{ text_alignment }} block rte">
+                            {{ block.settings.author_note }}
+                          </div>
+                        {% endif %}
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                  {% if block.settings.product != blank %}
+                    {% liquid
+                      assign product = block.settings.product
+                    %}
+                    <div class="flex md:mb-8 mb-4 pl-5 pr-5 md:pl-10 md:pr-10 {% if block.settings.author == blank or block.settings.author_note == blank %}mt-4 {% endif %}items-center justify-{{ section.settings.text_alignment }}{% if section.settings.testimonial_items_view == "single" %} md:pl-8 lg:pl-14 md:pr-8 lg:pr-16 md:flex md:flex-col md:justify-start md:items-{{ section.settings.text_alignment }} md:col-span-3{% endif %}">
+                      <a href="{{ product.url }}">
+                        <div class="flex rtl:flex-row-reverse p-5 gap-x-2.5 max-w-[240px] card-testimonial{% if settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}">
+                          {% if product.featured_image != blank %}
+                            <img
+                              srcset="
+                                {{ product.featured_media | image_url: width: 225 }} 225w,
+                                {{ product.featured_media | image_url: width: 375 }} 375w,
+                                {{ product.featured_media | image_url: width: 450 }} 450w,
+                                {{ product.featured_media | image_url: width: 750 }} 750w,
+                                {{ product.featured_media | image_url: width: 900 }} 900w,
+                                {{ product.featured_media | image_url: width: 1100 }} 1100w,
+                                {{ product.featured_media | image_url: width: 1500 }} 1500w
+                                {% if product.featured_media.width %},{{ product.featured_media | image_url }} {{ product.featured_media.width }}w{% endif %}
+                              "
+                              src="{{ product.featured_media | image_url: width: 1080 }}"
+                              alt="{{ product.featured_image.alt | escape }}"
+                              width="{{ product.featured_image.width }}"
+                              height="{{ product.featured_image.height }}"
+                              loading="lazy"
+                              class="w-12 h-12 object-cover {% if settings.edges_type == 'rounded_corners' %}rounded-[10px]{% endif %}"
+                            >
+                          {% else %}
+                            <div class="w-12 h-12">
+                              <div class="h-0 w-full relative pb-[100%] overflow-hidden">
+                                <div class="bg-[#c9c9c9] flex justify-center absolute top-0 left-0 w-full h-full items-center">
+                                  {% render 'icon-placeholder', icon: 'icon-product', class: 'w-12 h-12' %}
+                                </div>
+                              </div>
+                            </div>
+                          {% endif %}
+                          <div class="flex flex-col gap-y-2.5 max-w-[142px]">
+                            <p class="rte p-break-words truncate rtl:text-right">{{ product.title }}</p>
+                            {% render 'price', product: product, align_left: true %}
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
               </div>
-            </div>
-          {%- endfor -%}
+            {%- endfor -%}
+          </div>
         </div>
       </div>
-    </div>
+    {% endif %}
   </div>
 </div>
 {% schema %}
@@ -528,6 +748,13 @@
       ],
       "default": "multiple",
       "label": "t:sections.testimonials.testimonial_items_view.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "slide_content_only",
+      "label": "Slide Content Only",
+      "default": false,
+      "info": "When enabled, only the testimonial content will slide while the image remains static. Only works with single view and when author image is enabled."
     },
     {
       "type": "checkbox",

@@ -14,7 +14,7 @@
 
 {%- liquid
   assign loading = 'loading="lazy"'   
-  if section.index != 1 or section.location != 'template'
+  if section.index != 1 or section.location != 'template' or settings.enable_lazy_loading_image == false
     assign loading = 'loading="eager" fetchpriority="high" decoding="sync"'
   endif
 -%}
@@ -115,20 +115,13 @@
   {% if image != blank %}
     {% if sizes == blank %}
       {%- capture sizes -%}
-      {%- if show_in_header -%}
-        (min-width: {{ settings.page_width }}px){% if full_width %} calc(100vw / {{ columns_desktop }}){% else %} {{ settings.page_width | divided_by: columns_desktop }}px{% endif %}, (min-width: 768px) calc(100vw/{{ columns_desktop }}), 100vw
-      {%- else -%}
-        (min-width: {{ settings.page_width }}px){% if full_width %} calc(100vw / {{ columns_desktop }}){% else %} {{ settings.page_width | divided_by: columns_desktop }}px{% endif %},{% unless show_in_header %} (min-width: 768px) calc((100vw - 5rem) / 2){% endunless %}, 100vw
-      {%- endif -%}
+        {%- if show_in_header -%}
+          (min-width: {{ settings.page_width }}px){% if full_width %} calc(100vw / {{ columns_desktop }}){% else %} {{ settings.page_width | divided_by: columns_desktop }}px{% endif %}, (min-width: 768px) calc(100vw/{{ columns_desktop }}), 100vw
+        {%- else -%}
+          (min-width: {{ settings.page_width }}px){% if full_width %} calc(100vw / {{ columns_desktop }}){% else %} {{ settings.page_width | divided_by: columns_desktop }}px{% endif %},{% unless show_in_header %} (min-width: 768px) calc((100vw - 5rem) / 2){% endunless %}, 100vw
+        {%- endif -%}
       {%- endcapture -%}
     {% endif %}
-    {% unless show_in_header %}
-      {% if section.index != 1 or section.location != 'template' %}
-        <div class="hidden">
-          {{ image | image_url: width: 3840 | image_tag: widths: '225, 375, 450, 750, 900, 1100, 1500, 1780, 2000', preload: true, loading: 'lazy' }}
-        </div>
-      {% endif %}
-    {% endunless %}
     {% if image_link %}
       <a 
         aria-label="{{ 'accessibility.image_link' | t }}"
@@ -154,7 +147,11 @@
         {% unless show_in_header %}
           {{ loading }}
         {% else %}
-          loading="lazy"
+          {% if settings.enable_lazy_loading_image %}
+            loading="lazy"
+          {% else %}
+            loading="eager"
+          {% endif %}
         {% endunless %} 
         sizes="{{ sizes }}"
         alt="{{ image.alt | escape }}"

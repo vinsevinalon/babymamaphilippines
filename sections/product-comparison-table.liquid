@@ -77,15 +77,18 @@
   <div class="mb-5 lg:mb-2 pl-5 pr-5 text-[rgb(var(--colors-text))] {% unless section.settings.full_width %} x-pgw page-width{% endunless %}">
     <div class="heading-{{ section.settings.heading_alignment }}{% unless section.settings.heading_alignment contains 'center' %} flex items-center{% endunless %}">
       {%- if section.settings.title != blank -%}
-        {% render 'heading-highlight',
-          headingId: section.id,
-          heading: section.settings.title,
-          highlight_type: section.settings.highlight_type,
-          color_heading_highlight_dark: section.settings.color_heading_highlight_dark,
-          color_heading_highlight_light: section.settings.color_heading_highlight_light,
-          class: 'leading-tight flex-auto p-break-words mb-2 w-full',
-          heading_tag: 'h2',
-        %}
+        <div class="mb-2 w-full">
+          {% render 'heading-highlight',
+            headingId: section.id,
+            heading: section.settings.title,
+            highlight_type: section.settings.highlight_type,
+            color_heading_highlight_dark: section.settings.color_heading_highlight_dark,
+            color_heading_highlight_light: section.settings.color_heading_highlight_light,
+            class: 'leading-tight flex-auto p-break-words',
+            heading_tag: 'h2',
+            animation_heading: true
+          %}
+        </div>
       {%- endif -%}
       {%- if section.settings.view_all != blank and section.settings.link_view_all != blank -%}
         <div class="text-{{ section.settings.heading_alignment }} pt-0.5 pb-0.5 w-full">
@@ -193,6 +196,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.product_comparison_table"
+    },
     {
       "type": "text",
       "id": "title",
@@ -540,6 +547,7 @@
   "presets": [
     {
       "name": "t:sections.product-comparison-table.name",
+      "category": "t:categories.products",
       "blocks": [
         {
           "type": "product_summary"

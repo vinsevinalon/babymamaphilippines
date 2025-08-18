@@ -44,13 +44,16 @@
         <div class="w-full relative h-full{% if settings.edges_type == 'rounded_corners' %} rounded{% endif %}{% if card_product.featured_media or media_aspect_ratio != "natural" %} overflow-hidden before:h-0 before:block h-0 z-0 {% endif %}{% unless media_aspect_ratio == "natural" %} pb-[{{ ratio | times: 100.0 }}%]{% else %}{% if card_product.featured_media.media_type == "model" or card_product.featured_media == blank %} pb-[100%]{% endif %}{% endunless %}"{% if media_aspect_ratio == "natural" and card_product.featured_media and card_product.featured_media.media_type != "model" %}style="padding-bottom: {{ 1 | divided_by: card_product.featured_media.aspect_ratio | times: 100 }}%;"{% endif %}>
           {%- if card_product.featured_media -%}
             <div class="absolute top-0 left-0 w-full h-full image-hover">
+              {% # theme-check-disable ImgLazyLoading %}
               <img
                 src="{{ card_product.featured_media | image_url: width: 168 }}"
                 alt="{{ card_product.featured_media.alt | split: "#" | first | escape }}"
                 class="w-full h-full object-cover transition duration-300 z-10 ease-out"
-                loading="lazy"
+                {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                 width="{{ card_product.featured_media.width }}"
-                height="{{ card_product.featured_media.height }}">
+                height="{{ card_product.featured_media.height }}"
+              >
+              {% # theme-check-enable ImgLazyLoading %}
               </div>
           {%- else -%}
             <div class='bg-[#c9c9c9] flex{% unless image_ratio == "natural" %} absolute{% endunless %} top-0 left-0 w-full h-full items-center'>

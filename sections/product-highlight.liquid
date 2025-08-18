@@ -6,6 +6,25 @@
   else
     assign is_rtl = false
   endif
+
+  assign rounded_desktop = section.settings.rounded_corner_section
+  assign rounded_mobile = section.settings.rounded_corner_section_mobile
+
+  if section.settings.adapt_corners_desktop 
+    if settings.edges_type == 'rounded_corners'
+      assign rounded_desktop = true
+    else
+      assign rounded_desktop = false
+    endif 
+  endif
+
+  if section.settings.adapt_corners_mobile
+    if settings.edges_type == 'rounded_corners'
+      assign rounded_mobile = true
+    else
+      assign rounded_mobile = false
+    endif 
+  endif
 -%}
 {%- style -%}
   #shopify-section-{{ section.id }} {
@@ -25,6 +44,23 @@
       background: transparent;  
     {%- endif -%}
   }
+  @media (min-width: 768px) {
+    .x-product-highlight-height-{{ section.id }}  {
+      {% if section.settings.desktop_height == 'fullscreen' %}
+        height: 95vh;
+      {% elsif section.settings.desktop_height != 'natural' %}
+        height: {{ section.settings.desktop_height }}px;
+      {% endif %}
+    }
+  }
+  {% if request.visual_preview_mode %}
+    .icon--preview {
+      width: 45px;
+      height: 45px;
+      min-width: 45px;
+      min-height: 45px;
+    }
+  {% endif %}
   .icon--{{ section.id }} {
     width: {{ icon_size | times: 0.7 }}px;
     height: {{ icon_size | times: 0.7 }}px;
@@ -43,6 +79,14 @@
       min-width: {{ icon_size }}px;
       min-height: {{ icon_size }}px;
     }
+    {% if request.visual_preview_mode %}
+      .icon--preview {
+        width: 31.5px;
+        height: 31.5px;
+        min-width: 31.5px;
+        min-height: 31.5px;
+      }
+    {% endif %}
   }
   .dark .icon--{{ section.id }} {
     {% if section.settings.icon_color_dark.alpha != 0.0 %}
@@ -119,16 +163,21 @@
     {%- endstyle -%}
     <div class="x-product-highlight-header text-{{ section.settings.heading_alignment }} mb-6{% if section.settings.full_width_mobile %} pr-5 pl-5{% endif %}{% if section.settings.full_width and section.settings.padding_full_width == false %} md:pr-5 md:pl-5{% else %} md:pr-0 md:pl-0{% endif %}">
       {%- if section.settings.subheading != blank -%}
-        <p class="rte mb-1.5 color-text--{{ section.id }}">{{ section.settings.subheading }}</p>
+        <div class="mb-1.5{% unless settings.disable_heading_animation %} overflow-hidden{% endunless %}"{% unless settings.disable_heading_animation %} x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')"{% endunless %}>
+          <p class="rte color-text--{{ section.id }}{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ section.settings.subheading }}</p>
+        </div>
       {% endif %}
       {%- if section.settings.heading != blank -%}
-        {% render 'heading-highlight',
-          headingId: section.id,
-          heading: section.settings.heading,
-          highlight_type: section.settings.highlight_type,
-          class: 'h2 block py-2 leading-tight',
-          heading_tag: section.settings.heading_tag,
-        %}
+        <div class="pt-2 pb-2">
+          {% render 'heading-highlight',
+            headingId: section.id,
+            heading: section.settings.heading,
+            highlight_type: section.settings.highlight_type,
+            class: 'h2 block leading-tight',
+            heading_tag: section.settings.heading_tag,
+            animation_heading: true
+          %}
+        </div>
       {%- endif -%}
       {%- if section.settings.text != blank -%}
         <div class="rte mt-2 mb-6 lg:mb-10 color-text--{{ section.id }}">{{ section.settings.text }}</div>
@@ -151,11 +200,11 @@
     endif
   -%}
   <div class="x-product-highlight">
-    <div class="flex overflow-hidden w-full">
+    <div class="flex overflow-hidden w-full x-product-highlight-height-{{ section.id }}">
       <div class="flex flex-col md:flex-row w-full">
         <div class="h-full w-full disable-effect overflow-hidden {{ section.settings.block_layout }} md:w-1/3
-          {%- if section.settings.rounded_corner_section_mobile %} rounded-t-[10px] md:rounded-none{% endif -%}
-          {%- if section.settings.rounded_corner_section %} md:rounded-l-[10px] md:rounded-r-none rtl:md:rounded-r-[10px] rtl:md:rounded-l-none{% endif -%}
+          {%- if rounded_mobile %} rounded-t-[10px] md:rounded-none{% endif -%}
+          {%- if rounded_desktop %} md:rounded-l-[10px] md:rounded-r-none rtl:md:rounded-r-[10px] rtl:md:rounded-l-none{% endif -%}
           {%- if section.settings.image != blank or section.settings.image_mobile != blank or video_type %} animate_transition_card__image{% endif -%}"
         >
           {% if video_type %}
@@ -188,6 +237,7 @@
             </div>
           {% else %}
             {% if section.settings.image != blank or section.settings.image_mobile != blank %}
+              {% # theme-check-disable ImgLazyLoading %}
               <parallax-image class="block h-full w-full">
                 <parallax-movement x-data="xParallax" x-intersect.once.margin.200px="load({{ settings.disable_parallax_effect }})">
                   <picture>
@@ -211,7 +261,7 @@
                       <img class="w-full object-cover z-0 h-full animate_transition_image animate-Xpulse skeleton-image"
                         src="{{ section.settings.image | image_url: width: 1500 }}"
                         alt="{{ section.settings.image.alt | escape }}"
-                        loading="lazy"
+                        {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                         onload="this.classList.add('active'); this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image'); this.closest('.animate_transition_card__image')?.classList.add('active', 'lazy_active');"
                         sizes="(min-width: 1024px){% if section.settings.full_width %}33vw{% else %}{{ settings.page_width | divided_by: 3 }}px{% endif %}, (min-width: 768px) 100vw"
                         width="{{ section.settings.image.width }}"
@@ -228,7 +278,7 @@
                           {{ section.settings.image | image_url: width: 1500 }} 1500w"
                         src="{{ section.settings.image | image_url: width: 1500 }}"
                         alt="{{ section.settings.image.alt | escape }}"
-                        loading="lazy"
+                        {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                         onload="this.classList.add('active'); this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image'); this.closest('.animate_transition_card__image')?.classList.add('active','lazy_active');"
                         sizes="(min-width: 1024px){% if section.settings.full_width %}33vw{% else %}{{ settings.page_width | divided_by: 3 }}px{% endif %}, (min-width: 768px) 100vw"
                         width="{{ section.settings.image.width }}"
@@ -245,7 +295,7 @@
                           {{ section.settings.image_mobile | image_url: width: 1500 }} 1500w"
                         src="{{ section.settings.image_mobile | image_url: width: 1500 }}"
                         alt="{{ section.settings.image_mobile.alt | escape }}"
-                        loading="lazy"
+                        {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                         onload="this.classList.add('active'); this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image'); this.closest('.animate_transition_card__image')?.classList.add('active','lazy_active');"
                         sizes="(min-width: 1024px){% if section.settings.full_width %}33vw{% else %}{{ settings.page_width | divided_by: 3 }}px{% endif %}, (min-width: 768px) 100vw"
                         width="{{ section.settings.image_mobile.width }}"
@@ -256,6 +306,7 @@
                   </picture>
                 </parallax-movement>
               </parallax-image>
+              {% # theme-check-enable ImgLazyLoading %}
             {% else %}
               {{ 'image' | placeholder_svg_tag: 'bg-[#c9c9c9] text-[#acacac] block w-full h-full object-cover' }}
             {% endif %}
@@ -288,10 +339,16 @@
               if section.settings.show_quickview
                 assign disable_quickview = false
               endif
+              if settings.enable_lazy_loading_image
+                assign loading = 'lazy'
+              else
+                assign loading = 'eager'
+              endif
             %}
             {% render 'card-product',
               card_product: section.settings.product,
               media_aspect_ratio: section.settings.image_ratio,
+              show_highlighted_features: section.settings.show_highlighted_features,
               show_highlighted_attributes: section.settings.show_highlighted_attributes,
               show_vendor: section.settings.show_vendor,
               show_rating: section.settings.show_rating,
@@ -299,6 +356,7 @@
               disable_quickview: disable_quickview,
               show_description: section.settings.show_description,
               animation_loading: true,
+              loading: loading,
               image_ratio_setting: 'fit_grid_layout',
               product_card_id: 1,
               index_param: 1
@@ -309,7 +367,7 @@
                 {% render 'icon-placeholder', icon: 'icon-product' | class: 'bg-[#c9c9c9] w-full h-full' %}
               </div>
               <div class="pt-4 pb-4 text-{{ settings.info_alignment_card_product }}{% if section.settings.full_width_mobile %} pl-5 pr-5 md:pl-0 md:pr-0{% endif %}">
-                <p class="leading-tight text-[rgba(var(--colors-heading))] x-card-title">
+                <p class="leading-tight text-[rgba(var(--colors-heading))] x-card-title h5">
                   {{ 'sections.featured_collection.product_title' | t }}
                 </p>
                 <p class="price mt-2 x-card-price">
@@ -348,8 +406,8 @@
           }
         {% endstyle %}
         <div class="icon-highlight-{{ section.id }} {{ section.settings.block_layout }} w-full md:w-1/3 md:pr-4 md:pl-9 lg:pr-5 lg:pl-12 rtl:md:pr-9 rtl:md:pl-4 rtl:lg:pr-12 rtl:lg:pl-5 pt-5 pb-5 md:pt-9 md:pb-9 lg:pt-12 lg:pb-12
-          {%- if section.settings.rounded_corner_section_mobile %} rounded-b-[10px] md:rounded-none{% endif -%}
-          {%- if section.settings.rounded_corner_section %} md:rounded-r-[10px] md:rounded-l-none rtl:md:rounded-l-[10px] rtl:md:rounded-r-none{% endif -%}
+          {%- if rounded_mobile %} rounded-b-[10px] md:rounded-none{% endif -%}
+          {%- if rounded_desktop %} md:rounded-r-[10px] md:rounded-l-none rtl:md:rounded-l-[10px] rtl:md:rounded-r-none{% endif -%}
           {%- if section.settings.line_border == 'line' %} pr-5 pl-5{% else %} pr-0 pl-0{% endif -%}"
         >
           <div class="overflow-y-auto scrollbar-body h-full{% if is_rtl %} rtl:lg:pl-7 rtl:md:pl-5{% else %} lg:pr-7 md:pr-5{% endif %}">
@@ -373,18 +431,20 @@
                 >
                   {% if block.settings.icon != 'none' %}
                     {% unless block.settings.custom_image == blank and block.settings.custom_icon == blank and block.settings.another_icon == blank and block.settings.icon == 'another_icon' %}
-                      <span class="inline-block icon--{{ section.id }} mb-2.5 self-{% if section.settings.content_alignment == 'left' %}{% if is_rtl %}end{% else %}start{% endif %}{% elsif section.settings.content_alignment == 'right' %}{% if is_rtl %}start{% else %}end{% endif %}{% else %}center{% endif %}{% if section.settings.icon_position == 'row' %} md:self-start{% endif %}">
+                      <span class="inline-block icon--{{ section.id }} mb-2.5 self-{% if section.settings.content_alignment == 'left' %}{% if is_rtl %}end{% else %}start{% endif %}{% elsif section.settings.content_alignment == 'right' %}{% if is_rtl %}start{% else %}end{% endif %}{% else %}center{% endif %}{% if section.settings.icon_position == 'row' %} md:self-start{% endif %}{% if request.visual_preview_mode %} icon--preview{% endif %}">
                         {% if block.settings.custom_image != blank %}
+                          {% # theme-check-disable ImgLazyLoading %}
                           <img 
                             src="{{ block.settings.custom_image | image_url: width: 45 }}"
                             alt="{{ block.settings.custom_image.alt | escape }}"
-                            loading="lazy"
+                            {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                             onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                             width="{{ block.settings.custom_image.width }}"
                             height="{{ block.settings.custom_image.height }}"
                             style="object-position: {{ block.settings.custom_image.presentation.focal_point }}"
                             class="object-cover w-full h-full animate-Xpulse skeleton-image"
-                          >       
+                          >
+                          {% # theme-check-enable ImgLazyLoading %}
                         {% else %}
                           {% if block.settings.custom_icon == blank %}
                             {% if block.settings.another_icon != blank and block.settings.icon == 'another_icon' %}
@@ -442,6 +502,10 @@
   "tag": "section",
   "class": "section-product-highlight x-section",
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.product_highlight"
+    },
     {
       "type": "text",
       "id": "heading",
@@ -595,6 +659,7 @@
           "label": "t:settings_schema.products.product_image_ratio.option__6.label"
         }
 			],
+      "info": "t:sections.product-highlight.settings.block_layout.info",
       "default": "aspect-[9/16]"
 		},
     {
@@ -648,6 +713,12 @@
       "default": false,
       "label": "t:sections.featured-collection.blocks.collection.settings.show_rating.label",
       "info": "t:sections.featured-collection.blocks.collection.settings.show_rating.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_highlighted_features",
+      "default": true,
+      "label": "t:sections.product-recommendations.settings.show_highlighted_features.label"
     },
     {
       "type": "checkbox",
@@ -846,13 +917,53 @@
       "id": "padding_full_width",
       "default": false,
       "label": "t:sections.all.padding.padding_full_width.label",
-      "info": "t:sections.all.padding.padding_full_width.info"
+      "info": "t:sections.all.padding.padding_full_width.info",
+      "visible_if": "{{ section.settings.full_width }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "adapt_corners_desktop",
+      "label": "t:sections.slideshow.settings.enable_adapt",
+      "default": true
     },
     {
       "type": "checkbox",
       "id": "rounded_corner_section",
       "default": false,
-      "label": "t:sections.featured-product.blocks.rounded_corner.label"
+      "label": "t:sections.featured-product.blocks.rounded_corner.label",
+      "visible_if": "{{ section.settings.adapt_corners_desktop == false }}"
+    },
+    {
+      "type": "select",
+      "id": "desktop_height",
+      "options": [
+        {
+          "value": "450",
+          "label": "t:sections.image-with-text.settings.height.options__1.label"
+        },
+        {
+          "value": "550",
+          "label": "t:sections.image-with-text.settings.height.options__2.label"
+        },
+        {
+          "value": "650",
+          "label": "t:sections.image-with-text.settings.height.options__3.label"
+        },
+        {
+          "value": "750",
+          "label": "t:sections.image-with-text.settings.height.options__4.label"
+        },
+        {
+          "value": "fullscreen",
+          "label": "t:settings_schema.cart.settings.cart_drawer_size_mobile.fullscreen.label"
+        },
+        {
+          "value": "natural",
+          "label": "t:sections.product-highlight.settings.desktop_height.option__6"
+        }
+      ],
+      "default": "natural",
+      "label": "t:sections.shop_the_look.settings.desktop_height.label"
     },
     {
       "type": "range",
@@ -892,9 +1003,16 @@
     },
     {
       "type": "checkbox",
+      "id": "adapt_corners_mobile",
+      "label": "t:sections.slideshow.settings.enable_adapt",
+      "default": true
+    },
+    {
+      "type": "checkbox",
       "id": "rounded_corner_section_mobile",
       "default": false,
-      "label": "t:sections.featured-product.blocks.rounded_corner.label"
+      "label": "t:sections.featured-product.blocks.rounded_corner.label",
+      "visible_if": "{{ section.settings.adapt_corners_mobile == false }}"
     },
     {
       "type": "range",
@@ -1263,18 +1381,21 @@
           "type": "text",
           "id": "another_icon",
           "label": "t:sections.all.icon.another_icon_label",
-          "info": "t:sections.all.icon.another_icon_info"
+          "info": "t:sections.all.icon.another_icon_info",
+          "visible_if": "{{ block.settings.icon == 'another_icon' }}"
         },
         {
           "type": "image_picker",
           "id": "custom_image",
-          "label": "t:sections.multicolumn.blocks.column.settings.custom_image"
+          "label": "t:sections.multicolumn.blocks.column.settings.custom_image",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "html",
           "id": "custom_icon",
           "label": "t:sections.all.icon.custom_icon", 
-          "info": "t:sections.all.icon.custom_icon_info"
+          "info": "t:sections.all.icon.custom_icon_info",
+          "visible_if": "{{ block.settings.icon != 'none' }}"
         },
         {
           "type": "header",
@@ -1319,6 +1440,7 @@
   "presets": [
     {
       "name": "t:sections.product-highlight.name",
+      "category": "t:categories.products",
       "blocks": [
         {
           "type": "columns"

@@ -134,7 +134,9 @@
       {%- if section.settings.subheading != blank or section.settings.heading != blank -%}
         <div class="pb-5 md:pb-8">
           {%- if section.settings.subheading != blank -%}
-            <p class="rte mb-1.5 text-{{ section.settings.heading_alignment }}">{{ section.settings.subheading }}</p>
+            <div class="mb-1.5{% unless settings.disable_heading_animation %} overflow-hidden{% endunless %}"{% unless settings.disable_heading_animation %} x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')"{% endunless %}>
+              <p class="rte text-{{ section.settings.heading_alignment }}{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ section.settings.subheading }}</p>
+            </div>
           {% endif %}
           {% if section.settings.heading != blank %}
             {% render 'heading-highlight',
@@ -143,7 +145,8 @@
               highlight_type: section.settings.highlight_type,
               class: 'h2 block empty:hidden leading-tight p-break-words',
               heading_tag: section.settings.heading_tag,
-              heading_alignment: section.settings.heading_alignment
+              heading_alignment: section.settings.heading_alignment,
+              animation_heading: true
             %}
           {% endif %}
         </div>
@@ -199,14 +202,21 @@
                   {%- render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}
                 </div>
               {% else %}
+                {% liquid
+                  if settings.enable_lazy_loading_image
+                    assign loading = 'lazy'
+                  else
+                    assign loading = 'eager'
+                  endif
+                %}
                 {% if block.settings.image != blank %}
                   <div class="w-full animate_transition_slide__image animate-Xpulse skeleton-image" x-intersect.once="$el.classList.add('active')">
-                    {{ block.settings.image | image_url: width: 375 | image_tag: widths: '375', preload: true, loading: 'lazy', onload: onload }}
+                    {{ block.settings.image | image_url: width: 375 | image_tag: widths: '375', preload: true, loading: loading, onload: onload }}
                   </div>
                 {% else %}
                   {% if block.settings.product.featured_media != blank %}
                     <div class="w-full animate_transition_slide__image animate-Xpulse skeleton-image" x-intersect.once="$el.classList.add('active')">
-                      {{ block.settings.product.featured_media | image_url: width: 375 | image_tag: widths: '375', preload: true, loading: 'lazy', onload: onload }}
+                      {{ block.settings.product.featured_media | image_url: width: 375 | image_tag: widths: '375', preload: true, loading: loading, onload: onload }}
                     </div>
                   {% else %}
                     <div class='bg-[#c9c9c9] flex justify-center w-full animate_transition_slide__image' x-intersect.once="$el.classList.add('active')">
@@ -467,6 +477,10 @@
     ]
   },
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.product_attribute_table"
+    },
     {
       "type": "text",
       "id": "criteria_option",
@@ -855,6 +869,7 @@
   "presets": [
     {
       "name": "t:sections.product-table.name",
+      "category": "t:categories.products",
       "blocks": [
         {
           "type": "product"

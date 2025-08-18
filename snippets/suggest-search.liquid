@@ -30,7 +30,7 @@
             <div
               class="search-title h3 text-left lg:mb-2 md:w-auto pr-6 md:inline-block cursor-pointer lg:ml-0 md:pr-4 rtl:pl-4 rtl:md:pl-0 rtl:pr-0"
             >
-              <button class="md:line-clamp-none pb-1 pt-2.5 p-break-words hover-text-link leading-snug uppercase inline-block md:leading-none md:pt-1 md:pb-0.5 transition duration-200 text-[{{ settings.text_base_size | times: 0.007875 }}rem] md:text-[{{ settings.text_base_size | times: 0.00875 }}rem]"
+              <button class="md:line-clamp-none pb-1 pt-2.5 p-break-words hover-text-link leading-snug uppercase inline-block md:leading-none md:pt-1 md:pb-0.5 transition duration-200 text-[{{ settings.text_base_size | times: 0.00875 }}rem] md:text-[{{ settings.text_base_size | times: 0.01 }}rem]"
                 :class="currentTab === 1 && 'border-solid border-b-2 border-current'"
                 @click.prevent="select(1);"
               >
@@ -40,7 +40,7 @@
             <div
               class="search-title h3 text-left lg:mb-2 md:w-auto md:inline-block cursor-pointer lg:ml-2.5 md:pr-0" 
             >
-              <button class="md:line-clamp-none pb-1 pt-2.5 p-break-words hover-text-link leading-snug uppercase inline-block md:leading-none md:pt-1 md:pb-0.5 transition duration-200 md:pl-6 md:border-l text-[{{ settings.text_base_size | times: 0.007875 }}rem] md:text-[{{ settings.text_base_size | times: 0.00875 }}rem]"
+              <button class="md:line-clamp-none pb-1 pt-2.5 p-break-words hover-text-link leading-snug uppercase inline-block md:leading-none md:pt-1 md:pb-0.5 transition duration-200 md:pl-6 md:border-l text-[{{ settings.text_base_size | times: 0.00875 }}rem] md:text-[{{ settings.text_base_size | times: 0.01 }}rem]"
                 :class="currentTab === 2 && 'border-solid border-b-2 border-current'"
                 @click.prevent="select(2);"
               >
@@ -52,7 +52,7 @@
       {% endif %}
       {%- if search_recomendation.links != blank -%}
         <div class="popular-recomendation{%- if results_size > 0 -%}{% if settings.search_style == 'horizontal' %} lg:w-1/3{% else %}{% endif %}{% endif %}">
-          <h2 id="popular-suggest" class="predictive-search__heading hidden md:block pl-6 pr-6 lg:pl-10 lg:pr-10 pt-3 pb-5 uppercase text-[{{ settings.text_base_size | times: 0.007875 }}rem] md:text-[{{ settings.text_base_size | times: 0.00875 }}rem]">
+          <h2 id="popular-suggest" class="predictive-search__heading hidden md:block pl-6 pr-6 lg:pl-10 lg:pr-10 pt-3 pb-5 uppercase text-[{{ settings.text_base_size | times: 0.00875 }}rem] md:text-[{{ settings.text_base_size | times: 0.01 }}rem]">
             {{- 'templates.search.suggestions' | t -}}
           </h2>
           <ul id="predictive-search-results-queries-list" class="predictive-search-list predictive-search-results-list gap-4 md:gap-5 pl-6 pr-6 lg:pl-10 lg:pr-10 pb-7 grid" role="group" aria-labelledby="predictive-search-queries" :class="currentTab == 1 ? 'block' : '!hidden md:block'">
@@ -80,15 +80,17 @@
                     <div class="w-24 relative">
                       <div class="relative overflow-hidden w-full float-left before:h-0 before:block{% unless settings.product_image_ratio == "natural" %} before:pb-[{{ ratio | times: 100.0 }}%]{% else %}{% if product.featured_media.media_type == "model" %} pb-[100%]{% endif %}{% endunless %}{% if settings.edges_type == 'rounded_corners' %} rounded-md{% endif %}"{% if settings.product_image_ratio == "natural" and product.featured_media and product.featured_media.media_type != "model" %} style="padding-bottom: {{ 1 | divided_by: product.featured_media.aspect_ratio | times: 100 }}%;"{% endif %} >
                         {%- if product.featured_media != blank -%}
+                          {% # theme-check-disable ImgLazyLoading %}
                           <img
                             src="{{ product.featured_media | image_url: width: 150 }}"
                             alt="{{ product.featured_media.alt | split: "#" | first | escape }}"
                             width="{{ product.featured_media.width }}"
-                            loading="lazy"
+                            {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                             onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                             height="{{ product.featured_media.height }}"
                             class="h-full w-full object-cover absolute top-0 left-0 image-hover z-30 animate-Xpulse skeleton-image"
                           >
+                          {% # theme-check-enable ImgLazyLoading %}
                         {%- else -%}
                           <div class="bg-[#c9c9c9]{% unless settings.product_image_ratio == "natural" %} absolute{% endunless %} top-0 left-0 w-full h-full">{%- render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}</div>
                         {%- endif -%}

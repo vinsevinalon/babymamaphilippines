@@ -31,6 +31,22 @@
       assign position_after = 'right-6'
     endif
   endif
+      
+  assign rounded_corners = false
+
+  if section.settings.label_edges_type == 'rounded_corners'
+    assign rounded_corners = true
+  else
+    assign rounded_corners = false
+  endif
+
+  if section.settings.adapt_radius
+    if settings.edges_type == 'rounded_corners'
+      assign rounded_corners = true
+    else
+      assign rounded_corners = false
+    endif 
+  endif
 -%}
 {%- style -%}
   {% if section.settings.layout_comparison == "vertical" %}
@@ -61,7 +77,13 @@
     }
   {%- endif -%}
   .border-radius-{{ section.id }} {
-    border-radius: {{ border_image }}px;
+    {% unless section.settings.adapt_radius %}
+      border-radius: {{ border_image }}px;
+    {% else %}
+      {% if settings.edges_type == 'rounded_corners' %}
+        border-radius: 10px;
+      {% endif %}
+    {% endunless %}
   }
   .heading-before-{{ section.id }} {
     font-size: {{ section.settings.heading_base_size_before_image | times: 0.01 | times: settings.text_base_size | times: 0.00875 | times: 0.9 }}rem
@@ -142,13 +164,16 @@
       }
     {%- endstyle -%}
     <div class="{% if section.settings.full_width %}px-5 md:px-0{% endif %}">
-      {% render 'heading-highlight',
-        headingId: section.id,
-        heading: section.settings.heading,
-        highlight_type: section.settings.highlight_type,
-        class: 'h2 block py-2 leading-tight text-center mb-6',
-        heading_tag: section.settings.heading_tag
-      %}
+      <div class="pt-2 pb-2 mb-6">
+        {% render 'heading-highlight',
+          headingId: section.id,
+          heading: section.settings.heading,
+          highlight_type: section.settings.highlight_type,
+          class: 'h2 block leading-tight text-center',
+          heading_tag: section.settings.heading_tag,
+          animation_heading: true
+        %}
+      </div>
     </div>
   {%- endif -%}
   <div class="image-comparison text-[rgb(var(--colors-text))] flex flex-col md:flex-row border-radius-{{ section.id }} {{ section.settings.image_alignment_mobile }} {{ section.settings.image_alignment }}{% if section.settings.image_alignment == "md:flex-row" %} rtl:md:flex-row-reverse{% else %} rtl:md:flex-row{% endif %}">
@@ -164,7 +189,7 @@
         >
           <div class="main-img-{{ section.id }} border-radius-{{ section.id }} w-full overflow-hidden h-full z-20 relative pointer-events-none select-none">
             {% if section.settings.heading_after_image != blank %}
-              <p class="heading-after-{{ section.id }}{% if section.settings.label_edges_type == 'rounded_corners' %} rounded-[10px]{% endif %} px-8 py-4 absolute z-10 w-max max-w-[calc(100%-48px)] {{ position_after }}{% if section.settings.layout_comparison == "vertical" %} bottom-6{% else %} right-6{%- endif %}">
+              <p class="heading-after-{{ section.id }}{% if rounded_corners %} rounded-[10px]{% endif %} px-8 py-4 absolute z-10 w-max max-w-[calc(100%-48px)] {{ position_after }}{% if section.settings.layout_comparison == "vertical" %} bottom-6{% else %} right-6{%- endif %}">
                 {{ section.settings.heading_after_image }}
               </p>
              {%- endif %}
@@ -176,6 +201,7 @@
               {%- endif -%}
             {%- endcapture -%}
             {% if section.settings.image_after != blank %}
+              {% # theme-check-disable ImgLazyLoading %}
               <parallax-image class="h-full w-full{% if section.settings.image_mobile_after != blank %} hidden md:block{% else %} block{% endif %}">
                 <parallax-movement x-data="xParallax" x-intersect.once.margin.200px="load({{ settings.disable_parallax_effect }})">
                   <img
@@ -192,7 +218,7 @@
                     {{ section.settings.image_after | image_url }} {{ section.settings.image_after.width }}w"
                     src="{{ section.settings.image_after | image_url: width: 3840 }}"
                     alt="{{ section.settings.image_after.alt | escape }}"
-                    loading="lazy"
+                    {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                     onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                     sizes="{{ size_image }}"
                     width="{{ section.settings.image_after.width }}"
@@ -201,6 +227,7 @@
                   >
                 </parallax-movement>
               </parallax-image>
+              {% # theme-check-enable ImgLazyLoading %}
             {% else %}
               {% liquid
                 assign class_image_mobile = 'absolute w-full h-full bg-[#C9C9C9] text-[#acacac] md:block'
@@ -211,9 +238,9 @@
               {{ 'image' | placeholder_svg_tag: class_image_mobile }}
             {% endif %}
             {%- if section.settings.image_mobile_after != blank -%}
+              {% # theme-check-disable ImgLazyLoading %}
               <parallax-image class="block h-full w-full md:hidden">
                 <parallax-movement x-data="xParallax" x-intersect.once.margin.200px="load({{ settings.disable_parallax_effect }})">
-                  {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
                   <img
                     srcset="{{ section.settings.image_mobile_after | image_url: width: 375 }} 375w,
                     {{ section.settings.image_mobile_after | image_url: width: 450 }} 450w,
@@ -225,26 +252,27 @@
                     src="{{ section.settings.image_mobile_after | image_url: width: 750 }}"
                     alt="{{ section.settings.image_mobile_after.alt | escape }}"
                     class="object-cover h-full w-full animate-Xpulse skeleton-image"
-                    loading="lazy"
+                    {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                     onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                     width="{{ section.settings.image_mobile_after.width }}"
                     height="{{ section.settings.image_mobile_after.height }}"
                     style="object-position: {{ section.settings.image_mobile_after.presentation.focal_point }}"
                   />
-                  {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
                 </parallax-movement>
               </parallax-image>
+              {% # theme-check-enable ImgLazyLoading %}
             {%- endif %}
           </div>
           <div class="absolute top-0 z-10 border-radius-{{ section.id }} h-full w-full overflow-hidden pointer-events-none select-none">
             {% if section.settings.heading_before_image != blank %}
               <p
-                class="heading-before-{{ section.id }}{% if section.settings.label_edges_type == 'rounded_corners' %} rounded-[10px]{% endif %} px-8 py-4 absolute z-10 w-max max-w-[calc(100%-48px)] {{ position }}{% if section.settings.layout_comparison == "vertical" %} top-6{% else %} left-6{%- endif %}"
+                class="heading-before-{{ section.id }}{% if rounded_corners %} rounded-[10px]{% endif %} px-8 py-4 absolute z-10 w-max max-w-[calc(100%-48px)] {{ position }}{% if section.settings.layout_comparison == "vertical" %} top-6{% else %} left-6{%- endif %}"
               >
                 {{ section.settings.heading_before_image }}
               </p>
             {%- endif %}
             {% if section.settings.image != blank %}
+              {% # theme-check-disable ImgLazyLoading %}
               <parallax-image class="h-full w-full{% if section.settings.image_mobile != blank %} hidden md:block{% else %} block{% endif %}">
                 <parallax-movement x-data="xParallax" x-intersect.once.margin.200px="load({{ settings.disable_parallax_effect }})">
                   <img
@@ -261,7 +289,7 @@
                     {{ section.settings.image | image_url }} {{ section.settings.image.width }}w"
                     src="{{ section.settings.image | image_url: width: 3840 }}"
                     alt="{{ section.settings.image.alt | escape }}"
-                    loading="lazy"
+                    {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                     onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                     sizes="{{ size_image }}"
                     width="{{ section.settings.image.width }}"
@@ -270,6 +298,7 @@
                   >
                  </parallax-movement>
               </parallax-image>
+              {% # theme-check-enable ImgLazyLoading %}
             {% else %}
               {% liquid
                 assign class_image_mobile = 'absolute w-full h-full bg-[#C9C9C9] text-[#acacac] md:block'
@@ -280,9 +309,9 @@
               {{ 'image' | placeholder_svg_tag: class_image_mobile }}
             {% endif %}
             {%- if section.settings.image_mobile != blank -%}
+              {% # theme-check-disable ImgLazyLoading %}
               <parallax-image class="block h-full w-full md:hidden">
                 <parallax-movement x-data="xParallax" x-intersect.once.margin.200px="load({{ settings.disable_parallax_effect }})">
-                  {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
                   <img
                     srcset="{{ section.settings.image_mobile | image_url: width: 375 }} 375w,
                     {{ section.settings.image_mobile | image_url: width: 450 }} 450w,
@@ -294,15 +323,15 @@
                     src="{{ section.settings.image_mobile | image_url: width: 750 }}"
                     alt="{{ section.settings.image_mobile.alt | escape }}"
                     class="object-cover h-full {% if section.settings.layout_comparison == "vertical" %}w-full{% else %}w-[calc(100%-1px)]{% endif %} md:hidden animate-Xpulse skeleton-image"
-                    loading="lazy"
+                    {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                     onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
                     width="{{ section.settings.image_mobile.width }}"
                     height="{{ section.settings.image_mobile.height }}"
                     style="object-position: {{ section.settings.image_mobile.presentation.focal_point }}"
                   />
-                  {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
                 </parallax-movement>
               </parallax-image>
+              {% # theme-check-enable ImgLazyLoading %}
             {%- endif %}
           </div>
           <input x-on:focus="disableScroll($el)" @init-run.window="resizeWindow($el)" x-intersect.once="setMinMaxInput($el)" x-intersect.full.once="animateValue($el)" x-on:input.change="load($event)" type="range" min="0" max="100" step="0.1" 
@@ -497,6 +526,10 @@
   },
   "settings": [
     {
+      "type": "paragraph",
+      "content": "t:sections.user_guide_link.section_and_blocks.image_comparison"
+    },
+    {
       "type": "text",
       "id": "heading",
       "default": "Image comparison",
@@ -646,6 +679,12 @@
       "label": "t:sections.image-with-text.settings.mobile_height.label"
     },
     {
+      "type": "checkbox",
+      "id": "adapt_radius",
+      "label": "t:sections.slideshow.settings.enable_adapt",
+      "default": true
+    },
+    {
       "type": "range",
       "id": "image_corner_radius",
       "min": 0,
@@ -653,7 +692,8 @@
       "step": 1,
       "unit": "px",
       "label": "t:sections.image-with-text.settings.corner_radius.label",
-      "default": 0
+      "default": 0,
+      "visible_if": "{{ section.settings.adapt_radius == false }}"
     },
     {
       "type": "select",
@@ -669,7 +709,8 @@
         }
       ],
       "default": "square",
-      "label": "t:sections.image-comparison.settings.label_edges_type"
+      "label": "t:sections.image-comparison.settings.label_edges_type",
+      "visible_if": "{{ section.settings.adapt_radius == false }}"
     },
     {
       "type": "header",
@@ -895,7 +936,8 @@
       "id": "padding_full_width",
       "default": false,
       "label": "t:sections.all.padding.padding_full_width.label",
-      "info": "t:sections.all.padding.padding_full_width.info"
+      "info": "t:sections.all.padding.padding_full_width.info",
+      "visible_if": "{{ section.settings.full_width }}"
     },
     {
       "type": "checkbox",
@@ -1232,7 +1274,8 @@
   ],
   "presets": [
     {
-      "name": "t:sections.image-comparison.name"
+      "name": "t:sections.image-comparison.name",
+      "category": "t:categories.storytelling"
     }
   ]
 }

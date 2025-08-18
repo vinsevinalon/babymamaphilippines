@@ -23,6 +23,11 @@
   if swiper_on_mobile and section.settings.enable_arrow_mobile
     assign arrow_swipe_mobile = true
   endif
+  if settings.enable_lazy_loading_image
+    assign loading = 'lazy'
+  else
+    assign loading = 'eager'
+  endif
 -%}
 {% style %}
 .collection-title-container.scrollbar-body::-webkit-scrollbar{
@@ -38,11 +43,13 @@
         class="featured-collection relative min-h-[300px] left-0 right-0 bg-[rgba(var(--background-color))] pb-2"
         x-data='xFeaturedCollection("{{ section.id }}", "{{ paginate.page_param }}", $el)'
       >
-        <div class="x-block-header pl-5 pr-5 flex{% if is_rtl %} ltr{% endif %}{% unless inline %} flex-col items-{{ section.settings.heading_alignment }}{% else %} flex-col md:flex-row{% if section.settings.heading_alignment == 'right' %} flex-col md:flex-row-reverse {% endif %}{% endunless %}{%- if section.settings.title == blank and section.settings.text == blank and section.settings.subheading == blank -%} justify-end{% endif %}{% unless section.settings.full_width %} x-pgw page-width{% endunless %}">
+        <div class="x-block-header pl-5 pr-5 flex{% if is_rtl %} ltr{% endif %}{% unless inline %} flex-col items-{{ section.settings.heading_alignment }}{% else %} flex-col md:flex-row{% if section.settings.heading_alignment == 'right' %} flex-col md:flex-row-reverse{% endif %}{% endunless %}{%- if section.settings.title == blank and section.settings.text == blank and section.settings.subheading == blank -%} justify-end{% endif %}{% unless section.settings.full_width %} x-pgw page-width{% endunless %}">
           {%- if section.settings.title != blank or section.settings.text != blank or section.settings.subheading != blank -%}
-            <div class="section-header flex-auto mb-5{% unless inline %} lg:mb-2{% else %} lg:mb-0{% endunless %} text-{{ section.settings.heading_alignment }}">
+            <div class="flex-auto mb-5{% unless inline %} lg:mb-2{% else %} lg:mb-0{% endunless %} text-{{ section.settings.heading_alignment }}">
               {%- if section.settings.subheading != blank -%}
-                <p class="rte mb-1.5">{{ section.settings.subheading }}</p>
+                <div class="mb-1.5{% unless settings.disable_heading_animation %} overflow-hidden{% endunless %}"{% unless settings.disable_heading_animation %} x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')"{% endunless %}>
+                  <p class="rte{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ section.settings.subheading }}</p>
+                </div>
               {% endif %}
               {%- if section.settings.title != blank -%}
                 {% render 'heading-highlight',
@@ -51,11 +58,12 @@
                   highlight_type: section.settings.highlight_type,
                   class: 'h2 block leading-tight p-break-words',
                   heading_tag: section.settings.heading_tag,
+                  animation_heading: true
                 %}
               {%- endif -%}
               {%- if section.settings.text != blank -%}
                 <div class="rte mt-2 lg:mb-3">{{ section.settings.text }}</div>
-              {% endif %} 
+              {% endif %}
             </div>
           {% endif %}
           {% if section.blocks.size > 1 %}
@@ -371,6 +379,7 @@
                     {% render 'card-product',
                       card_product: block.settings.product_card,
                       show_vendor: block.settings.show_vendor,
+                      show_highlighted_features: block.settings.show_highlighted_features,
                       show_highlighted_attributes: block.settings.show_highlighted_attributes,
                       show_rating: block.settings.show_rating,
                       section_id: section.id,
@@ -387,6 +396,7 @@
                       index_param: index_param,
                       show_icon_atc: show_icon_atc,
                       animation_loading: true,
+                      loading: loading,
                       show_price_range: true
                     %}
                   </div>
@@ -430,7 +440,7 @@
                       </div>
                     {% endcapture %}
                     {% if video_type == 'youtube' %}
-                      {% comment %}theme-check-disable RemoteAsset{% endcomment %}
+                      {% # theme-check-disable %}
                       <div class="w-full h-0 video external-video overflow-hidden pb-[100%]{% if enable_slider_vertical %} sticky top-[calc(var(--height-header)+1rem)]{% else %} relative{% endif %}{% if settings.edges_type == 'rounded_corners' %} md:rounded-[10px]{% unless section.settings.full_width_mobile %} rounded-[10px]{% endunless %}{% endif %}"
                         x-intersect:leave="$store.xVideo.pause($el)"
                         x-data="{ isHovered: false }"
@@ -441,17 +451,17 @@
                           <source type="image/webp" srcset="{{ video_id | prepend: 'https://i.ytimg.com/vi_webp/' | append: '/maxresdefault.webp' }}">
                           <source type="image/jpeg" srcset="{{ video_id | prepend: 'https://i.ytimg.com/vi/' | append: '/maxresdefault.jpg' }}">
                           <img 
-                            src="{{ video_id | prepend: 'https://i.ytimg.com/vi_webp/' | append: '/maxresdefault.webp' }}" 
-                            loading="lazy" 
-                            class="w-full h-full absolute object-cover" 
-                            alt="{{ video_alt }}" 
-                            width="1280" 
+                            src="{{ video_id | prepend: 'https://i.ytimg.com/vi_webp/' | append: '/maxresdefault.webp' }}"
+                            {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
+                            class="w-full h-full absolute object-cover"
+                            alt="{{ video_alt }}"
+                            width="1280"
                             height="980"
                           />
                         </picture>
                         {{ button_play }}
                       </div>
-                      {% comment %}theme-check-enable RemoteAsset{% endcomment %}
+                      {% # theme-check-enable %}
                     {% elsif video_type == 'vimeo' %}
                       {%- capture options -%}
                         {
@@ -485,6 +495,7 @@
                             alt: block.settings.video.alt
                             | replace: '<video ', '<video x-on:mouseover="isHovered = true" x-on:mouseleave="isHovered = false" :controls="isHovered" '
                         }}
+                        {% # theme-check-disable ImgLazyLoading %}
                         <img
                           srcset="{{ block.settings.video.preview_image | image_url: width: 375 }} 375w,
                             {{ block.settings.video.preview_image | image_url: width: 450 }} 450w,
@@ -496,12 +507,18 @@
                             {{ block.settings.video.preview_image | image_url }} {{ media.preview_image.width }}w"
                           src="{{ block.settings.video.preview_image | image_url: width: 1780 }}"
                           alt="{{ block.settings.video.preview_image.alt | escape }}"
-                          sizes="{{ sizes }}"
-                          {{ loading }}
+                          sizes="(min-width: 768px)
+                              {%- if section.settings.columns_desktop == 3 %} 40vw
+                                {%- elsif section.settings.columns_desktop == 4 %} 34vw
+                                {%- elsif section.settings.columns_desktop == 5 %} 20vw
+                                {%- else %}50vw
+                              {%- endif -%}, 100vw"
+                          {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
                           width="{{ block.settings.video.preview_image.width }}"
                           height="{{ block.settings.video.preview_image.height }}"
                           class="img-thumbnail duration-300 absolute w-full h-full object-cover {% if settings.edges_type == 'rounded_corners' %}rounded-[10px]{% endif %}"
                         >
+                        {% # theme-check-enable ImgLazyLoading %}
                         {{ button_play }}
                       </div>
                     {% endif %}
@@ -560,7 +577,7 @@
               -%}
               <div
                 id="x-collection-{{ block.id }}"
-                class="collection{% if enable_desktop_slider or swiper_on_mobile %} overflow-hidden x-splide visible splide{% endif %}{% if swiper_on_mobile and section.settings.full_width_mobile %} pl-5 pr-5 md:pl-0 md:pr-0{% endif %}"
+                class="collection{% if enable_desktop_slider or swiper_on_mobile %} overflow-hidden x-splide visible splide{% endif %}{% if swiper_on_mobile and section.settings.full_width_mobile %} pl-5 pr-5 md:pl-0 md:pr-0{% endif %}{% if arrow_swipe_mobile %} flex flex-col{% endif %}"
                 {% if enable_desktop_slider or swiper_on_mobile -%}
                   x-data-slider="{{ section.id }}"
                   x-intersect.once.margin.200px='$store.xSplide.load($el, {
@@ -640,8 +657,32 @@
                     }
                   }
                 {% endstyle %}
+                {% if enable_desktop_slider or swiper_on_mobile %}
+                  <div class="splide__arrows{% if section.settings.slider_style == "vertical" %} md:hidden{% endif %}{% if swiper_on_mobile %} flex items-center justify-center{% else %} md:block gap-2{% endif %} order-2">
+                    <button 
+                      class="splide__arrow splide__arrow--prev button-arrow p-4 rounded-full none_border z-10 w-12 h-12 after:text-[20px] rtl:-rotate-90 rotate-90 opacity-100 disabled:cursor-not-allowed disabled:opacity-30
+                      {%- unless arrow_swipe_mobile %} hidden{% else %} block{% endunless -%}
+                      {%- if section.settings.slider_style != "vertical" -%}
+                        {%- if enable_desktop_slider %} md:block md:absolute md:top-1/2 md:-mt-6 rtl:md:left-auto rtl:md:right-0 md:left-0 md:duration-200 md:opacity-60 hover:opacity-100 md:transition-all md:ease-in-out md:-translate-x-full rtl:md:translate-x-full{% else %} md:hidden{% endif -%}
+                      {%- endif %}"
+                      aria-label="previous slide"
+                    >
+                      {% render 'icon-alls', icon: 'icon-caret' %}
+                    </button>
+                    <button 
+                      class="splide__arrow splide__arrow--next button-arrow p-4 rounded-full none_border z-10 w-12 h-12 after:text-[20px] rtl:rotate-90 -rotate-90 opacity-100 disabled:cursor-not-allowed disabled:opacity-30
+                      {%- unless arrow_swipe_mobile %} hidden{% else %} block{% endunless -%}
+                      {%- if section.settings.slider_style != "vertical" -%}
+                        {%- if enable_desktop_slider %} md:block md:absolute md:top-1/2 md:-mt-6 rtl:md:right-auto rtl:md:left-0 md:right-0 md:duration-200 md:opacity-60 hover:opacity-100 md:transition-all md:ease-in-out md:translate-x-full rtl:md:-translate-x-full{% else %} md:hidden{% endif -%}
+                      {%- endif %}"
+                      aria-label="next slide"
+                    >
+                      {% render 'icon-alls', icon: 'icon-caret' %}
+                    </button>
+                  </div>
+                {% endif %}
                 <div class="splide__track{% if enable_desktop_slider %} md:cursor-grab{% endif %}{% if block.settings.show_promotion %} md:pl-0 md:pr-0{% endif %} lg:pl-0 lg:pr-0">
-                  <div class="splide__list gap-{{ block.id }}-{{ section.id }}{% if enable_desktop_slider == false or enable_slider_vertical %} md:grid{% if columns_desktop == 5 %} md:grid-cols-4{% else %} md:grid-cols-{{ columns_desktop }}{% endif %} lg:grid-cols-{{ columns_desktop }}{% else %} md:grid-cols-none md:flex md:w-full md:gap-0{% endif %}{% if swiper_on_mobile %} flex w-full{% else %} grid grid-cols-{{ columns_mobile }} gap-mobile-{{ block.id }}-{{ section.id }}{% endif %}">
+                  <div class="{% if request.visual_preview_mode %}gap-4 md:gap-7 {% endif %}splide__list gap-{{ block.id }}-{{ section.id }}{% if enable_desktop_slider == false or enable_slider_vertical %} md:grid{% if columns_desktop == 5 %} md:grid-cols-4{% else %} md:grid-cols-{{ columns_desktop }}{% endif %} lg:grid-cols-{{ columns_desktop }}{% else %} md:grid-cols-none md:flex md:w-full md:gap-0{% endif %}{% if swiper_on_mobile %} flex w-full{% else %} grid grid-cols-{{ columns_mobile }} gap-mobile-{{ block.id }}-{{ section.id }}{% endif %}">
                     {%- for product in collection.products limit: grid_items_count -%}
                       {%- liquid
                         assign product_card_id = current_page | append: "-" | append: forloop.index
@@ -654,6 +695,7 @@
                       {% render 'card-product',
                         card_product: product, 
                         show_vendor: block.settings.show_vendor,
+                        show_highlighted_features: block.settings.show_highlighted_features,
                         show_highlighted_attributes: block.settings.show_highlighted_attributes,
                         show_rating: block.settings.show_rating,
                         section_id: section.id,
@@ -671,6 +713,7 @@
                         index_param: index_param,
                         show_icon_atc: show_icon_atc,
                         animation_loading: true,
+                        loading: loading,
                         show_price_range: true
                       %}
                     {%- else -%}
@@ -695,7 +738,7 @@
                               {% render 'icon-placeholder', icon: 'icon-product', class: 'bg-[#c9c9c9] absolute top-0 left-0 w-full h-full' %}
                             </div>
                             <div class="pt-4 pb-4 text-{{ settings.info_alignment_card_product }}">
-                              <p class="x-card-title leading-tight mb-2">
+                              <p class="x-card-title h5 leading-tight mb-2">
                                 {{ 'sections.featured_collection.product_title' | t }}
                               </p>
                               <p class="x-card-price">
@@ -712,30 +755,6 @@
                     {%- endfor -%}
                   </div>
                 </div>
-                {% if enable_desktop_slider or swiper_on_mobile %}
-                  <div class="splide__arrows{% if section.settings.slider_style == "vertical" %} md:hidden{% endif %}{% if swiper_on_mobile %} flex items-center justify-center{% else %} md:block gap-2{% endif %}">
-                    <button 
-                      class="splide__arrow splide__arrow--prev button-arrow p-4 rounded-full none_border z-10 w-12 h-12 after:text-[20px] rtl:-rotate-90 rotate-90 opacity-100 disabled:cursor-not-allowed disabled:opacity-30
-                      {%- unless arrow_swipe_mobile %} hidden{% else %} block{% endunless -%}
-                      {%- if section.settings.slider_style != "vertical" -%}
-                        {%- if enable_desktop_slider %} md:block md:absolute md:top-1/2 md:-mt-6 rtl:md:left-auto rtl:md:right-0 md:left-0 md:duration-200 md:opacity-60 hover:opacity-100 md:transition-all md:ease-in-out md:-translate-x-full rtl:md:translate-x-full{% else %} md:hidden{% endif -%}
-                      {%- endif %}"
-                      aria-label="previous slide"
-                    >
-                      {% render 'icon-alls', icon: 'icon-caret' %}
-                    </button>
-                    <button 
-                      class="splide__arrow splide__arrow--next button-arrow p-4 rounded-full none_border z-10 w-12 h-12 after:text-[20px] rtl:rotate-90 -rotate-90 opacity-100 disabled:cursor-not-allowed disabled:opacity-30
-                      {%- unless arrow_swipe_mobile %} hidden{% else %} block{% endunless -%}
-                      {%- if section.settings.slider_style != "vertical" -%}
-                        {%- if enable_desktop_slider %} md:block md:absolute md:top-1/2 md:-mt-6 rtl:md:right-auto rtl:md:left-0 md:right-0 md:duration-200 md:opacity-60 hover:opacity-100 md:transition-all md:ease-in-out md:translate-x-full rtl:md:-translate-x-full{% else %} md:hidden{% endif -%}
-                      {%- endif %}"
-                      aria-label="next slide"
-                    >
-                      {% render 'icon-alls', icon: 'icon-caret' %}
-                    </button>
-                  </div>
-                {% endif %}
                 {%- if swiper_on_mobile or enable_desktop_slider and section.settings.slider_style != "vertical" -%}
                   <div class="{% if enable_desktop_slider and section.settings.slider_style != "vertical" %} md:flex{% else %} md:hidden{% endif %} items-center{% if arrow_swipe_mobile or swiper_on_mobile == false %} hidden{% else %} flex w-full{% endif %} gap-5 mt-2.5 md:mt-5 md:w-3/4 ml-auto mr-auto">
                     <div class="splide-progress inline-block grow rounded-md">

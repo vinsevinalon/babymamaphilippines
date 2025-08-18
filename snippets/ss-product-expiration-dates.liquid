@@ -1,0 +1,237 @@
+{% comment %}
+Used by the Product Expiration Dates app to display a product's expiration
+date on the product page and show/hide expiration dates based on the selected variant (if any).
+
+Usage:
+
+Make the folling call wherever you want to the date to be displayed:
+{% render "ss-product-expiration-dates", product: product, prefix: "Best Before", format: "%d/%m/%Y" %}
+
+You can include HTML in the prefix value:
+{% render "ss-product-expiration-dates", product: product, prefix: "<strong>Best Before</strong>", format: "%d/%m/%Y" %}
+
+If you want to only show the expiration date when it's close to a particular number of days:
+{% render "ss-product-expiration-dates", product: product, prefix: "<strong>Best Before</strong>", format: "%d/%m/%Y", expires_window_days: 21 %}
+
+If you want to display the batch number:
+{% render "ss-product-expiration-dates", product: product, prefix: "<strong>Best Before</strong>", format: "%d/%m/%Y", batch_number: true, batch_prefix: "Batch" %}
+
+If you want to show the expiration dates on a page that never shows the product variant selectors, like the cart page, you should instruct the
+snippet not to look for them to avoid unwanted side effects:
+{% render "ss-product-expiration-dates", product: product, variant_selection: false, prefix: "Best by", format: "%B %d, %Y" %}
+
+For support contact help@screenstaring.com
+{% endcomment %}
+
+{% assign seconds_in_a_day = 86400 %}
+{% assign default_variant = product.selected_or_first_available_variant %}
+{% assign bundle = product.selected_or_first_available_variant.metafields.expiration_dates.bundled_inventory %}
+{% assign allocation = default_variant.metafields.expiration_dates.allocations[0] %}
+{% assign use_within = default_variant.metafields.expiration_dates.use_within %}
+
+{% if bundle != blank %}
+  {% if show_bundle %}
+    <div class="ss-product-expiration-dates">
+      {% for bundled_product in bundle %}
+          {% assign allocation = bundled_product.allocations[0] %}
+          {% if allocation != blank %}
+              <div class="ss-product-expiration-dates__product">
+                  {% unless bundled_product_title == false %}
+                    <span class="ss-product-expiration-dates__product">
+                      {{ bundled_product.title }} -
+                    </span>
+                  {% endunless %}
+                  {% if prefix != blank %}
+                    <span class="ss-product-expiration-dates__prefix">
+                      {{ prefix | downcase }}
+                    </span>
+                  {% endif %}
+                  <span class="ss-product-expiration-dates__time">
+                    {{ allocation.time | date: format }}
+                  </span>
+                  {% if suffix != blank %}
+                    <span class="ss-product-expiration-dates__suffix">
+                        {{ suffix }}
+                    </span>
+                  {% endif %}
+              </div>
+          {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% elsif show_expiration_date or show_batch_number or show_use_within %}
+  <div class="ss-product-expiration-dates">
+    {% if show_expiration_date %}
+      <span class="ss-product-expiration-dates__prefix">
+       {%- if allocation != blank and prefix != blank -%}
+         {{ prefix }}
+       {%- endif -%}
+      </span>
+      <span class="ss-product-expiration-dates__time">
+        {%- if allocation != blank -%}
+          {{ allocation.time | date: format }}
+        {%- endif -%}
+      </span>
+      <span class="ss-product-expiration-dates__suffix">
+        {%- if allocation != blank and suffix != blank -%}
+          {{ suffix }}
+        {%- endif -%}
+      </span>
+    {% endif %}
+
+    <span class="ss-product-expiration-dates__batch">
+      {%- if show_batch_number and allocation != blank and allocation.batch_number != blank -%}
+        {%- if batch_prefix -%}
+          {{ batch_prefix }}
+          <span class="ss-product-expiration-dates__batch-number">
+            {{ allocation.batch_number }}
+          </span>
+        {%- else -%}
+          <span class="ss-product-expiration-dates__batch-number">
+            ({{ allocation.batch_number }})
+          </span>
+        {%- endif -%}
+      {%- endif -%}
+    </span>
+
+    {% if show_use_within and use_within.use_within_value_in_days != blank %}
+      {%- if use_within_prefix != blank -%}
+        <span class="ss-product-expiration-dates__use-within-prefix">
+          {{ use_within_prefix }}
+        </span>
+      {%- endif -%}
+      <span class="ss-product-expiration-dates__use-within-value">
+        {{ use_within.use_within_value }}
+        {{ use_within.use_within_units }}
+      </span>
+    {% endif %}
+  </div>
+
+  <script>
+   window.SS = window.SS || {};
+   window.SS.product = {
+     defaultVariant: ''+{{ default_variant.id | json }},
+     variants: [
+       {%- for variant in product.variants -%}
+       {
+           id: {{ variant.id | json }},
+           title: {{ variant.title | json }},
+           {% for option in variant.options -%}
+             option{{ forloop.index }}: {{ option | json }},
+           {% endfor -%}
+       }{%- unless forloop.last -%},{%- endunless -%}
+       {%- endfor -%}
+     ]
+   };
+
+   window.SS.expirationDates = {
+       {%- for variant in product.variants -%}
+         {%- assign allocation = variant.metafields.expiration_dates.allocations[0] -%}
+         {%- if allocation != blank -%}
+           '{{ variant.id }}': {
+             time: '{{ allocation.time | date: format }}',
+             quantity: '{{ allocation.quantity }}',
+             {%- if allocation.batch_number != blank -%}
+               batch: {{ allocation.batch_number | json }},
+             {%- endif -%}
+             {%- if expires_window_days != blank -%}
+               {% assign expires_at = allocation.time | date: "%s" | plus: seconds_in_day | minus: 1 %}
+               {% assign now = "now" | date: "%s" %}
+               {% assign diff = expires_at | minus: now | divided_by: seconds_in_a_day %}
+               {%- if diff >= expires_window_days -%}
+                 hide: true
+               {%- endif -%}
+             {%- endif -%}
+           },
+         {%- endif -%}
+       {%- endfor- %}
+   };
+
+   window.SS.init = function(options) {
+    if(this.loaded) return;
+    this.loaded = true;
+
+    options = options || {};
+
+    function error(message) {
+      console.error('Product Expiration Dates app: ' + message);
+    }
+
+    function showOrHideDate(variantId) {
+      const cfg = SS.expirationDates[''+variantId];
+
+      if(!cfg || cfg.hide) {
+        expiresContainer.style.display = 'none';
+        return;
+      }
+
+      expiresContainer.style.display = 'block';
+      document.querySelector('.ss-product-expiration-dates__time').textContent = cfg.time;
+
+      if({{ show_batch_number | json  }}) {
+        const batchContainer = document.querySelector('.ss-product-expiration-dates__batch'),
+              batchNumber = document.querySelector('.ss-product-expiration-dates__batch-number');
+
+        if(!cfg.batch) {
+          batchContainer.style.display = 'none';
+        }
+        else {
+          batchNumber.textContent = cfg.batch;
+          batchContainer.style.display = '';
+        }
+      }
+    }
+
+    function variantSelected(variantId) {
+      // Delay to ensure variant param has changed
+      setTimeout(function () {
+        showOrHideDate(variantId);
+      }, 750);
+    }
+
+    // Could have multiple root elements???
+    var root = document,
+        expiresContainer = document.querySelector('.ss-product-expiration-dates'),
+        cartFormSelector = 'form[action="/cart/add"]',
+        variantSelector = `${cartFormSelector} select, ${cartFormSelector} input, ${cartFormSelector} label`;
+
+    if(!expiresContainer) {
+      error('Cannot find expiration date container element');
+      return;
+    }
+
+    showOrHideDate(SS.product.defaultVariant);
+
+    if(SS.product.variants.length === 1 && SS.product.variants[0].title === 'Default Title') {
+      return;
+    }
+
+    if(options.variantSelector)
+      variantSelector = options.variantSelector;
+
+    if(options.container) {
+      try {
+        root = document.querySelector(options.container);
+        if(!root) {
+          error(`Variant container '${options.container}' not found`);
+          return;
+        }
+      }
+      catch(e) {
+        error(`Invalid variant container '${options.container}' (${e.message})`);
+        return;
+      }
+    }
+
+    new MutationObserver(_ => {
+      // Can't rely on location.href because this may be called before it changes so we do this on every change
+      const id = new URL(location.href).searchParams.get('variant');
+      if(id) variantSelected(id);
+    }).observe(document, {subtree: true, childList: true});
+  };
+
+  {%- unless variant_selection == false -%}
+    window.addEventListener('DOMContentLoaded', () => SS.init())
+  {%- endunless -%}
+  </script>
+{% endif %}

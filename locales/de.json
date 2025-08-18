@@ -1,14 +1,9 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "general": {
+    "theme-mode": {
+      "light": "Licht",
+      "dark": "Dunkel"
+    },
     "global": {
       "cancel": "Stornieren",
       "copy_code": "Code kopieren",
@@ -78,8 +73,11 @@
       "view": "Meinen Warenkorb ansehen ({{ count }})",
       "item_added": "Artikel wurde Ihrem Warenkorb hinzugefügt",
       "terms_confirm": "Bitte stimmen Sie den Allgemeinen Geschäftsbedingungen zu.",
-      "enable_amount_freeship_html": "Fügen Sie <span class=\"text-medium font-medium\">{{ amount_to_freeshipping }}</span> mehr hinzu, um <span class=\"font-medium\">GRATIS</span> Versand zu erhalten",
+      "enable_amount_freeship_html": "Fügen Sie <span class=\"text-medium font-medium\">{{ amount_to_freeshipping }}</span> mehr hinzu, um <span class=\"font-medium\">GRATIS<\/span> Versand zu erhalten",
+      "enable_amount_freegift_html": "Fügen Sie <span class=\"text-medium font-medium\">{{ amount_to_freegift }}<\/span> mehr hinzu, um {{ other_offer }} zu erhalten",
       "freeshipping": "Herzlichen Glückwunsch! Sie sind für den kostenlosen Versand berechtigt!",
+      "freegift": "Herzlichen Glückwunsch! Sie haben Anspruch auf {{ other_offer }}",
+      "free_all_offer": "Herzlichen Glückwunsch! Sie haben Anspruch auf kostenlosen Versand und {{ other_offer }}!",
       "freeshipping_value": "Kostenloser Versand",
       "apply": "Anwenden",
       "copy_link": "Link kopieren",
@@ -426,7 +424,8 @@
       "choose_option": "Wählen Sie zunächst eine Variante",
       "add_to_bundle": "Zum Bundle hinzufügen",
       "bundle_empty": "Ihr Bündel ist leer.",
-      "discount_label": "AUS"
+      "discount_label": "AUS",
+      "save": "Sparen"
     },
     "promo-code-list": {
       "expired": "Abgelaufen",
@@ -452,6 +451,9 @@
       "hours": "STD",
       "mins": "MIN",
       "secs": "SEK"
+    },
+    "social-feeds": {
+      "view_on_social": "View on social"
     }
   },
   "localization": {

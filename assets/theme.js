@@ -5,7 +5,7 @@ const installMediaQueryWatcher = (mediaQuery, changedCallback) => {
 };
 
 const deferScriptLoad = (name, src, onload, requestVisualChange = false) => {
-  window.Eurus.loadedScript.push(name);
+  window.Eurus.loadedScript.add(name);
   
   (events => {
     const loadScript = () => {
@@ -95,6 +95,28 @@ requestAnimationFrame(() => {
 
           Alpine.store('xDOM').rePainting = null;
         }, 200); // INP
+      },
+      toggleLightMode() {
+        Alpine.store('xDOM').rePainting = this.alias;
+        setTimeout(() => {
+          localStorage.eurus_theme = 0;
+          document.documentElement.classList.remove('dark');
+          Alpine.store('xHeaderMenu').setTopStickyHeader();
+          Alpine.store('pseudoIconTheme').updatePseudoIconInputTheme();
+
+          Alpine.store('xDOM').rePainting = null;
+        }, 200); // INP
+      },
+      toggleDarkMode() {
+        Alpine.store('xDOM').rePainting = this.alias;
+        setTimeout(() => {
+          localStorage.eurus_theme = 1;
+          document.documentElement.classList.add('dark');
+          Alpine.store('xHeaderMenu').setTopStickyHeader();
+          Alpine.store('pseudoIconTheme').updatePseudoIconInputTheme();
+
+          Alpine.store('xDOM').rePainting = null;
+        }, 200); // INP
       }
     });
     Alpine.store('pseudoIconTheme', {
@@ -113,7 +135,10 @@ requestAnimationFrame(() => {
       }      
     });
     Alpine.store('xHelper', {
+      toUpdate: [],
       countdown(configs, callback) {
+        const maxAttempt = 100;
+
         let endDate = new Date(
           configs.end_year,
           configs.end_month - 1,
@@ -121,7 +146,9 @@ requestAnimationFrame(() => {
           configs.end_hour,
           configs.end_minute
         );
-        const endTime = endDate.getTime() + (-1 * configs.timezone * 60 - endDate.getTimezoneOffset()) * 60 * 1000;
+        let reset = configs.reset;
+        let duration = configs.duration;
+        let endTime = endDate.getTime() + (-1 * configs.timezone * 60 - endDate.getTimezoneOffset()) * 60 * 1000;
         
         let startTime;
         if (configs.start_year) {
@@ -133,28 +160,74 @@ requestAnimationFrame(() => {
             configs.start_minute
           );
           startTime = startDate.getTime() + (-1 * configs.timezone * 60 - startDate.getTimezoneOffset()) * 60 * 1000;
+          if (reset) {
+            endDate = new Date(startTime + duration);
+            endTime = endDate.getTime();
+          }
         } else {
-          startTime = new Date().getTime();
+          if (reset) {
+            startTime = endTime;
+            endDate = new Date(startTime + duration);
+            endTime = endDate.getTime();
+          } else {
+            startTime = new Date().getTime();
+          }
         }
 
-        let x = setInterval(function() {
-          let now = new Date().getTime();
-          let distance = endTime - now;
+        if (new Date().getTime() < startTime) {
+          callback(false, 0, 0, 0, 0);
+          return;
+        }
 
-          if (distance < 0 || startTime > now) {
-            callback(false, 0, 0, 0, 0);
-            clearInterval(x);
-          } else {
-            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
+        const startInterval = () => {
+          let x = setInterval(() => {
+            let now = new Date().getTime();
+            let distance = 0;
 
-            callback(true, seconds, minutes, hours, days);
-          }
-        }, 1000);
+            distance = endTime - now;
+            if (distance < 0) {
+              clearInterval(x);
+              if (reset) {
+                let attempt = 0;
+                while (distance < 0 && attempt < maxAttempt) {
+                  attempt++;
+                  if (attempt == 1) {
+                    let elapsed = now - startTime;
+                    let loopOffset = Math.floor(elapsed / duration) - 1;
+
+                    startTime = startTime + loopOffset * duration;
+                  } else {
+                    startTime = endTime;
+                  }
+                  endDate = new Date(startTime + duration);
+                  endTime = endDate.getTime();
+                  distance = endTime - now;
+                }
+                if (attempt >= maxAttempt) {
+                  callback(false, 0, 0, 0, 0);
+                  return;
+                }
+                startInterval();
+              } else {
+                callback(false, 0, 0, 0, 0);
+                return;
+              }
+            }
+            if (distance > 0) {
+              var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+              var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+              var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+              minutes = minutes < 10 ? '0' + minutes : '' + minutes;
+              seconds = seconds < 10 ? '0' + seconds : '' + seconds;
+
+              callback(true, seconds, minutes, hours, days);
+            }
+          }, 1000);
+        }
+
+        startInterval();
       },
       canShow(configs) {
         let endDate = new Date(
@@ -552,12 +625,12 @@ requestAnimationFrame(() => {
           document.cookie = `eurus_insurance=${productId}; path=/`;
         })
       },
-      updateEstimateShipping(el, line, itemId, cutOffHour, cutOffMinute, hour, minutes, shippingInsuranceId) {
+      updateEstimateShipping(el, line, itemId, cutOffHour, cutOffMinute, hour, minutes, shippingInsuranceId, cartSize) {
         if (shippingInsuranceId === itemId) return;
         const func = () => {
           window.updatingEstimate = true;
           const queryString = window.location.search;
-          if (queryString.includes("share_cart:true") && !Alpine.store('xCartHelper').shared) {
+          if (queryString.includes("share_cart:true") && !Alpine.store('xCartShare').shared) {
             return;
           }
           let qty = parseInt(document.getElementById(`cart-qty-${itemId}`)?.value) || 1;
@@ -576,23 +649,31 @@ requestAnimationFrame(() => {
             'quantity': `${qty}`,
             'properties': properties
           };
-  
-          fetch(`${Shopify.routes.root}cart/change.js`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updateData)
-          })
-          .then(response => response.text())
-          .then(() => {
+          if (!window.updateEstimateShipping || window.updateEstimateShipping < cartSize) {
+            Alpine.store('xHelper').toUpdate.push(updateData);
             window.updateEstimateShipping = Number(line) + 1;
-          })
-          .catch(error => {
-            console.log(error)})
-          .finally(() => {
             window.updatingEstimate = false;
-          });
+          } else {
+            Alpine.store('xHelper').toUpdate.push(updateData);
+            let updateDataFinal = Alpine.store('xHelper').toUpdate;
+            fetch(`${Shopify.routes.root}cart/update.js`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ "items": updateDataFinal })
+            })
+            .then(response => response.text())
+            .then(() => {
+              window.updateEstimateShipping = Number(line) + 1;
+              Alpine.store('xHelper').toUpdate = [];
+            })
+            .catch(error => {
+              console.log(error)})
+            .finally(() => {
+              window.updatingEstimate = false;
+            });
+          }
         }
         if (Number(line) == 1) {
           func();
@@ -641,10 +722,6 @@ requestAnimationFrame(() => {
       validated: true,
       openField: '',
       openDiscountField: '',
-      openShareCart: false,
-      cartShareUrl: "",
-      shared: false,
-      copySuccess: false,
       updateCart: function(data, needValidate = false) {
         const formData = JSON.stringify(data);
         fetch(Shopify.routes.root + 'cart/update', {
@@ -739,89 +816,6 @@ requestAnimationFrame(() => {
             selector: '#QuickOrderListSummary'
           },
         ];
-      },
-      generateUrl() {
-        fetch(Shopify.routes.root + 'cart.js', {
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' }
-        })
-        .then(response => response.json())
-        .then(response => {
-          const items = response.items.slice().reverse();
-          const cartParams = items.map(item => `id:${item.variant_id},q:${item.quantity}`).join('&') + '&share_cart:true';
-          this.cartShareUrl = `${window.location.origin}?${cartParams}`;
-        });
-      },
-      copyURL() {
-        const cartShareInput = document.getElementById(`x-share-cart-field`);
-        if (cartShareInput) {
-          navigator.clipboard.writeText(cartShareInput.value).then(
-            () => {
-              this.copySuccess = true;
-
-              setTimeout(() => {
-                this.copySuccess = false;
-              }, 2000);
-            },
-            () => {
-              alert('Copy fail');
-            }
-          );
-        }
-      },
-      handleShareCart() {
-        const queryString = window.location.search;
-        if (queryString.includes("share_cart:true")) {
-          const items = queryString
-            .substring(1)
-            .split('&')
-            .reduce((listItem, param) => {
-                if (param.startsWith('id:')) {
-                  const [idPart, quantityPart] = param.split(',');
-                  const id = parseInt(idPart.slice(3)); 
-                  const quantity = parseInt(quantityPart.slice(2));
-
-                  listItem.push({ id, quantity });
-                }
-                return listItem;
-            }, []);
-
-          if (items.length > 0) {
-            this.addCartItems(items);
-          }
-        }
-      },
-      addCartItems(items) {
-        const sectionsToRender = this.getSectionsToRender();
-        
-        const sections = sectionsToRender.map((s) => s.id);
-        
-        const formData = {
-          'items': items,
-          'sections': sections
-        }
-        
-        fetch(Shopify.routes.root + "cart/add.js", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify(formData)
-        }).then(response => response.json())
-          .then(response => {
-            sectionsToRender.forEach((section => {
-              const sectionElement = document.querySelector(section.selector);
-              if (sectionElement) {
-                if (response.sections[section.id])
-                  sectionElement.innerHTML = getSectionInnerHTML(response.sections[section.id], section.selector);
-              }
-              Alpine.store('xMiniCart').openCart();
-              Alpine.store('xCartHelper').currentItemCount = parseInt(document.querySelector('#cart-icon-bubble span').innerHTML);
-              document.dispatchEvent(new CustomEvent("eurus:cart:items-changed"));
-            }));
-
-            this.shared = true;
-          })
-          .catch(error => {
-            console.error(error);
-          });
       }
     });
   });
@@ -929,6 +923,8 @@ requestAnimationFrame(() => {
       mobileHeaderLayout: '',
       overlay: false,
       scrollDir: '',
+      isTransparent: false,
+      isMenuOpen: false,
       renderAjax(el, id, element) {
         fetch(
           `${window.location.pathname}?sections=${id}`
@@ -984,7 +980,9 @@ requestAnimationFrame(() => {
       },
       selectItem(el, isSub = false) {
         el.style.setProperty('--header-container-height', document.getElementById("x-header-container").offsetHeight + 'px')
-
+        if(this.isTransparent){
+          el.style.setProperty('--header-container-height', document.getElementById("sticky-header-content").offsetHeight + 'px')
+        }
         if (el.closest(".toggle-menu")) {
           el.style.setProperty('--mega-menu-height', el.offsetTop + el.clientHeight + 'px') 
         }
@@ -1055,6 +1053,7 @@ requestAnimationFrame(() => {
           }
         }
         this.toggleOverlay();
+        this.isMenuOpen = false;
       },
       hideMenuHorizontal(el) {
         if (!el.querySelector(".toggle-menu-sub")) return;
@@ -1087,6 +1086,7 @@ requestAnimationFrame(() => {
         if (el.classList.contains(clickClass)) {
           this.hideMenu();
         } else {
+          this.isMenuOpen = true;
           var dropdown = document.querySelectorAll(`.${clickClass}`);
           for (var i = 0; i < dropdown.length; i++) { 
             dropdown[i].classList.remove(clickClass); 
@@ -1100,6 +1100,7 @@ requestAnimationFrame(() => {
 
       // handle sticky header
       initSticky(el, sectionId, stickyType, transparent) {
+        this.isTransparent = transparent;
         this.sectionId = sectionId;
         this.stickyType = stickyType;
         this.offsetTop = el.offsetTop;
@@ -1277,7 +1278,7 @@ requestAnimationFrame(() => {
         this.reCalculateHeaderHeight();
       },
       reCalculateHeaderHeight() {
-        if (!transparent) {
+        if (!this.isTransparent) {
           document.getElementById("x-header-container").style.height = document.getElementById("sticky-header").offsetHeight + 'px';
         }
       },
@@ -1892,7 +1893,7 @@ requestAnimationFrame(() => {
           }
         }
 
-        if (!window.Eurus.loadedScript.includes('slider')) {
+        if (!window.Eurus.loadedScript.has('slider')) {
           deferScriptLoad('slider', window.Eurus.sliderScript, initSlider, true);
         } else if (window.Splide){
           initSlider();

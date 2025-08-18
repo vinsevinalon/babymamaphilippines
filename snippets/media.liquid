@@ -62,14 +62,16 @@
       index="{{ index | minus: 1 }}" 
       class="{{ media.id }}-{{ section.id }} splide__slide x-splide-slide{% if product.featured_media.id == media.id %} featured-image{% endif %}{% if media_layout == 'thumbnail_slider' %} media-slide{% else %} h-full{% endif %} w-full{% if zoom_effect %} cursor-zoom-in{% else %}{% if stacked %} md:cursor-default{% endif %} cursor-grab{% endif %}">      
       <button
-        {% if zoom_effect == 'enlarge' %}
-          @click.prevent="zoomOpen('{{ media.position }}', false)"
-        {% elsif zoom_effect == 'gallery' %}
-          @click.prevent="zoomOpen('{{ media.position }}', true)"
+        {% if zoom_effect %}
+          {% if zoom_effect == 'enlarge' %}
+            @click.prevent="zoomOpen('{{ media.position }}', false)"
+          {% else %}
+            @click.prevent="zoomOpen('{{ media.position }}', true)"
+          {% endif %}
         {% endif %}
         aria-label="Image zoom"
         class="block w-full relative overflow-hidden{% if section.settings.image_ratio != "natural" %} h-full {{ ratio }}{% endif %}{% if rounded_corner_image %}{% unless mobile_media_full %} rounded-[10px]{% endunless %} md:rounded-[10px]{% endif %} animate-Xpulse skeleton-image">
-        {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+        {% # theme-check-disable ImgLazyLoading %}
         <img
           srcset="{{ media.preview_image | image_url: width: 375 }} 375w,
             {{ media.preview_image | image_url: width: 450 }} 450w,
@@ -82,7 +84,7 @@
           src="{{ media.preview_image | image_url: width: 1780 }}"
           alt="{{ media.preview_image.alt | split: "#" | first | escape }}"
           sizes="{{ sizes }}"
-          {{ loading }}
+          {% if settings.enable_lazy_loading_image %}{{ loading }}{% else %}loading="eager"{% endif %}
           onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
           width="{{ media.preview_image.width }}"
           {% if zoom_effect == 'magnifier' %}
@@ -106,7 +108,7 @@
             src="{{ media.preview_image | image_url: width: 1780 }}"
             alt="{{ media.preview_image.alt | split: "#" | first | escape }}"
             sizes="{{ sizes }}"
-            {{ loading }}
+            {% if settings.enable_lazy_loading_image %}{{ loading }}{% else %}loading="eager"{% endif %}
             @mouseover="
               startZoom($event);
               isHoverImage = true
@@ -121,7 +123,7 @@
             class="w-full z-10 h-full absolute top-0 left-0 {% unless section.settings.image_ratio == "natural" %} object-cover {% endunless %}"
           >
         {% endif %}
-        {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
+        {% # theme-check-enable ImgLazyLoading %}
       </button>
     </div>
   {% when 'external_video', 'video' %}
@@ -144,7 +146,7 @@
           <div {% if video_autoplay %}x-intersect="$store.xVideo.play($el)"{% else %}@click.prevent="$store.xVideo.mp4Thumbnail($el)"{% endif %}>
             {{ media | media_tag: image_size: '1024x', autoplay: video_autoplay, loop: section.settings.enable_video_loop, controls: true, loading: 'lazy', class: 'w-full h-full absolute video top-1/2 -translate-y-1/2' }}
             {%- unless video_autoplay -%}
-              {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+              {% # theme-check-disable ImgLazyLoading %}
               <img
                 srcset="{{ media.preview_image | image_url: width: 375 }} 375w,
                   {{ media.preview_image | image_url: width: 450 }} 450w,
@@ -157,12 +159,12 @@
                 src="{{ media.preview_image | image_url: width: 1780 }}"
                 alt="{{ media.preview_image.alt | split: "#" | first | escape }}"
                 sizes="{{ sizes }}"
-                {{ loading }}
+                {% if settings.enable_lazy_loading_image %}{{ loading }}{% else %}loading="eager"{% endif %}
                 width="{{ media.preview_image.width }}"
                 height="{{ media.preview_image.height }}"
                 class="img-thumbnail duration-300 absolute w-full h-full object-cover"
               >
-              {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
+              {% # theme-check-enable ImgLazyLoading %}
               <button 
                 class="button-play absolute z-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 md:w-24 md:h-24 rounded-full p-5 bg-[rgba(var(--image-treatment-text),0.3)] bg-opacity-30 disabled:cursor-not-allowed"
                 aria-label="image-cover"
@@ -184,13 +186,13 @@
                   x-intersect="$store.xVideo.externalLoad($el, '{{ media.host }}', '{{ media.external_id }}', {{ section.settings.enable_video_loop | default: false }}, 'video-product')"
                 ></div>
               {%- else -%}
-                {% comment %}theme-check-disable RemoteAsset{% endcomment %}
+                {% # theme-check-disable %}
                 <picture class="w-full h-full absolute">
                   <source type="image/webp" srcset="{{ media.external_id | prepend: 'https://i.ytimg.com/vi_webp/' | append: '/sddefault.webp' }}">
                   <source type="image/jpeg" srcset="{{ media.external_id | prepend: 'https://i.ytimg.com/vi/' | append: '/sddefault.jpg' }}">
-                  <img src="{{ media.external_id | prepend: 'https://i.ytimg.com/vi_webp/' | append: '/sddefault.webp' }}" loading="lazy" class="w-full h-full object-cover" alt="{{ media.preview_image | default: product.title | escape }}" width="640" height="480"/>
+                  <img src="{{ media.external_id | prepend: 'https://i.ytimg.com/vi_webp/' | append: '/sddefault.webp' }}" {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %} class="w-full h-full object-cover" alt="{{ media.preview_image | default: product.title | escape }}" width="640" height="480"/>
                 </picture>
-                {% comment %}theme-check-enable RemoteAsset{% endcomment %}
+                {% # theme-check-enable %}
                 <button 
                   class="button-play absolute z-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 md:w-24 md:h-24 rounded-full p-5 bg-[rgba(var(--image-treatment-text),0.3)] bg-opacity-30 disabled:cursor-not-allowed"
                   @click.prevent="$store.xVideo.externalLoad($el, 'youtube', '{{ media.external_id }}', {{ section.settings.enable_video_loop | default: false }}, 'video-product')"
@@ -264,7 +266,7 @@
               </svg>
             </span>
           </div>
-          {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+          {% # theme-check-disable ImgLazyLoading %}
           <img
             srcset="{{ media.preview_image | image_url: width: 375 }} 375w,
               {{ media.preview_image | image_url: width: 450 }} 450w,
@@ -275,7 +277,7 @@
               {{ media.preview_image | image_url: width: 1780 }} 1780w,
               {{ media.preview_image | image_url }} {{ media.preview_image.width }}w"
             src="{{ media | image_url: width: 1080 }}"
-            {{ loading }}
+            {% if settings.enable_lazy_loading_image %}{{ loading }}{% else %}loading="eager"{% endif %}
             width="{{ media.preview_image.width }}"
             sizes="{{ sizes }}"
             height="{{ media.preview_image.width }}"
@@ -283,7 +285,7 @@
             class="animate_transition_slide__image w-full h-full object-cover"
             x-intersect.once="$el.classList.add('active')"
           >
-          {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
+          {% # theme-check-enable ImgLazyLoading %}
         </button>
         <template>
           {{ media | media_tag: image_size: "2048x", toggleable: true }}

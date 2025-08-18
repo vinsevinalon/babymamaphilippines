@@ -37,6 +37,17 @@
       endif
     endfor
   endif
+
+  assign rounded_filter = 'square'
+  if section.settings.filter_edge_style == 'rounded'
+    assign rounded_filter = 'rounded'
+  elsif section.settings.filter_edge_style == 'adapt'
+    if settings.buttons_type == 'mixed' or settings.buttons_type == 'rounded_corners'
+      assign rounded_filter = 'rounded_corners'
+    elsif settings.buttons_type == 'rounded'
+      assign rounded_filter = 'rounded'
+    endif
+  endif
 -%}
 <div class="relative{% if filter_type == 'above' %} md:mb-3{% else %} mb-6 md:mb-7{% endif %}{% if sticky_filter and filter_type == 'aside' %} sticky top-[calc(var(--height-header)+70px)] duration-300{% endif %}">
   <div class="facets">
@@ -68,14 +79,14 @@
           }"
           x-effect="setFilterHeaderHeight()"
         {%- endif -%}
-        :class="isSticky ? 'border-y' : '{% if section.settings.filter_edge_style == "rounded" %}rounded-full border{% else %}border-y{% endif %}'"
+        :class="isSticky ? 'border-y' : '{% if rounded_filter != "square" %}rounded-full border{% else %}border-y{% endif %}'"
       >
         <div class="flex w-full md:w-auto justify-between">
           {% if enable_filtering and results.filters != empty %}
             <div class="{% unless show_filter %}md:hidden{% endunless %}">
               <button 
                 id="btn-filter"
-                class="flex items-center cursor-pointer{% if filter_type != 'drawer' %} md:hidden{% endif %}{% if is_rtl %}{% if section.settings.filter_edge_style == 'rounded' %} mr-7{% else %} mr-2.5{% endif %}{% else %}{% if section.settings.filter_edge_style == 'rounded' %} ml-7{% else %} ml-2.5{% endif %}{% endif %}"
+                class="flex items-center cursor-pointer{% if filter_type != 'drawer' %} md:hidden{% endif %}{% if is_rtl %}{% if rounded_filter != 'square' %} mr-7{% else %} mr-2.5{% endif %}{% else %}{% if rounded_filter != 'square' %} ml-7{% else %} ml-2.5{% endif %}{% endif %}"
                 @click.prevent="show = true; $store.xPopup.open = true">
                 <span class="w-4 h-3 mr-2">
                   {% render 'icon-alls', icon: 'icon-filter' %}
@@ -88,7 +99,7 @@
               {% if filter_type != 'drawer' %}
                 <button 
                   id="btn-filter-aside"
-                  class="items-center cursor-pointer hidden md:flex{% if is_rtl %}{% if section.settings.filter_edge_style == 'rounded' %} mr-7{% else %} mr-2.5{% endif %}{% else %}{% if section.settings.filter_edge_style == 'rounded' %} ml-7{% else %} ml-2.5{% endif %}{% endif %}"
+                  class="items-center cursor-pointer hidden md:flex{% if is_rtl %}{% if rounded_filter != 'square' %} mr-7{% else %} mr-2.5{% endif %}{% else %}{% if rounded_filter != 'square' %} ml-7{% else %} ml-2.5{% endif %}{% endif %}"
                   @click.prevent="showFilterAside = !showFilterAside">
                   <span class="w-4 h-3{% if is_rtl %} ml-2{% else %} mr-2{% endif %}">
                     {% render 'icon-alls', icon: 'icon-filter' %}
@@ -110,7 +121,7 @@
           {% endif %}
         </div>
        
-        <div class="{% if enable_filtering and results.filters != empty %}hidden{% else %}flex{% endif %} md:flex items-center {% if is_rtl %}{% if section.settings.filter_edge_style == 'rounded' %} ml-7{% endif %}{% else %}{% if section.settings.filter_edge_style == 'rounded' %} mr-7{% endif %}{% endif %}">
+        <div class="{% if enable_filtering and results.filters != empty %}hidden{% else %}flex{% endif %} md:flex items-center {% if is_rtl %}{% if rounded_filter != 'square' %} ml-7{% endif %}{% else %}{% if rounded_filter != 'square' %} mr-7{% endif %}{% endif %}">
           <div class="hidden md:flex{% if is_rtl %} ml-3 md:ml-6{% else %} mr-3 md:mr-6{% endif %}">
             <button @click="toggleLayout(true)" :class="!listLayout && 'opacity-50'" class="inline-block w-6 h-12 px-1 py-4 cursor-pointer" aria-label="list layout">{% render 'icon-alls', icon: 'icon-list' %}</button>
             <button @click="toggleLayout(false)" :class="listLayout && 'opacity-50'" class="{% if is_rtl %} ml-1{% else %} mr-1{% endif %} inline-block w-6 px-1 h-12 py-4 cursor-pointer" aria-label="Grid layout">{% render 'icon-alls', icon: 'icon-grid' %}</button>
@@ -150,7 +161,7 @@
               <li>
                 <button 
                   @click.prevent="removeFilter(`{{ value.url_to_remove }}`)" 
-                  class="px-3 py-1.5 cursor-pointer flex items-center bg-[rgba(var(--colors-text),0.05)]{% if section.settings.filter_edge_style == 'rounded' %} rounded-full{% elsif settings.edges_type == 'rounded_corners' %} rounded{% endif %}"
+                  class="px-3 py-1.5 cursor-pointer flex items-center bg-[rgba(var(--colors-text),0.05)]{% if rounded_filter == 'rounded' %} rounded-full{% elsif rounded_filter == 'rounded_corners' %} rounded{% endif %}"
                 >
                   <span class="active-filter-control">
                     {{ value.label | escape }}
@@ -164,7 +175,7 @@
                 <li>
                   <button 
                     @click.prevent="removeFilter(`{{ filter.url_to_remove }}`)"
-                    class="px-3 py-1.5 cursor-pointer flex items-center bg-[rgba(var(--colors-text),0.05)]{% if section.settings.filter_edge_style == 'rounded' %} rounded-full{% elsif settings.edges_type == 'rounded_corners' %} rounded{% endif %}"
+                    class="px-3 py-1.5 cursor-pointer flex items-center bg-[rgba(var(--colors-text),0.05)]{% if rounded_filter == 'rounded' %} rounded-full{% elsif rounded_filter == 'rounded_corners' %} rounded{% endif %}"
                   >
                     <span class="active-filter-control{% if is_rtl %} ltr{% endif %}">
                       {% if filter.min_value.value %}
@@ -219,7 +230,7 @@
                   <li>
                     <button 
                       @click.prevent="removeFilter(`{{ value.url_to_remove }}`)"
-                      class="px-3 py-1.5 cursor-pointer flex items-center bg-[rgba(var(--colors-text),0.05)]{% if section.settings.filter_edge_style == 'rounded' %} rounded-full{% elsif settings.edges_type == 'rounded_corners' %} rounded{% endif %}"
+                      class="px-3 py-1.5 cursor-pointer flex items-center bg-[rgba(var(--colors-text),0.05)]{% if rounded_filter == 'rounded' %} rounded-full{% elsif rounded_filter == 'rounded_corners' %} rounded{% endif %}"
                     >
                       <span class="active-filter-control">
                         {{ value.label | escape }}
@@ -233,7 +244,7 @@
                     <li>
                       <button
                         @click.prevent="removeFilter(`{{ filter.url_to_remove }}`)"
-                        class="px-3 py-1.5 cursor-pointer flex items-center bg-[rgba(var(--colors-text),0.05)]{% if section.settings.filter_edge_style == 'rounded' %} rounded-full{% elsif settings.edges_type == 'rounded_corners' %} rounded{% endif %}"
+                        class="px-3 py-1.5 cursor-pointer flex items-center bg-[rgba(var(--colors-text),0.05)]{% if rounded_filter == 'rounded' %} rounded-full{% elsif rounded_filter == 'rounded_corners' %} rounded{% endif %}"
                       >
                         <span class="active-filter-control{% if is_rtl %} ltr{% endif %}">
                           {% if filter.min_value.value %}

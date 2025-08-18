@@ -26,15 +26,17 @@
   <div class="w-[30%] min-w-[30%]">
     <div class="h-0 w-full relative pb-[100%] overflow-hidden{% if settings.edges_type == 'rounded_corners' %} rounded-xl lg:rounded-[20px]{% endif %}">
       {%- if product.featured_media -%}
+        {% # theme-check-disable ImgLazyLoading %}
         <img 
           class="absolute top-0 left-0 w-full h-full object-cover animate-Xpulse skeleton-image"
           src="{{ product.featured_media | image_url: width: 200 }}"
           width="{{ product.featured_media.width }}"
           height="{{ product.featured_media.height }}"
           alt="{{ product.featured_media.alt | escape }}"
-          loading="lazy"
+          {% if settings.enable_lazy_loading_image %}loading="lazy"{% else %}loading="eager"{% endif %}
           onload="this.closest('.skeleton-image')?.classList.remove('animate-Xpulse', 'skeleton-image');"
         />
+        {% # theme-check-enable ImgLazyLoading %}
       {%- else -%} 
         <div class='bg-[#c9c9c9] flex justify-center absolute top-0 left-0 w-full h-full items-center'>
           {%- render 'icon-placeholder', icon: 'icon-product', class: 'w-full h-full' %}

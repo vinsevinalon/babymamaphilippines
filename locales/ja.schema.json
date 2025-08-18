@@ -1,13 +1,19 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
+  "categories": {
+    "additional_information": "追加情報",
+    "basics": "基礎",
+    "blog_and_page": "ブログとページ",
+    "collections": "コレクション",
+    "brand_trust": "ブランド信頼",
+    "cross_selling": "クロスセル",
+    "forms": "フォーム",
+    "purchase_and_pricing": "購入と価格",
+    "utilities_and_layout": "ユーティリティとレイアウト",
+    "promotions": "プロモーション",
+    "products": "商品",
+    "storytelling": "ストーリーテリング",
+    "trust_and_social_proof": "信頼と社会的証明"
+  },
   "settings_schema": {
     "theme-mode": {
       "name": "テーマモード",
@@ -151,6 +157,15 @@
         "card_button_preorder": "商品カードのボタンラベル",
         "message_preorder": "ショッピングカート内の予約注文メッセージ"
       },
+      "highlighted_features": {
+        "header": "強調表示された機能",
+        "paragraph": "商品の特長をカードでアピールすることで、一目で価値を伝え、より迅速かつ自信を持って購入を決定できるようサポートします。詳しくは [ユーザーガイド] (https:\/\/support.omnithemes.com\/blogs\/theme-settings\/custom-text-on-product-cards) をご覧ください。",
+        "highlighted_features_position": {
+          "option__1": "カードの上部",
+          "option__2": "製品タイトルの下",
+          "option__3": "商品価格の下"
+        }
+      },
       "card_product_background_color_light": "背景色 (明るい)",
       "card_product_background_color_dark": "背景色 (暗い)",
       "product_image_ratio": {
@@ -224,7 +239,7 @@
       "engraving_label": "デフォルトの彫刻ラベル",
       "default_engraving_label": "この商品に彫刻する",
       "highlight_icon": {
-        "name": "ハイライトされたアイコン",
+        "name": "強調された属性",
         "info": "顧客が商品の注目特性（原材料、アレルゲンなど）をすぐに理解できるよう、商品カードにアイコンを表示します。詳細については、[ユーザー ガイド]（https:\/\/support.omnithemes.com\/blogs\/theme-settings\/highlighted-icons-on-product-cards）をご覧ください。",
         "icon_1": "アイコン 1",
         "icon_2": "アイコン 2",
@@ -254,7 +269,8 @@
       }
     },
     "buttons": {
-      "adapt_edge_setting": "エッジ設定に適応します",
+      "adapt_edge_setting": "ボタン設定に適応します",
+      "adapt_to_edge": "エッジ設定に適応します",
       "rounded": "丸み",
       "rounded_corners": "丸い角",
       "mixed": "混合",
@@ -486,7 +502,8 @@
             "label": "ポップアップ"
           }
         },
-        "show_minicart": "カートに追加した後ミニカートを表示します",
+        "show_minicart": "商品をカートに追加した後、カートドロワー又はポップアップを表示します",
+        "show_minicart_info": "無効にした場合、商品がカートに正常に追加されたことを知らせる通知が表示されます。",
         "cart_drawer_size_mobile": {
           "label": "モバイルのカートロワーのサイズ",
           "fullscreen": {
@@ -539,7 +556,8 @@
             "hide": "メッセージを非表示にします",
             "clear": "カートをクリアします"
           }
-        }
+        },
+        "empty_cart_recommendation": "空のカートの推奨商品"
       }
     },
     "shipping_delivery": {
@@ -556,10 +574,16 @@
         },
         "order_amount_freeshipping": {
           "label": "送料無料となる注文金額",
-          "note": "送料無料の対象となる注文金額のルールを入ります (1 行につき 1 つのルール)。指示と例のフォーマットは次のとおりです。",
+          "note": "送料無料やその他のオファーの対象となる注文金額のルールを入力してください（1行につき1つのルール）。入力方法と例は以下の通りです。",
           "example_1": "個別に金額が定義せずにあらゆる国および通貨からの注文の金額 (100)。",
           "example_2": "個別に金額を定義せずに USD を使用するすべての国からの注文の通貨コード：金額 (USD:100)",
           "example_3": "通貨が USD である米国からの注文の国コード：通貨コード：金額 (US:USD:100)"
+        }
+      },
+      "other_offer": {
+        "label": "他のオファー",
+        "order_amount_other_offer": {
+          "label": "他のオファーの注文金額"
         }
       },
       "shipping_discounts": {
@@ -722,6 +746,10 @@
         "label": "選択中プリセット",
         "info": "これにより、テーマスタイルが自動的に検出され、プリセットを切り替えるときに必要なデータが保持されます。編集しないでください。編集すると、テーマの設定とメディアが失われる可能性があります。"
       },
+      "enable_lazy_loading_for_images": {
+        "label": "イメージの遅延読み込みを有効にします",
+        "info": "この設定を変更すると、ウェブサイトの速度に影響する可能性があります"
+      },
       "tab_attention": {
         "label": "タブの注意",
         "enable_tab_attention": {
@@ -773,6 +801,7 @@
         "label": "商品カードイメージの表示効果",
         "info": "ナビゲーション矢印なしでカルーセルホバー効果を使用すると、商品カードイメージの表示効果は自動的にフェードアウトします。"
       },
+      "disable_heading_animation": "ヘディングのアニメーションを無効にします",
       "disable_parallax_effect": "パララックス効果を無効にする",
       "disable_parallax_effect_info": "パララックス効果は、スライドショー、プロモーションバナー、テキスト付きメディア、コレクションバナー、マップ、年齢確認ポップアップで使用されます。",
       "disable_zoom": "イメージのズームインアニメーションを無効にする",
@@ -833,6 +862,130 @@
     "group": {
       "aside": {
         "name": "オーバーレイ"
+      }
+    },
+    "user_guide_link": {
+      "header": {
+        "header_general": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/user-guide-header-section-header-block) を学習します。",
+        "mega_menu": {
+          "simple_menu": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-simple-menu-style) を学習します。",
+          "tree_menu": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-tree-menu-style) を学習します。",
+          "banner_menu": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-banner-menu-style) を学習します。",
+          "product_menu": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-product-menu-style) を学習します。",
+          "blog_menu": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-blog-menu-style) を学習します。",
+          "tabbed_menu": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-tabbed-menu-style) を学習します。",
+          "contact_menu": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-set-up-the-contact-menu-style) を学習します。",
+          "cta_button": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-add-a-cta-button-on-the-menu) を学習します。"
+        },
+        "announcement_bar": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/user-guide-group-section-header-section-announcement-bar) を学習します。",
+        "mobile_navigation": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/mobile-navigation) を学習します。"
+      },
+      "footer": {
+        "footer": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/footer\/footer) を学習します。",
+        "quicklinks": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/footer\/quicklinks) を学習します。"
+      },
+      "section_and_blocks": {
+        "blog_post": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/blog-post) を学習します。",
+        "collection_list": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/collection-list) を学習します。",
+        "collage": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/collage) を学習します。",
+        "collection_list_banner": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/collection-list-banner) を学習します。",
+        "collection_list_carousel": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/collection-list-carousel) を学習します。",
+        "comparison_table": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/comparison-table) を学習します。",
+        "contact_form": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/contact-form) を学習します。",
+        "custom_liquid": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/custom-liquid) を学習します。",
+        "email_signup": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/email-signup-newsletter) を学習します。",
+        "event_calendar": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/user-guide-event-calendar) を学習します。",
+        "faq": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/faqs) を学習します。",
+        "featured_category": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/featured-categories) を学習します。",
+        "featured_collection": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/featured-collections) を学習します。",
+        "featured_product": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/featured-product) を学習します。",
+        "flash_sale": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/flash-sale) を学習します。",
+        "flow": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/flow) を学習します。",
+        "highlight_text_with_image": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/highlight-text-with-image) を学習します。",
+        "image_comparison": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/image-comparison) を学習します。",
+        "logo_list": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/logo-list) を学習します。",
+        "map": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/map-1) を学習します。",
+        "media_gallery": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/media-gallery) を学習します。",
+        "media_with_text": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/media-with-text) を学習します。",
+        "multiple_store": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/multiple-stores) を学習します。",
+        "page": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/page) を学習します。",
+        "product_attribute_table": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/product-attribute-table) を学習します。",
+        "product_bundle": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/product-bundle) を学習します。",
+        "product_comparison_table": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/product-comparison-table) を学習します。",
+        "product_highlight": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/product-highlight) を学習します。",
+        "product_grid": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/product-grid) を学習します。",
+        "promo_code_list": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/promo-code-list) を学習します。",
+        "promotion_banner": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/promotion-banner) を学習します。",
+        "promotion_grid": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/promotion-grid) を学習します。",
+        "recently_viewed_products": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/recently-viewed-products) を学習します。",
+        "related_blog_posts": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/related-blog-posts) を学習します。",
+        "related_collections": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/related-collections) を学習します。",
+        "rich_text": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/rich-text) を学習します。",
+        "scrolling_promotion": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/scrolling-promotion) を学習します。",
+        "shop_the_look": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/shop-the-look) を学習します。",
+        "slideshow": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/slideshow) を学習します。",
+        "social_feeds": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/social-feeds) を学習します。",
+        "tabs": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/tabs) を学習します。",
+        "testimonial": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/testimonial) を学習します。",
+        "testimonial_with_cards": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/testimonial-with-cards) を学習します。",
+        "text_columns_with_icons": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/text-columns-with-icons) を学習します。",
+        "text_columns_with_images": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/text-columns-with-images) を学習します。",
+        "timeline": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/timeline) を学習します。",
+        "vertical_slideshow": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/vertical-slideshow) を学習します。",
+        "video": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/video) を学習します。",
+        "video_hero": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/video-hero) を学習します。",
+        "video_looping": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/video-looping) を学習します。",
+        "video_shopping": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/sections-blocks\/video-shopping) を学習します。"
+      },
+      "product_page": {
+        "product_description": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/product-description) を学習します。",
+        "product_information": {
+          "product_information_general": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/product-information) を学習します。",
+          "buy_buttons": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-set-up-add-to-cart-and-buy-buttons) を学習します。",
+          "back_in_stock_alert": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-a-back-in-stock-alert) を学習します。",
+          "basic_info": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-product-basic-information-title-price-description-etc) を学習します。",
+          "collapsible_tab": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-create-collapsible-tabs) を学習します。",
+          "collection_link": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-add-a-collection-link) を学習します。",
+          "complementary_product": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-complementary-products) を学習します。",
+          "customizable_options": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/user-guide\/customizable-options) を学習します。",
+          "estimate_delivery": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-estimated-shipping-date-of-the-product) を学習します。",
+          "engraving": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/engraving) を学習します。",
+          "featured_icon": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-highlighted-information-optional-icons) を学習します。",
+          "frequently_bought_together": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-frequently-bought-together-products) を学習します。",
+          "gift_wrapping": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-the-gift-wrapping-option) を学習します。",
+          "horizontal_tab": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-add-the-horizontal-tabs) を学習します。",
+          "inventory_status": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-product-inventory-status) を学習します。",
+          "nutrition_fact_bar": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-add-a-nutrition-fact-bar) を学習します。",
+          "payment_method": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-the-payment-method-for-each-product) を学習します。",
+          "product_sibling": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/user-guide\/product-siblings) を学習します。",
+          "rating": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-ratings) を学習します。",
+          "size_chart": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-add-size-chart) を学習します。",
+          "social_sharing": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-social-sharing-icons) を学習します。",
+          "sticky_add_to_cart": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-a-sticky-add-to-cart-bar) を学習します。",
+          "table_of_information": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-add-a-table-of-information) を学習します。",
+          "trust_badge": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-trust-badges) を学習します。",
+          "volume_pricing": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/volume-pricing-table) を学習します。",
+          "other_blocks": "このブロックの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/how-to-show-other-blocks) を学習します。"
+        },
+        "product_specification": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/product-specifications) を学習します。",
+        "product_recommendation": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/product-recommendations) を学習します。",
+        "quick_order_list": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/product-page\/quick-order-list) を学習します。"
+      },
+      "collection_page": {
+        "collection_banner": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/collection-page\/collection-banner) を学習します。"
+      },
+      "pages_and_templates": {
+        "blog_post_page": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/page-templates\/blog-blog-detail-pages) を学習します。",
+        "blog_page": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/page-templates\/blog-page) を学習します。",
+        "cart_page": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/page-templates\/cart-page) を学習します。",
+        "collection_list_page": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/page-templates\/collection-list-page) を学習します。",
+        "search_page": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/page-templates\/search-page) を学習します。"
+      },
+      "overlay_group": {
+        "cookie_banner": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/overlay-group-1\/cookie-banner) を学習します。",
+        "popup": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/overlay-group-1\/popup) を学習します。",
+        "store_selector": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/overlay-group-1\/store-selector) を学習します。",
+        "quick_view": "このセクションの[使用方法](https:\/\/support.omnithemes.com\/blogs\/overlay-group-1\/quick-view) を学習します。"
       }
     },
     "all": {
@@ -1168,7 +1321,8 @@
       "number_of_lines_shown": {
         "default": "全コンテンツを表示する",
         "label": "デフォルトコンテンツの高さ",
-        "info": "「もっと読む」をクリックする前に、表示されるコンテンツブロックの高さを決定します。"
+        "info": "「もっと読む」をクリックする前に、表示されるコンテンツブロックの高さを決定します。",
+        "mobile_info": "Decide the height of the content block shown before the \"Read more\" action appears. This setting applies to mobile only."
       },
       "read_more_label": {
         "label": "「もっと読む」ラベル"
@@ -1205,11 +1359,23 @@
             },
             "menu": {
               "info": "このメニュー項目に適用するメニューを選択します。4 レベルのメニューを作成する方法については、[こちら](https:\/\/support.omnithemes.com\/blogs\/user-guide-header-1\/how-to-create-mega-menus) をご覧ください。"
+            },
+            "image_style": {
+              "info": "タブとサブメニュー項目に適用されます。イメージのサイズが大きい場合、丸めオプションは使用できません。"
             }
           },
           "submenu_layout": {
             "label": "サブメニューレイアウト"
           }
+        },
+        "accordion_menu": {
+          "name": "アコーディオンメニュー",
+          "image_style": {
+            "info": "タブとサブメニュー項目に適用されます"
+          }
+        },
+        "carousel_menu": {
+          "name": "カルーセルメニュー"
         },
         "account": {
           "name": "アカウントとログイン"
@@ -1887,6 +2053,17 @@
         }
       }
     },
+    "featured-category":{
+      "name": "注目のカテゴリー",
+      "category_card": {
+        "name": "カテゴリーカード",
+        "show_line_border": "ラインとボーダーを表示します"
+      },
+      "category_block": {
+        "name": "カテゴリー",
+        "category_title": "カテゴリーのタイトル"
+      }
+    },
     "quick_view": {
       "name": "クイックビュー",
       "show_quickview_button": "クイックビューボタンを表示する",
@@ -1959,6 +2136,12 @@
             "show_add_to_cart": {
               "label": "カートに追加を表示します"
             },
+            "show_price": {
+              "label": "「カートに追加」ボタンに価格を表示します"
+            },
+            "hide_sale_price": {
+              "label": "販売価格を非表示にする"
+            },
             "pickup_availability": {
               "content": "ピックアップ可能性",
               "label": "ピックアップ可能性の機能を有効にする",
@@ -2027,7 +2210,13 @@
           }
         },
         "badges": {
-          "name": "ラベルとバッジ"
+          "name": "ラベルとバッジ",
+          "settings": {
+            "position_adapt": {
+              "label": "商品ラベルとバッジの設定に適応します",
+              "info": "サムネイルスライダーとスタックレイアウトでのみ使用できます"
+            }
+          }
         },
         "estimate_delivery": {
           "name": "推定配達時間",
@@ -2199,6 +2388,12 @@
                 "label": "時刻"
               }
             },
+            "option_style": {
+              "label": "オプションスタイル",
+              "options": {
+                "option__2": "太字"
+              }
+            },
             "option_name": {
               "label": "オプション名",
               "info": "商品をカートに追加するときにエラーが発生しないように、オプション名は一意であり、空白にすることはできません。"
@@ -2294,8 +2489,8 @@
           "right_column_label": "右列ラベル",
           "details": {
             "label": "詳細",
-            "info": "Use a colon to separate two columns in a table. Use a hyphen to indent rows. Add a new row with line breaks (using SHIFT + ENTER). [Learn more](https://support.omnithemes.com/blogs/product-page/how-to-add-a-table-of-information)",
-            "info_horizontal": "Use a colon to separate two columns in a table. Use a hyphen to indent rows. Add a new row with line breaks (using SHIFT + ENTER). [Learn more](https://support.omnithemes.com/blogs/product-page/how-to-add-the-horizontal-tabs)"
+            "info": "表内の 2 つの列を区切るにはコロンを使用します。行をインデントするにはハイフンを使用します。改行して新しい行を追加します (SHIFT + ENTER を使用)。詳細 [了解更多](https://support.omnithemes.com/blogs/product-page/how-to-add-a-table-of-information)",
+            "info_horizontal": "表内の 2 つの列を区切るにはコロンを使用します。行をインデントするにはハイフンを使用します。改行して新しい行を追加します (SHIFT + ENTER を使用)。詳細 [了解更多](https://support.omnithemes.com/blogs/product-page/how-to-add-the-horizontal-tabs)"
           },
           "extra_details": "追加の詳細",
           "use_secondary_background": "二次背景を使用する"
@@ -2331,7 +2526,7 @@
         },
         "option_to_classify_variant_media": {
           "label": "バリアントメディアを分類するオプション",
-          "info": "各バリアントのメディアを分類するために使用するオプション名を入力してください。1行に1つのオプション名を追加してください。異なる言語のオプションラベルはセミコロンで区切ってください（例：Color;Colour;Couleur）。[商品の設定](https://support.omnithemes.com/blogs/product-page/product-information#index=8)について詳しくはこちらをご覧ください。"
+          "info": "各バリアントのメディアを分類するために使用するオプション名を入力してください。1行に1つのオプション名を追加してください。異なる言語のオプションラベルはセミコロンで区切ってください（例：Color;Colour;Couleur）。[商品の設定](https://support.omnithemes.com/blogs/product-page/how-to-show-multiple-images-for-each-product-variant)について詳しくはこちらをご覧ください。"
         },
         "show_product_name": {
           "label": "商品のタイトルを表示する"
@@ -2430,7 +2625,7 @@
           "label": "支払いアイコンを表示する"
         },
         "custom_payment": {
-          "info": "支払いアイコンをカスタマイズします。たとえば、このフィールドに以下の選択された支払い方法を入力します：apple_pay、google_pay、tabby、tamara。[詳細] (https:\/\/help.shopify.com\/en/manual\/online-store\/themes\/themes-by-shopify\/vintage-themes\/customizing-vintage-themes\/add-credit-card-icons#edit-the-code-for-your-payment-icons)",
+          "info": "支払いアイコンをカスタマイズします。たとえば、このフィールドに以下の選択された支払い方法を入力します：apple_pay、google_pay、tabby、tamara。[詳細] (https:\/\/shopify.dev\/docs\/api\/checkout-ui-extensions\/2024-10\/components\/media\/paymenticon#paymentmethod)",
           "label": "カスタム支払いアイコン SVG"
         },
         "header_add_info": {
@@ -2863,6 +3058,22 @@
         "countdown": {
           "content": "カウントダウン タイマーを追加して、顧客に緊急感を与え、商品の購入を促します。",
           "settings": {
+            "countdown_type": {
+              "label": "カウントダウン型",
+              "standard": "標準タイマー",
+              "evergreen": "エバーグリーンタイマー",
+              "info": "標準タイマーは設定された終了時間までカウントダウンしますが、エバーグリーンタイマーはゼロに達すると自動的に最初から再開し、連続ループを形成します。"
+            },
+            "countdown_interval": {
+              "label": "期間（ループあたり）"
+            },
+            "interval_unit": {
+              "label": "ユニット",
+              "options": {
+                "days": "日",
+                "hours": "時"
+              }
+            },
             "year": {
               "label": "年"
             },
@@ -2880,6 +3091,12 @@
             },
             "border": {
               "label": "ボーダー"
+            },
+            "start_date_group": {
+              "info": "ループを開始する時刻を設定します。開始日が現在の時刻より後の場合、タイマーはカウントされません。"
+            },
+            "timer_style_group": {
+              "content": "タイマースタイル"
             }
           }
         },
@@ -3458,6 +3675,31 @@
               "default": "取引は高度なセキュリティ対策で保護されており、情報は機密に保たれます"
             }
           }
+        },
+        "coupon_code": {
+          "settings": {
+            "block_edges": {
+              "label": "ブロックのエッジスタイル"
+            },
+            "coupon_box_edges": {
+              "label": "クーポンコードのエッジスタイル"
+            },
+            "code_position": {
+              "label": "クーポンコードの位置"
+            },
+            "header_1": {
+              "content": "クーポンコード1"
+            },
+            "header_2": {
+              "content": "クーポンコード2"
+            },
+            "coupon_box_color_light": {
+              "label": "クーポンボックスの背景色（明るい）"
+            },
+            "coupon_box_color_dark": {
+              "label": "クーポンボックスの背景色（暗い）"
+            }
+          }
         }
       },
       "settings": {
@@ -3468,7 +3710,8 @@
           "label": "デスクトップで固定コンテンツを有効にする"
         },
         "show_thumnail_mobile": {
-          "label": "モバイルでサムネイルを表示する"
+          "label": "モバイルでサムネイルを表示する",
+          "info": "商品にイメージが 1 つしかない場合は非表示になります。"
         },
         "desktop_media_layout": {
           "label": "デスクトップメディアレイアウト",
@@ -3664,10 +3907,13 @@
       "name": "商品の推奨事項",
       "settings": {
         "paragraph__1": {
-          "content": "動的な推奨事項は、注文と商品の情報を使用して、時間の経過とともに変更および改善されます。[詳細] (https:\/\/help.shopify.com\/themes\/development\/recommended-products)"
+          "content": "動的な推奨事項は、注文と商品の情報を使用して、時間の経過とともに変更および改善されます。[詳細] (https://support.omnithemes.com/blogs/product-page/product-recommendations)"
         },
         "show_highlighted_attributes": {
           "label": "ハイライトされた属性を表示"
+        },
+        "show_highlighted_features": {
+          "label": "強調表示された機能を表示します"
         }
       }
     },
@@ -3834,6 +4080,7 @@
     "slideshow": {
       "name": "スライドショー",
       "settings": {
+        "enable_adapt": "テーマ設定でエッジスタイルに適応します",
         "layout": {
           "layout_desktop": {
             "label": "イメージデスクトップの位置"
@@ -3881,7 +4128,7 @@
           "label": "イメージページネーションの背景"
         },
         "image_pagination_text": {
-          "label": "イメージページネーションのテキスト"
+          "label": "イメージのページネーション矢印"
         },
         "transition_style": {
           "label": "トランジションスタイル",
@@ -4275,10 +4522,10 @@
         "countdown_timer": {
           "settings": {
             "schedule_start_time": {
-              "content": "カウントダウン タイマーを開始する正確な時間を設定し、ストアフロントにポップアップを表示します。"
+              "info": "カウントダウン タイマーを開始する正確な時間を設定し、ストアフロントにポップアップを表示します。"
             },
             "schedule_end_time": {
-              "content": "カウントダウン タイマーを終了する正確な時間を設定し、ストアフロントのポップアップを非表示にします。"
+              "info": "カウントダウン タイマーを終了する正確な時間を設定し、ストアフロントのポップアップを非表示にします。"
             },
             "time_color": {
               "label": "時間の色 (暗い)"
@@ -5077,14 +5324,15 @@
         },
         "anim_speed": {
           "label": "アニメーションの速度",
-          "info": "フルスクリーンの高さにのみ適用されます。コンテンツの高さに適合する場合、アニメーションの速度はコンテンツの高さに依存します。",
+          "info": "全画面表示の高さにのみ適用されます。コンテンツの高さに合わせる場合、アニメーションの速度はコンテンツの高さに依存します。",
           "options": {
             "option__1": "遅い",
             "option__3": "速い"
           }
         },
         "equal_lines": {
-          "label": "均等なラインの高さを有効にします"
+          "label": "均等なラインの高さを有効にします",
+          "info": "イメージの高さが異なっても、一貫した行間隔を確保します。"
         },
         "section_text": {
           "info": "イメージの位置を指定するには、プレースホルダー [img1]、[img2] などを挿入します。番号は、セクション内のイメージの順序に対応します。",
@@ -5114,7 +5362,7 @@
     "store-selector": {
       "name": "ストアのセレクター",
       "settings": {
-        "paragraph": "Add store blocks and match the store information to your location settings to showcase the pickup availability of your products. [Learn more in our guide.](https://support.omnithemes.com/blogs/user-guide/store-selector)",
+        "paragraph": "ストアブロックを追加し、ストア情報をロケーション設定に一致させて、商品の受け取り可能状況を表示しましょう。[ガイドで詳しくはこちらをご覧ください。](https://support.omnithemes.com/blogs/overlay-group-1/store-selector)",
         "store_selector_header_label": {
           "label": "デフォルトラベル"
         }
@@ -5123,7 +5371,7 @@
         "name": "ストア",
         "settings": {
           "store_name": {
-            "info": "The store name must match the name of your store defined in your [location settings.](\/admin\/settings\/locations)",
+            "info": "ストア名は、[ロケーション設定](\/admin\/settings\/locations) で定義されたストア名と一致する必要があります。",
             "default": "マイストア"
           },
           "pickup_price": {
@@ -5188,15 +5436,82 @@
       "name": "商品のハイライト",
       "settings": {
         "block_layout": {
-          "label": "メディアの比率"
+          "label": "メディアの比率",
+          "info": "メディア比率とデスクトップの高さの両方が設定されている場合は、高さが優先されます。"
+        },
+        "desktop_height": {
+          "option__6": "メディア比率に適応します"
         }
       }
     },
-    "text-with-image-scrolling": {
-      "name": "イメージ付きテキストのスクロール",
+    "social-feeds": {
+      "name": "ソーシャルフィード",
       "settings": {
-        "rotation": {
-          "label": "イメージの回転"
+        "integrated_social_media": "統合されたソーシャルメディア",
+        "carousel": {
+          "change_slides_every": {
+            "note": "自動切り替えを無効にするには0を選択してください"
+          }
+        },
+        "show_border": {
+          "note": "商品カード間のボーダーを表示します"
+        },
+        "media_ratio": {
+          "original": "元の投稿の比率"
+        }
+      },
+      "blocks":{
+        "social_post": {
+          "social_post_image": {
+            "name": "ソーシャル投稿のイメージ"
+          },
+          "social_post_video": {
+            "name": "ソーシャル投稿のビデオ",
+            "auto_play_note": "セクションにスクロールするときにビデオを自動再生します"
+          },
+          "social_post_content": {
+            "name": "ソーシャル投稿のコンテンツ"
+          },
+          "social_post_link": {
+            "name": "ソーシャル投稿のリンク"
+          },
+          "social_account": {
+            "account_avatar": {
+              "name": "アカウントアバター"
+            }
+          }
+        },
+        "social_account": {
+          "name": "ソーシャルアカウント"
+        },
+        "products": {
+          "show_products": {
+            "name": "イメージに商品を表示します"
+          },
+          "select_products": {
+            "note": "最大4つの製品を選択できます"
+          }
+        }
+      }
+    },
+    "timeline": {
+      "name": "タイムライン",
+      "settings": {
+        "change_milestone_every": {
+          "label": "~ごとにマイルストーンを変更する",
+          "info": "自動切り替えを無効にするには0を選択してください"
+        },
+        "media_width_desktop": {
+          "label": "デスクトップメディアの幅",
+          "info": "イメージの比率が 1:1 またはメディアに適応に設定されている場合、デフォルトでミディアムになります。"
+        }
+      },
+      "blocks": {
+        "milestone": {
+          "name": "マイルストーン"
+        },
+        "navigation_label": {
+          "label": "ナビゲーションラベル"
         }
       }
     }

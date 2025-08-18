@@ -21,6 +21,11 @@
     assign class_rtl = "margin-right"
   endif 
   assign my_float = section.settings.number_of_columns_on_desktop | times: 1.0
+  if settings.enable_lazy_loading_image
+    assign loading = 'lazy'
+  else
+    assign loading = 'eager'
+  endif
 -%}
 {%- style -%}
   .enable-carousel {
@@ -62,7 +67,9 @@
 >
   {%- if settings.cart_upsell_section_label != blank -%}
     <div class="mb-7 lg:mb-14 x-pgw page-width mx-auto">
-      <{{ section.settings.heading_tag }} class="text-center h2 heading--{{ section.id }}">{{ settings.cart_upsell_section_label }}</{{ section.settings.heading_tag }}>
+      {% unless settings.disable_heading_animation %}<div class="overflow-hidden" x-intersect.once="$el.querySelector('.anm-move-up')?.classList.add('active-anm-heading')">{% endunless %}
+        <{{ section.settings.heading_tag }} class="text-center h2 heading--{{ section.id }}{% unless settings.disable_heading_animation %} anm-move-up{% endunless %}">{{ settings.cart_upsell_section_label }}</{{ section.settings.heading_tag }}>
+      {% unless settings.disable_heading_animation %}</div>{% endunless %}
     </div>
   {%- endif -%}
   <div class="x-pgw page-width" :class="enable_carousel && 'carousel-mobile full-width-mobile carousel-tablet'">
@@ -142,7 +149,7 @@
                       assign index_param = section.index | append: forloop.index | plus: 0 
                       assign product_ids = product_ids | append: product_id
                       assign product_count = product_count | plus: 1
-                      render 'card-product', card_product: prod, extend_height: true, class_slide: class_slide, index: forloop.index, columns_desktop: section.settings.number_of_columns_on_desktop, block_id: forloop.index, disable_quickview: disable_quickview, section_id: section.id, product_card_id: forloop.index, index_param: index_param, animation_loading: true, show_price_range: true, show_highlighted_attributes: section.settings.show_highlighted_attributes
+                      render 'card-product', card_product: prod, extend_height: true, class_slide: class_slide, index: forloop.index, columns_desktop: section.settings.number_of_columns_on_desktop, block_id: forloop.index, disable_quickview: disable_quickview, section_id: section.id, product_card_id: forloop.index, index_param: index_param, animation_loading: true, loading: loading, show_price_range: true, show_highlighted_features: section.settings.show_highlighted_features, show_highlighted_attributes: section.settings.show_highlighted_attributes
                     endunless
                   endif
                   if product_count >= max_items
@@ -159,7 +166,7 @@
                     assign index_param = section.index | append: forloop.index | plus: 0 
                     assign product_ids = product_ids | append : product_id
                     assign product_count = product_count | plus : 1
-                    render 'card-product', card_product: prod, extend_height: true, class_slide: class_slide, index: forloop.index, columns_desktop: section.settings.number_of_columns_on_desktop, block_id: forloop.index, disable_quickview: disable_quickview, section_id: section.id, product_card_id: forloop.index, index_param : index_param, animation_loading: true, show_price_range: true, show_highlighted_attributes: section.settings.show_highlighted_attributes
+                    render 'card-product', card_product: prod, extend_height: true, class_slide: class_slide, index: forloop.index, columns_desktop: section.settings.number_of_columns_on_desktop, block_id: forloop.index, disable_quickview: disable_quickview, section_id: section.id, product_card_id: forloop.index, index_param : index_param, animation_loading: true, loading: loading, show_price_range: true, show_highlighted_features: section.settings.show_highlighted_features, show_highlighted_attributes: section.settings.show_highlighted_attributes
                   endunless
                 endif
                 if product_count >= max_items
@@ -179,6 +186,8 @@
               {% for recommendation in recommendations.products %}
                   <template x-teleport="#cart-upsell">
                   {% render 'card-product', 
+                    section_id: section.id
+                    product_card_id: recommendation.id,
                     card_product: recommendation, 
                     extend_height: true, 
                     class_slide: class_slide,
@@ -186,13 +195,15 @@
                     columns_desktop: section.settings.number_of_columns_on_desktop, block_id: forloop.index, disable_quickview: disable_quickview,
                     index_param: index_param,
                     animation_loading: true,
+                    loading: loading,
                     show_price_range: true,
+                    show_highlighted_features: section.settings.show_highlighted_features,
                     show_highlighted_attributes: section.settings.show_highlighted_attributes
                   %}
                   </template>
               {% endfor %}
               <div x-init="() => { 
-                productCount = $store.xProductRecommendations.listOfUpsellProducts.length + {{productCount}}; 
+                productCount = $store.xProductRecommendations.productCount + {{productCount}}; 
                 recommendation = true;
                 if (productCount > 0) show = true;  
                 if (productCount <= {{ section.settings.number_of_columns_on_desktop }}) { 
@@ -204,7 +215,7 @@
                     $dispatch('run-slide-recommendations');
                   }, 200);
                   progressBarWidth = ({{ my_float }} / productCount) * 100 
-                  document.querySelector('.upsell-progress-bar').style.width = 'progressBarWidth%';
+                  document.querySelector('.upsell-progress-bar').style.width = `${progressBarWidth}%`;
                 }
               }"></div>
             {% endif %}
@@ -225,7 +236,7 @@
   {% if product_count %}
     <div class="cart-upsell-carousel">
       <div x-init="() => { 
-        productCount = $store.xProductRecommendations.listOfUpsellProducts.length + {{ product_count }}; 
+        productCount = $store.xProductRecommendations.productCount + {{ product_count }}; 
         recommendation = false;
         if (productCount > 0){
           show = true;
@@ -239,7 +250,7 @@
             $dispatch('run-slide-recommendations');
           }, 200);
           progressBarWidth = ({{ my_float }} / productCount) * 100 
-          document.querySelector('.upsell-progress-bar').style.width = 'progressBarWidth%';
+          document.querySelector('.upsell-progress-bar').style.width = `${progressBarWidth}%`;
         }
       }"></div>
     </div>

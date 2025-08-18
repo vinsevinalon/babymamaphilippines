@@ -1,5 +1,5 @@
-if (!window.Eurus.loadedScript.includes('coupon-code.js')) {
-  window.Eurus.loadedScript.push('coupon-code.js');
+if (!window.Eurus.loadedScript.has('coupon-code.js')) {
+  window.Eurus.loadedScript.add('coupon-code.js');
   
   requestAnimationFrame(() => {
     document.addEventListener("alpine:init", () => {
@@ -70,12 +70,14 @@ if (!window.Eurus.loadedScript.includes('coupon-code.js')) {
               if (discount.innerText.toLowerCase() == discountCode.toLowerCase()) checkedDiscount = true;
             });
           }
-          if (freeShippingCodes.includes(this.discountCode)) {
-            Alpine.store('xCouponCodeDetail').freeShippingApplied = true;
-            setTimeout(() => {
-              Alpine.store('xCouponCodeDetail').freeShippingApplied = false;
-            }, 5000);
-            return;
+          if (freeShippingCodes) {
+            if (freeShippingCodes.includes(this.discountCode)) {
+              Alpine.store('xCouponCodeDetail').freeShippingApplied = true;
+              setTimeout(() => {
+                Alpine.store('xCouponCodeDetail').freeShippingApplied = false;
+              }, 5000);
+              return;
+            }
           }
 
           if (checkedDiscount) {
